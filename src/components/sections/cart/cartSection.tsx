@@ -99,7 +99,7 @@ const CartSection: React.FC = () => {
   };
 
   return (
-    <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
+    <div className=' mx-auto px-4 sm:px-6 lg:px-12 xl:px-24 2xl:px-32 py-12'>
       <div className='flex flex-col lg:flex-row gap-8'>
         {/* Cart Items Section */}
         <div className='lg:w-2/3'>

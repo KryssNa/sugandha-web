@@ -1,6 +1,6 @@
 "use client";
 import { CartIcon, CloseIcon, SearchIcon } from "@/utils/helpers/svgicon";
-import { MenuIcon } from "lucide-react";
+import { MenuIcon, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -266,27 +266,28 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
           <nav className='flex items-center justify-between py-4'>
             {/* Logo */}
             <Link href='/' className='flex-shrink-0'>
-              <img src='/assets/logo/logo.png' alt='Logo' className='h-12' />
+              <img src='/assets/logo/logo.png' alt='Logo' className='h-16' />
             </Link>
 
             {/* Main Navigation */}
-            <ul className='hidden lg:flex items-center space-x-8'>
+            <ul className='hidden lg:flex items-center space-x-8 font-normal text-[17px]'>
               <li>
                 <Link
                   href='/'
-                  className='text-gray-700 hover:text-primary transition-colors'
+                  className={`text-gray-700 hover:text-primary transition-colors
+                    ${pathname === "/" ? "text-primary" : ""}`}
                 >
                   Home
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   href='/collections'
                   className='text-gray-700 hover:text-primary transition-colors'
                 >
                   Collections
                 </Link>
-              </li>
+              </li> */}
               <li className='relative'>
                 <span className='absolute -top-5 -right-2 bg-primaryLight text-white text-xs px-2 py-1 rounded'>
                   New
@@ -294,7 +295,8 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
                 </span>
                 <Link
                   href='/products'
-                  className='text-gray-700 hover:text-primary transition-colors'
+                  className={`text-gray-700 hover:text-primary transition-colors
+                    ${pathname === "/products" ? "text-primary" : ""}`}
                 >
                   Products
                 </Link>
@@ -316,22 +318,32 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
                   Contact Us
                 </Link>
               </li>
+              <li>
+                <Link
+                  href='/ai'
+                  className={`text-gray-700 hover:text-primary transition-colors flex items-center gap-1
+                    ${pathname === "/ai" ? "text-primary" : ""}`}
+                >
+                  <Sparkles className='w-4 h-4 text-primary/60' />
+                  AI Suggestion
+                </Link>
+              </li>
             </ul>
 
             {/* Right Side Icons */}
-            <div className='hidden lg:flex items-center space-x-6'>
+            <div className='hidden lg:flex items-center space-x-4'>
               <Link
                 href='/'
                 className='flex items-center gap-2 text-gray-700 hover:text-primary transition-colors'
               >
-                <SearchIcon className='w-5 h-5' />
+                <SearchIcon className='h-[20px]' />
               </Link>
               <Link
                 href='/cart'
-                className='flex items-center gap-2 text-gray-700 hover:text-primary transition-colors'
+                className='flex items-center gap-2 text-gray-700 hover:text-primary transition-colors pr-2'
               >
                 <span className='relative'>
-                  <CartIcon className='w-5 h-5' />
+                  <CartIcon className='h-[20px]' />
                   <span
                     className='absolute -top-2 -right-2 w-4 h-4 flex items-center justify-center 
                     bg-primary text-white text-xs rounded-full'
@@ -344,7 +356,7 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
                 href='/auth/login'
                 className='text-gray-700 hover:text-primary transition-colors border border-gray-300 rounded-full px-4 py-1  hover:border-primary '
               >
-                <span className='transition-transform transform hover:scale-105 text-center flex justify-center items-center text-md pb-[1px]'>
+                <span className='transition-transform transform hover:scale-[1.02] text-center flex justify-center items-center text-[17px] pb-[1px]'>
                   Get Started
                 </span>
               </Link>
