@@ -1,11 +1,14 @@
 "use client";
 import { FormErrors } from "@/components/shared/types/formTypes";
+import { authService } from "@/services/auth.service";
 import { Facebook } from "@/utils/helpers/svgicon";
 import { motion } from "framer-motion";
-import { ArrowRight, Eye, EyeOff, Github, Lock, Mail } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import Swal from "sweetalert2";
 import { AuthLayout } from "../authSection";
+import useSweetAlert from "@/components/shared/toast/showToast";
 
 const formVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -33,6 +36,8 @@ export const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
+  const createAlert = useSweetAlert();
+
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
@@ -56,16 +61,23 @@ export const LoginPage: React.FC = () => {
 
     setLoading(true);
     try {
-      // Add your login logic here
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log("Login successful", { email, password, rememberMe });
+      const response = await authService.login({ email, password });
+
+      if (response.success) {
+        // Handle successful login (e.g., redirect)
+        console.log("Login successful", response.data);
+        createAlert("success", "Signed in successfully");
+      } else {
+        // Handle login failure
+        createAlert("error", response.message);
+       
+      }
     } catch (error) {
-      console.error("Login failed:", error);
+      createAlert("error", `An error occurred. Please try again later.`);
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <AuthLayout>
       <div className="space-y-6">
@@ -90,8 +102,7 @@ export const LoginPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className={`w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 
-                  focus:ring-orange-500 transition-all ${
-                    errors.email ? "border-red-500" : "border-gray-200"
+                  focus:ring-orange-500 transition-all ${errors.email ? "border-red-500" : "border-gray-200"
                   }`}
                 placeholder="Enter your email"
               />
@@ -117,8 +128,7 @@ export const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className={`w-full px-4 py-3 pl-11 pr-11 border rounded-lg focus:ring-2 
-                  focus:ring-orange-500 transition-all ${
-                    errors.password ? "border-red-500" : "border-gray-200"
+                  focus:ring-orange-500 transition-all ${errors.password ? "border-red-500" : "border-gray-200"
                   }`}
                 placeholder="Enter your password"
               />

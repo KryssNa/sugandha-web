@@ -18,3 +18,12 @@
   .animate-fade-in {
     animation: fade-in 0.3s ease-out forwards;
   }
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 6px;
+}

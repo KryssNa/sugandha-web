@@ -8,7 +8,7 @@ export const CustomCard: React.FC<{
     className?: string;
 }> = ({ children, className = '' }) => {
     return (
-        <div className={`bg-white shadow-xl rounded-xl overflow-hidden ${className}`}>
+        <div className={`bg-white shadow-md rounded-xl overflow-hidden ${className}`}>
             {children}
         </div>
     );
@@ -34,7 +34,7 @@ export // Recommendation Card Component
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-4 bg-white rounded-lg p-4 shadow-md"
+                className="mt-4 bg-white rounded-lg p-4 shadow-sm"
             >
                 <div className="flex items-center space-x-4">
                     <img

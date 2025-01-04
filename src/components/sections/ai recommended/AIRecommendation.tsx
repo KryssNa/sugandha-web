@@ -16,6 +16,7 @@ import ChatMessage from './chatMessage';
 import { CustomCard, CustomCardContent } from './customCard';
 import { Message, Perfume, QuizState } from './types';
 import QuizSidebar from './sidebar';
+import { showAlert } from '@/components/shared/toast/showAlet';
 
 // Premium perfume database with enhanced details
 const perfumeDatabase: Perfume[] = [
@@ -79,16 +80,13 @@ const PerfumeQuiz: React.FC = () => {
     const abortControllerRef = useRef<AbortController | null>(null);
 
     const scrollToBottom = useCallback(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, []);
 
     useEffect(() => {
         scrollToBottom();
     }, [state.messages, scrollToBottom]);
 
-
-
-    // ... (previous state declarations remain the same)
 
     const showPremiumAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning' | 'info') => {
         return Swal.fire({
@@ -111,18 +109,6 @@ const PerfumeQuiz: React.FC = () => {
             }
         });
     };
-    const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
-        setToast({
-            show: true,
-            message,
-            type
-        });
-
-        setTimeout(() => {
-            setToast(prev => ({ ...prev, show: false }));
-        }, 3000);
-    };
-
     const cancelPreviousRequest = () => {
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
@@ -227,7 +213,7 @@ const PerfumeQuiz: React.FC = () => {
             }
 
             const errorMessage = (err as Error).message || 'Failed to get recommendation';
-            showPremiumAlert('Error', errorMessage, 'error');
+            showAlert('Error', errorMessage, 'error');
 
             return {
                 id: state.messages.length + 2,
@@ -297,14 +283,14 @@ const PerfumeQuiz: React.FC = () => {
     };
 
     return (
-        <div className="flex">
+        <div className="flex max-md:flex-col md:flex-row">
             <div className="flex-1">
-                <div className="max-w-6xl mx-auto p-4">
+                <div className="max-w-6xl max-md:pt-6  mx-auto p-3 md:p-4">
                     <CustomCard className="bg-gradient-to-br from-white to-purple-50">
                         <CustomCardContent className="p-0">
                             {/* Premium Header */}
                             <motion.div
-                                className="bg-gradient-to-r from-purple-300 to-pink-300 p-6 rounded-t-xl"
+                                className="bg-gradient-to-r from-purple-300 to-orange-300 p-6 rounded-t-xl"
                                 initial={{ opacity: 0, y: -20 }}
                                 animate={{ opacity: 1, y: 0 }}
                             >
@@ -312,8 +298,8 @@ const PerfumeQuiz: React.FC = () => {
                                     <div className="flex items-center space-x-3">
                                         <Sparkles className="w-8 h-8 text-white" />
                                         <div>
-                                            <h2 className="text-2xl font-bold text-white">Premium Fragrance Consultation</h2>
-                                            <p className="text-purple-100">Discover your perfect signature scent</p>
+                                            <h2 className="text-xl lg:text-2xl font-bold text-white">Let Our Experts Help You Choose the Perfect Sugandha</h2>
+                                            <p className="max-md:text-purple-100 text-base">Find the Sugandha That Complements Your Style</p>
                                         </div>
                                     </div>
                                     <motion.button
@@ -328,7 +314,7 @@ const PerfumeQuiz: React.FC = () => {
                             </motion.div>
 
                             {/* Enhanced Chat Area */}
-                            <div className="h-[600px] overflow-y-auto p-6 space-y-6 bg-white/80 backdrop-blur-sm">
+                            <div className=" h-[500px] md:h-[600px] overflow-y-auto p-6 space-y-6 bg-white/80 backdrop-blur-sm custom-scrollbar">
                                 <AnimatePresence mode="wait">
                                     {state.messages.map((message) => (
                                         <ChatMessage

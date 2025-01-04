@@ -68,10 +68,10 @@ const WelcomeMessage: React.FC<WelcomeProps> = ({ message, onResponse }) => {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <div className="text-left">
-                                        <p className="font-semibold text-base">
+                                        <p className="font-semibold text-base max-md:pb-1">
                                             {option.text}
                                         </p>
-                                        <p className="text-sm text-white/80">
+                                        <p className="text-sm max-md:hidden text-white/80">
                                             {option.description}
                                         </p>
                                     </div>

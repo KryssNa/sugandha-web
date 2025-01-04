@@ -11,6 +11,7 @@ interface ChatMessageProps {
     onReset: () => void;
 }
 
+
 interface Option {
     text: string;
     icon: JSX.Element;
@@ -30,35 +31,49 @@ const getIconForOption = (text: string): JSX.Element => {
 };
 
 const parsePerfumeRecommendation = (content: string) => {
-    if (content.includes('✨') && content.includes('📝') && content.includes('💫')) {
-        const parts = content.split('\n');
+    console.log('Raw content:', content);
 
-        const title = parts.find(p => p.startsWith('✨'))?.replace('✨', '').trim();
+    if (content.includes('🌟') && content.includes('📝') && content.includes('💫')) {
+        const parts = content.split('\n').filter(Boolean);
 
-        const notesStart = parts.findIndex(p => p.includes('📝 Key Notes:'));
-        const reasonStart = parts.findIndex(p => p.includes('💫 Perfect For You Because:'));
-        const choicesStart = parts.findIndex(p => p.includes('NEXT_CHOICES:'));
+        const title = parts.find(p => p.startsWith('🌟'))
+            ?.replace('🌟', '')
+            ?.trim()
+            ?.replace(/\*\*/g, '');
 
-        const notes = parts.slice(notesStart + 1, reasonStart)
+        // Get everything between Key Notes: and Perfect For You Because:
+        const notesSection = content.split('📝 Key Notes:')[1].split('💫 Perfect For You Because:')[0].trim();
+
+        // Get everything between Perfect For You Because: and NEXT_CHOICES:
+        const reasonSection = content.split('💫 Perfect For You Because:')[1].split('NEXT_CHOICES:')[0].trim();
+
+        const choices = content
+            .split('NEXT_CHOICES:')[1]
+            .split('•')
             .filter(Boolean)
-            .join('\n')
-            .trim();
+            .map(p => p.trim());
+        const recommendations = [
+            `${title}: Apka Perfect Soulmate`,
+            `${title}: Your Untold Story`,
+            `${title}: Elevate Your Aura`,
+            `${title}: Create Magic Everyday`,
+            `${title}: Capture Hearts Forever`,
+            `${title}: Become Unforgettable`,
+            `${title}: Your Power Move`,
+            `${title}: Make Every Moment Yours`,
+            `${title}: Own Your Moment`,
+            `${title}: Stand Out & Shine`,
+            `${title}: Be Extraordinarily You`
+        ];
 
-        const reason = parts.slice(reasonStart + 1, choicesStart)
-            .filter(Boolean)
-            .join('\n')
-            .trim();
 
-        const choices = parts.slice(choicesStart + 1)
-            .filter(p => p.startsWith('•'))
-            .map(p => p.replace('•', '').trim());
 
         return {
             isRecommendation: true,
             recommendation: {
-                title,
-                notes,
-                reason
+                title: recommendations[Math.floor(Math.random() * recommendations.length)],
+                notes: notesSection,
+                reason: reasonSection
             },
             options: choices.map(text => ({
                 text,
@@ -68,6 +83,14 @@ const parsePerfumeRecommendation = (content: string) => {
     }
 
     const [mainContent, choicesSection] = content.split('NEXT_CHOICES:');
+
+    // Process main content to handle numbered items and emojis
+    const formattedContent = mainContent
+        .split('\n\n')  // Split by double newlines for major sections
+        .map(section => section.trim())
+        .filter(Boolean)  // Remove empty sections
+        .join('\n\n');   // Rejoin with double newlines
+
     const options = choicesSection
         ? choicesSection
             .trim()
@@ -80,7 +103,11 @@ const parsePerfumeRecommendation = (content: string) => {
             }))
         : [];
 
-    return { isRecommendation: false, mainContent: mainContent.trim(), options };
+    return {
+        isRecommendation: false,
+        mainContent: formattedContent,
+        options
+    };
 };
 
 const OptionButton: React.FC<{
@@ -126,11 +153,11 @@ const OptionButton: React.FC<{
             {...baseAnimation}
             onClick={onClick}
             className="flex items-center gap-3 px-4 py-3 rounded-xl
-                bg-purple-50 text-purple-700 hover:text-purple-900
+                bg-purple-50 text-primary/80 hover:text-primary
                 transition-all duration-200 text-sm font-medium
                 border border-purple-100 hover:border-purple-200 hover:shadow-md"
         >
-            <span className="text-purple-500">{option.icon}</span>
+            <span className="text-primary-50">{option.icon}</span>
             <span>{option.text}</span>
         </motion.button>
     );
@@ -142,7 +169,7 @@ const UserMessage: React.FC<{ content: string }> = ({ content }) => (
         animate={{ opacity: 1, x: 0 }}
         className="flex justify-end mb-4"
     >
-        <div className="bg-purple-600 text-white rounded-2xl px-4 py-2 max-w-[80%] shadow-md">
+        <div className="bg-slate-400 text-white rounded-2xl px-4 py-2 max-w-[80%] shadow-md">
             <p className="text-sm">{content}</p>
         </div>
     </motion.div>
@@ -162,8 +189,8 @@ const SystemMessage: React.FC<ChatMessageProps> = ({ message, onResponse }) => {
                 <div className="bg-white rounded-2xl p-6 shadow-lg border border-purple-100">
                     <motion.div className="space-y-4">
                         <div className="flex items-center gap-3">
-                            <Sparkles className="w-5 h-5 text-purple-500" />
-                            <h3 className="text-lg font-semibold text-gray-800">
+                            <Sparkles className="w-5 h-5 text-primary" />
+                            <h3 className="text-lg font-semibold text-primary">
                                 {recommendation?.title}
                             </h3>
                         </div>

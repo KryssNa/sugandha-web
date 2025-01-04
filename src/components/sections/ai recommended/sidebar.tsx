@@ -18,7 +18,7 @@ const DUMMY_RECOMMENDATIONS: RecommendedProduct[] = [
         name: "Royal Oud",
         brand: "Creed",
         price: 299,
-        image: "/api/placeholder/100/100",
+        image: "/assets/images/products/creed.png",
         rating: 4.8
     },
     {
@@ -26,7 +26,7 @@ const DUMMY_RECOMMENDATIONS: RecommendedProduct[] = [
         name: "Baccarat Rouge 540",
         brand: "Maison Francis Kurkdjian",
         price: 325,
-        image: "/api/placeholder/100/100",
+        image: "/assets/images/products/creed.png",
         rating: 4.9
     },
     {
@@ -34,13 +34,13 @@ const DUMMY_RECOMMENDATIONS: RecommendedProduct[] = [
         name: "Aventus",
         brand: "Creed",
         price: 359,
-        image: "/api/placeholder/100/100",
+        image: "/assets/images/products/creed.png",
         rating: 4.7
     }
 ];
 
 const QuizSidebar: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => (
-    <div className="w-96 bg-white border-l border-purple-100 mx-4 my-6 rounded-lg p-4 space-y-6">
+    <div className=" max-md:w-[95%] max-md:px-6 w-96 bg-white border-l border-purple-100 mx-4 my-6 rounded-lg p-4 space-y-6">
         {!isLoggedIn && (
             <motion.div
                 initial={{ opacity: 0, x: 20 }}

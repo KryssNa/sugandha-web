@@ -7,6 +7,9 @@ import { ArrowRight, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AuthLayout } from "../authSection";
+import { authService } from "@/services/auth.service";
+import Swal from "sweetalert2";
+import { showAlert } from "@/components/shared/toast/showAlet";
 
 // Types
 interface PasswordStrength {
@@ -252,11 +255,17 @@ export const RegisterPage: React.FC = () => {
 
     setLoading(true);
     try {
-      // Add your registration logic here
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log("Registration successful", formData);
+     const response=  await authService.register({firstName: formData.name,lastName:formData.name, email: formData.email, password: formData.password});
+      if(response.success){
+        console.log("Registration successful", response.data);
+      }else{
+        console.log("Registration failed:", response.data?.message);
+        showAlert("error", "Registration failed", response.data?.message);
+      }
+
     } catch (error) {
       console.error("Registration failed:", error);
+      showAlert( "Registration failed", error.response.data.message, "error");
     } finally {
       setLoading(false);
     }

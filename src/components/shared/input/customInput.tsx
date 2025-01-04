@@ -2,7 +2,7 @@
 import React, { ChangeEvent } from "react";
 
 interface CustomInputProps {
-  label: string;
+  label?: string;
   type?: string;
   value: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -10,6 +10,7 @@ interface CustomInputProps {
   required?: boolean;
   placeholder?: string;
   tooltipText?: string;
+  className?: string;
 }
 
 export const CustomInput: React.FC<CustomInputProps> = ({
@@ -20,11 +21,12 @@ export const CustomInput: React.FC<CustomInputProps> = ({
   name,
   required = false,
   placeholder = "",
+  className = "",
 
   tooltipText = "",
 }) => (
   <div className='space-y-1'>
-    <label className='block text-sm font-medium text-gray-700'>{label}</label>
+    {label &&  <label className='block text-sm font-medium text-gray-700'>{label}</label>}
     <input
       type={type}
       value={value}
@@ -32,8 +34,8 @@ export const CustomInput: React.FC<CustomInputProps> = ({
       name={name}
       required={required}
       placeholder={placeholder}
-      className='w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 
-                focus:ring-orange-500 focus:border-transparent transition-shadow duration-200'
+      className={`w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 
+                focus:ring-orange-500 focus:border-transparent transition-shadow duration-200 ${className}`}
       title={tooltipText}
     />
   </div>

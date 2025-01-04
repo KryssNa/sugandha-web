@@ -93,7 +93,7 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
                   href='/shop'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
-                  Community
+                  About Us
                 </Link>
               </li>
             </ul>
@@ -152,7 +152,7 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
               </li>
               <li>
                 <Link
-                  href='/shop'
+                  href='/order-history'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
                   Order History
@@ -160,7 +160,7 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
               </li>
               <li>
                 <Link
-                  href='/shop'
+                  href='/cart'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
                   Shopping Cart
