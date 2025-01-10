@@ -1,4 +1,144 @@
-import { api } from "@/lib/axios";
+// // services/auth.service.ts
+// import { api } from '@/lib/axios';
+
+// interface LoginData {
+//   email: string;
+//   password: string;
+// }
+
+// interface RegisterData extends LoginData {
+//   firstName: string;
+//   lastName: string;
+// }
+
+// interface AuthResponse {
+//   success: boolean;
+//   data?: any;
+//   message?: string;
+// }
+
+// export const authService = {
+//   async register(data: RegisterData): Promise<AuthResponse> {
+//     try {
+//       const response = await api.post('/auth/register', data);
+//       return {
+//         success: true,
+//         data: response.data
+//       };
+//     } catch (error: any) {
+//       return {
+//         success: false,
+//         message: error.response?.data?.message || 'Registration failed'
+//       };
+//     }
+//   },
+
+//   async login(data: LoginData): Promise<AuthResponse> {
+//     try {
+//       const response = await api.post('/auth/login', data);
+//       const { tokens, user } = response.data.data;
+
+//       if (tokens?.accessToken) {
+//         localStorage.setItem('accessToken', tokens.accessToken);
+//         localStorage.setItem('refreshToken', tokens.refreshToken);
+//         localStorage.setItem('user', JSON.stringify(user));
+
+//         // Set default auth header
+//         api.defaults.headers.common['Authorization'] = `Bearer ${tokens.accessToken}`;
+//       }
+
+//       return {
+//         success: true,
+//         data: response.data
+//       };
+//     } catch (error: any) {
+//       return {
+//         success: false,
+//         message: error.response?.data?.message || 'Login failed'
+//       };
+//     }
+//   },
+
+//   async verifyAccessToken(token: string): Promise<boolean> {
+//     try {
+//       const response = await api.post('/auth/verify-token', { token });
+//       return response.data.success;
+//     } catch (error) {
+//       return false;
+//     }
+//   },
+
+//   async refreshToken(): Promise<AuthResponse> {
+//     try {
+//       const refreshToken = localStorage.getItem('refreshToken');
+//       if (!refreshToken) throw new Error('No refresh token found');
+
+//       const response = await api.post('/auth/refresh-token', { refreshToken });
+//       const { accessToken } = response.data;
+
+//       localStorage.setItem('accessToken', accessToken);
+//       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+
+//       return {
+//         success: true,
+//         data: response.data
+//       };
+//     } catch (error: any) {
+//       return {
+//         success: false,
+//         message: error.response?.data?.message || 'Token refresh failed'
+//       };
+//     }
+//   },
+
+//   async logout() {
+//     try {
+//       await api.post('/auth/logout');
+//     } catch (error) {
+//       console.error('Logout error:', error);
+//     } finally {
+//       localStorage.removeItem('accessToken');
+//       localStorage.removeItem('refreshToken');
+//       localStorage.removeItem('user');
+//       delete api.defaults.headers.common['Authorization'];
+//     }
+//   },
+
+//   async getMe(): Promise<AuthResponse> {
+//     try {
+//       const response = await api.get('/auth/me');
+//       return {
+//         success: true,
+//         data: response.data
+//       };
+//     } catch (error: any) {
+//       return {
+//         success: false,
+//         message: error.response?.data?.message || 'Failed to fetch user data'
+//       };
+//     }
+//   },
+
+//   getStoredToken() {
+//     if (typeof window !== 'undefined') {
+//       return localStorage.getItem('accessToken');
+//     }
+//     return null;
+//   },
+
+//   getStoredUser() {
+//     if (typeof window !== 'undefined') {
+//       const user = localStorage.getItem('user');
+//       return user ? JSON.parse(user) : null;
+//     }
+//     return null;
+//   }
+// };
+
+
+// services/auth.service.ts
+import { api } from '@/lib/axios';
+import Cookies from 'js-cookie';
 
 interface LoginData {
   email: string;
@@ -10,56 +150,119 @@ interface RegisterData extends LoginData {
   lastName: string;
 }
 
+interface AuthResponse {
+  success: boolean;
+  data?: any;
+  message?: string;
+}
+
 export const authService = {
-  async register(data: RegisterData) {
+  async register(data: RegisterData): Promise<AuthResponse> {
     try {
-      const response = await api.post("/auth/register", data);
-      this.setTokens(response.data?.tokens || response.data?.data?.tokens);
-      return response.data;
-    } catch (error) {
-      console.error("Registration failed:", error);
-      throw error;
+      const response = await api.post('/auth/register', data);
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Registration failed'
+      };
     }
   },
 
-  async login(data: LoginData) {
+  async login(data: LoginData): Promise<AuthResponse> {
     try {
-      const response = await api.post("/auth/login", data);
+      const response = await api.post('/auth/login', data);
+      const { tokens, user } = response.data.data;
 
-      // Ensure tokens exist before setting
-      const tokens = response.data?.data?.tokens || response.data?.tokens;
-      if (!tokens) {
-        throw new Error("No authentication tokens found in response");
+      if (tokens?.accessToken) {
+        // Set in both cookies and localStorage
+        Cookies.set('accessToken', tokens.accessToken, { 
+          expires: 7, // 7 days
+          sameSite: 'strict',
+          secure: process.env.NODE_ENV === 'production'
+        });
+        
+        Cookies.set('refreshToken', tokens.refreshToken, {
+          expires: 30, // 30 days
+          sameSite: 'strict',
+          secure: process.env.NODE_ENV === 'production'
+        });
+
+        localStorage.setItem('accessToken', tokens.accessToken);
+        localStorage.setItem('refreshToken', tokens.refreshToken);
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        // Set default auth header
+        api.defaults.headers.common['Authorization'] = `Bearer ${tokens.accessToken}`;
       }
 
-      this.setTokens(tokens);
       return {
         success: true,
-        data: response.data,
+        data: response.data
       };
-    } catch (error) {
-      console.error("Login failed:", error);
+    } catch (error: any) {
       return {
         success: false,
-        message: (error as any).response?.data?.message || (error as any).message,
+        message: error.response?.data?.message || 'Login failed'
       };
+    }
+  },
+
+  async verifyAccessToken(): Promise<boolean> {
+    try {
+      const token = Cookies.get('accessToken') || localStorage.getItem('accessToken');
+      if (!token) return false;
+
+      const response = await api.post('/auth/verify-token', { token });
+      return response.data.success;
+    } catch (error) {
+      return false;
     }
   },
 
   async logout() {
     try {
-      // Optional: Call backend logout endpoint if needed
-      await api.post("/auth/logout");
+      await api.post('/auth/logout');
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error('Logout error:', error);
     } finally {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      // Clear both cookies and localStorage
+      Cookies.remove('accessToken');
+      Cookies.remove('refreshToken');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      delete api.defaults.headers.common['Authorization'];
     }
   },
 
-  setTokens(tokens: { accessToken: string; refreshToken: string }) {
-    localStorage.setItem("accessToken", tokens.accessToken);
-    localStorage.setItem("refreshToken", tokens.refreshToken);
+  async getMe(): Promise<AuthResponse> {
+    try {
+      const response = await api.get('/auth/getMe');
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch user data'
+      };
+    }
   },
+
+  getToken(): string | null {
+    return Cookies.get('accessToken') || localStorage.getItem('accessToken');
+  },
+
+  getStoredUser() {
+    if (typeof window !== 'undefined') {
+      const user = localStorage.getItem('user');
+      return user ? JSON.parse(user) : null;
+    }
+    return null;
+  }
 };

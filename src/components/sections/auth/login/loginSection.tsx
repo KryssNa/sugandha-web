@@ -1,14 +1,17 @@
 "use client";
+import useSweetAlert from "@/components/shared/toast/showToast";
 import { FormErrors } from "@/components/shared/types/formTypes";
-import { authService } from "@/services/auth.service";
+import { AppDispatch, RootState } from "@/store";
+import { loginUser } from "@/store/slices/authSlice";
 import { Facebook } from "@/utils/helpers/svgicon";
 import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Swal from "sweetalert2";
+import { useDispatch, useSelector } from "react-redux";
 import { AuthLayout } from "../authSection";
-import useSweetAlert from "@/components/shared/toast/showToast";
+import { useAuth } from "@/hooks/useAuth";
 
 const formVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -29,14 +32,16 @@ const itemVariants = {
 
 // Login Component
 export const LoginPage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  // const { loading, error } = useSelector((state: RootState) => state.auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-
+  const router = useRouter();
   const createAlert = useSweetAlert();
+  const { login, loading, error } = useAuth();
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -54,30 +59,37 @@ export const LoginPage: React.FC = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-
-    setLoading(true);
+  
     try {
-      const response = await authService.login({ email, password });
-
-      if (response.success) {
-        // Handle successful login (e.g., redirect)
-        console.log("Login successful", response.data);
-        createAlert("success", "Signed in successfully");
-      } else {
-        // Handle login failure
-        createAlert("error", response.message);
-       
-      }
+      await login(email, password);
+      createAlert("success", "Signed in successfully");
+      router.push("/dashboard");
     } catch (error) {
-      createAlert("error", `An error occurred. Please try again later.`);
-    } finally {
-      setLoading(false);
+      createAlert("error", "Login failed. Please try again.");
     }
   };
+
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!validateForm()) return;
+
+  //   try {
+  //     const resultAction = await dispatch(loginUser({ email, password }));
+  //     if (loginUser.fulfilled.match(resultAction)) {
+  //       createAlert("success", "Signed in successfully");
+  //       setEmail('');
+  //       setPassword('');
+  //       router.push("/");
+  //     } else if (loginUser.rejected.match(resultAction)) {
+  //       createAlert("error", resultAction.payload as string);
+  //     }
+  //   } catch (error) {
+  //     createAlert("error", "An error occurred. Please try again later.");
+  //   }
+  // };
   return (
     <AuthLayout>
       <div className="space-y-6">

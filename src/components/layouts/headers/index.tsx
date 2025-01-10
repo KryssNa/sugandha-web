@@ -1,4 +1,7 @@
 "use client";
+import UserMenu from "@/components/sections/menu/userMenu";
+import { RootState } from "@/store";
+import { useAppSelector } from "@/store/hooks";
 import { CartIcon, CloseIcon, SearchIcon } from "@/utils/helpers/svgicon";
 import { MenuIcon, Sparkles } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +23,7 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("Eng");
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>("USD");
   const [menuActive, setMenuActive] = useState<boolean>(false);
+  const [cartQuantity, setCartQuantity] = useState<number>(0);
 
   const handleScroll = useCallback(() => {
     const currentScrollY = window.pageYOffset;
@@ -54,6 +58,16 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
     }
   }, [handleScroll]);
 
+  const { items } = useAppSelector((state: RootState) => state.cart);
+  // Get auth state from Redux
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+
+
+  useEffect(() => {
+    const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0);
+    setCartQuantity(totalQuantity);
+  }, [items]);
+
   const handleLanguageChange = (language: Language) =>
     setSelectedLanguage(language);
   const handleCurrencyChange = (currency: Currency) =>
@@ -63,12 +77,11 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
   const shouldShowHeader = scroll && scrollDirection === "up";
 
   return (
-    <header className={`relative ${className}`}>
+    <header className={` ${className}`}>
       {/* Overlay */}
       <div
         className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 
-          ${
-            menuActive ? "opacity-100 visible" : "opacity-0 invisible"
+          ${menuActive ? "opacity-100 visible" : "opacity-0 invisible"
           } lg:hidden`}
         onClick={() => setMenuActive(false)}
       />
@@ -76,9 +89,8 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
       {/* Mobile Menu */}
       <div
         className={`fixed top-0 left-0 w-64 h-full bg-white transform transition-transform duration-300 
-        ease-in-out z-50 lg:hidden overflow-y-auto ${
-          menuActive ? "translate-x-0" : "-translate-x-full"
-        }`}
+        ease-in-out z-50 lg:hidden overflow-y-auto ${menuActive ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <button
           onClick={handleMenuToggle}
@@ -116,9 +128,8 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
 
       {/* Top Header */}
       <div
-        className={`bg-[#FFF0E5] transition-all duration-300 ${
-          scroll ? "hidden" : "block"
-        }`}
+        className={`bg-[#FFF0E5] transition-all duration-300 ${scroll ? "hidden" : "block"
+          }`}
       >
         <div className='container mx-auto px-4'>
           <div className='flex justify-between items-center flex-wrap gap-2'>
@@ -254,10 +265,9 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
       {/* Main Header */}
       <div
         className={`bg-white border-b border-gray-100 transition-all duration-300
-          ${
-            shouldShowHeader
-              ? "fixed top-0 left-0 right-0 shadow-md transform translate-y-0 animate-slideDown z-50"
-              : scroll
+          ${shouldShowHeader
+            ? "fixed top-0 left-0 right-0 shadow-md transform translate-y-0 animate-slideDown z-50"
+            : scroll
               ? "fixed top-0 left-0 right-0 shadow-md transform -translate-y-full z-50"
               : ""
           }`}
@@ -344,32 +354,114 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
               >
                 <span className='relative'>
                   <CartIcon className='h-[20px]' />
-                  <span
-                    className='absolute -top-2 -right-2 w-4 h-4 flex items-center justify-center 
-                    bg-primary text-white text-xs rounded-full'
-                  >
-                    2
+                  {cartQuantity > 0 && (
+                    <span className='absolute -top-2 -right-2 w-4 h-4 flex items-center justify-center 
+            bg-primary text-white text-xs rounded-full'>
+                      {cartQuantity}
+                    </span>
+                  )}
+                </span>
+              </Link>
+
+              {isAuthenticated && user ? (
+                <UserMenu user={user} />
+              ) : (
+                <Link
+                  href='/auth/login'
+                  className='text-gray-700 hover:text-primary transition-colors border border-gray-300 
+          rounded-full px-4 py-1 hover:border-primary'
+                >
+                  <span className='transition-transform transform hover:scale-[1.02] text-center 
+          flex justify-center items-center text-[17px] pb-[1px]'>
+                    Get Started
                   </span>
-                </span>
-              </Link>
-              <Link
-                href='/auth/login'
-                className='text-gray-700 hover:text-primary transition-colors border border-gray-300 rounded-full px-4 py-1  hover:border-primary '
-              >
-                <span className='transition-transform transform hover:scale-[1.02] text-center flex justify-center items-center text-[17px] pb-[1px]'>
-                  Get Started
-                </span>
-              </Link>
+                </Link>
+              )}
             </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              className='lg:hidden text-gray-700 hover:text-primary p-2 -mr-2'
-              onClick={handleMenuToggle}
-              aria-label='Toggle menu'
-            >
-              <MenuIcon className='w-6 h-6' />
-            </button>
+            {/* Update the mobile menu to include user info */}
+            <div className={`fixed top-0 left-0 w-64 h-full bg-white transform transition-transform 
+    duration-300 ease-in-out z-50 lg:hidden overflow-y-auto 
+    ${menuActive ? "translate-x-0" : "-translate-x-full"}`}>
+              <button
+                onClick={handleMenuToggle}
+                className='absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full'
+                aria-label='Close menu'
+              >
+                <CloseIcon className='w-6 h-6' />
+              </button>
+              <div className='p-4'>
+                <Link href='/' className='block mb-8'>
+                  <img src='/assets/logo/logo.png' alt='Logo' className='h-8' />
+                </Link>
+
+                {/* User Section in Mobile Menu */}
+                {isAuthenticated && user ? (
+                  <div className="mb-6 pb-6 border-b border-gray-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center 
+              justify-center text-primary font-semibold">
+                        {`${user.firstName?.charAt(0)}${user.lastName?.charAt(0)}`.toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {`${user.firstName} ${user.lastName}`}
+                        </p>
+                        <p className="text-sm text-gray-500">{user.email}</p>
+                      </div>
+                    </div>
+                    <nav className="space-y-2">
+                      <Link
+                        href="/dashboard"
+                        className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
+                hover:text-primary rounded-lg transition-colors"
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/orders"
+                        className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
+                hover:text-primary rounded-lg transition-colors"
+                      >
+                        My Orders
+                      </Link>
+                      <Link
+                        href="/wishlist"
+                        className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
+                hover:text-primary rounded-lg transition-colors"
+                      >
+                        Wishlist
+                      </Link>
+                      <Link
+                        href="/settings"
+                        className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
+                hover:text-primary rounded-lg transition-colors"
+                      >
+                        Settings
+                      </Link>
+                    </nav>
+                  </div>
+                ) : (
+                  <Link
+                    href="/auth/login"
+                    className="block mb-6 text-center py-2 bg-primary text-white rounded-lg 
+            hover:bg-primary/90 transition-colors"
+                  >
+                    Get Started
+                  </Link>
+                )}
+
+                {/* Mobile Menu Button */}
+                <button
+                  className='lg:hidden text-gray-700 hover:text-primary p-2 -mr-2'
+                  onClick={handleMenuToggle}
+                  aria-label='Toggle menu'
+                >
+                  <MenuIcon className='w-6 h-6' />
+                </button>
+
+              </div>
+            </div>
           </nav>
         </div>
       </div>

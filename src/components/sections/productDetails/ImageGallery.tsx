@@ -1,0 +1,74 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { Timer } from 'lucide-react';
+import { IImage } from '@/components/shared/types/productTypes';
+
+interface ImageGalleryProps {
+  images: IImage[];
+  title: string;
+}
+
+const ImageGallery = ({ images, title }: ImageGalleryProps) => {
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [timeLeft] = useState({
+    hours: 6,
+    minutes: 12,
+    seconds: 11,
+  });
+
+  return (
+    <div className="lg:w-1/2 space-y-4">
+      <div className="relative h-96 rounded-2xl border border-gray-200 overflow-hidden">
+        <motion.div
+          className="relative w-full h-full"
+          whileHover={{ scale: isZoomed ? 1.1 : 1 }}
+          transition={{ duration: 0.3 }}
+          onHoverStart={() => setIsZoomed(true)}
+          onHoverEnd={() => setIsZoomed(false)}
+        >
+          <Image
+            src={images[selectedImage]?.url || "/api/placeholder/400/400"}
+            alt={images[selectedImage]?.alt || title}
+            fill
+            className="object-contain"
+          />
+        </motion.div>
+
+        {/* Special Offer Timer */}
+        <div className="absolute top-4 left-4 right-4 bg-gradient-to-r from-orange-500 to-orange-600 
+          rounded-lg p-3 text-white flex items-center justify-between">
+          <span className="font-medium">Special Offer</span>
+          <div className="flex gap-2">
+            <Timer className="w-5 h-5" />
+            <span>{`${timeLeft.hours}:${timeLeft.minutes}:${timeLeft.seconds}`}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Thumbnail Gallery */}
+      <div className="flex gap-4 overflow-x-auto pb-2">
+        {images?.map((image, index) => (
+          <motion.button
+            key={image.id}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setSelectedImage(index)}
+            className={`relative w-24 h-24 rounded-lg border-2 
+              ${selectedImage === index ? "border-orange-500" : "border-gray-200"}`}
+          >
+            <Image
+              src={image.url}
+              alt={image.alt}
+              fill
+              className="object-cover rounded-lg"
+            />
+          </motion.button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default ImageGallery;

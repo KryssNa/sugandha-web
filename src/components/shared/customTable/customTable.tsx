@@ -585,7 +585,7 @@ export const Table = <T extends {}>({
     };
 
     const handleSelectRow = (row: T, selected: boolean) => {
-        const newSelected = checked
+        const newSelected = selected
             ? [...selectedRows, row]
             : selectedRows.filter((r) => r !== row);
         setSelectedRows(newSelected);
@@ -640,6 +640,7 @@ export const Table = <T extends {}>({
                                         type="checkbox"
                                         checked={selectedRows.length === processedData.length}
                                         onChange={(e) => handleSelectAll(e.target.checked)}
+                                        title='Select All'
                                         className="w-4 h-4 rounded text-orange-500 focus:ring-orange-500"
                                     />
                                 </th>
@@ -705,7 +706,7 @@ export const Table = <T extends {}>({
                                             render: row => (
                                                 <div className="space-y-2">
                                                     <h3 className="font-medium">Expanded Content</h3>
-                                                    <p>Additional information about {row.name}</p>
+                                                    <p>Additional information about {(row as unknown as User).name}</p>
                                                 </div>
                                             ),
                                             onExpand: handleExpand

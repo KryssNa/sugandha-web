@@ -137,14 +137,14 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
           <>
             <button
               onClick={() => paginate(-1)}
-              className={`absolute -left-4 top-1/2 -translate-y-1/2 z-10 ${arrowClassName}`}
+              className={`absolute -left-4 md:-left-10 top-1/2 -translate-y-1/2 z-10 ${arrowClassName}`}
               disabled={isAnimating}
             >
               {renderArrow?.prev || <DefaultArrow direction="prev" />}
             </button>
             <button
               onClick={() => paginate(1)}
-              className={`absolute -right-4 top-1/2 -translate-y-1/2 z-10 ${arrowClassName}`}
+              className={`absolute -right-6 md:-right-16 top-1/2 -translate-y-1/2 z-10 ${arrowClassName}`}
               disabled={isAnimating}
             >
               {renderArrow?.next || <DefaultArrow direction="next" />}

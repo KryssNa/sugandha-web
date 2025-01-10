@@ -1,15 +1,17 @@
 "use client";
 
+import useSweetAlert from "@/components/shared/toast/showToast";
 import { FormErrors } from "@/components/shared/types/formTypes";
+import { AppDispatch, RootState } from "@/store";
+import { registerUser, resetRegistrationSuccess } from "@/store/slices/authSlice";
 import { Facebook } from "@/utils/helpers/svgicon";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { AuthLayout } from "../authSection";
-import { authService } from "@/services/auth.service";
-import Swal from "sweetalert2";
-import { showAlert } from "@/components/shared/toast/showAlet";
 
 // Types
 interface PasswordStrength {
@@ -92,9 +94,8 @@ const PasswordStrengthIndicator: React.FC<{ password: string }> = ({
         {[1, 2, 3, 4, 5].map((segment) => (
           <motion.div
             key={segment}
-            className={`flex-1 rounded-full ${
-              segment <= strength.score ? strength.color : "bg-gray-200"
-            }`}
+            className={`flex-1 rounded-full ${segment <= strength.score ? strength.color : "bg-gray-200"
+              }`}
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ duration: 0.2, delay: segment * 0.1 }}
@@ -132,6 +133,10 @@ const itemVariants = {
 
 // Register Component
 export const RegisterPage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error, registrationSuccess } = useSelector(
+    (state: RootState) => state.auth
+  );
   // Form state
   const [formData, setFormData] = useState({
     name: "",
@@ -141,9 +146,9 @@ export const RegisterPage: React.FC = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [loading, setLoading] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
-
+  const router = useRouter();
+  const createAlert = useSweetAlert();
   // Clear specific field error
   const clearError = (fieldName: keyof FormErrors) => {
     setErrors((prev) => {
@@ -188,6 +193,12 @@ export const RegisterPage: React.FC = () => {
     setAcceptTerms(e.target.checked);
     clearError("terms");
   };
+  useEffect(() => {
+    // Reset registration success state when component unmounts
+    return () => {
+      dispatch(resetRegistrationSuccess());
+    };
+  }, [dispatch]);
 
   // Form validation
   const validateForm = (): boolean => {
@@ -253,21 +264,30 @@ export const RegisterPage: React.FC = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    setLoading(true);
     try {
-     const response=  await authService.register({firstName: formData.name,lastName:formData.name, email: formData.email, password: formData.password});
-      if(response.success){
-        console.log("Registration successful", response.data);
-      }else{
-        console.log("Registration failed:", response.data?.message);
-        showAlert("error", "Registration failed", response.data?.message);
-      }
+      const resultAction = await dispatch(
+        registerUser({
+          firstName: formData.name,
+          lastName: formData.name,
+          email: formData.email,
+          password: formData.password
+        })
+      );
 
+      if (registerUser.fulfilled.match(resultAction)) {
+        createAlert("success", "Registration successful");
+        setFormData({
+          name: "",
+          email: "",
+          password: "",
+          confirmPassword: ""
+        });
+        router.push("/auth/login");
+      } else if (registerUser.rejected.match(resultAction)) {
+        createAlert("error", resultAction.payload as string);
+      }
     } catch (error) {
-      console.error("Registration failed:", error);
-      showAlert( "Registration failed", error.response.data.message, "error");
-    } finally {
-      setLoading(false);
+      createAlert("error", "Registration failed. Please try again.");
     }
   };
 
@@ -306,8 +326,7 @@ export const RegisterPage: React.FC = () => {
                 onChange={handleChange}
                 onFocus={() => clearError("name")}
                 className={`w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 
-                  focus:ring-orange-500 transition-all ${
-                    errors.name ? "border-red-500" : "border-gray-200"
+                  focus:ring-orange-500 transition-all ${errors.name ? "border-red-500" : "border-gray-200"
                   }`}
                 placeholder='Enter your full name'
               />
@@ -338,8 +357,7 @@ export const RegisterPage: React.FC = () => {
                 onChange={handleChange}
                 onFocus={() => clearError("email")}
                 className={`w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 
-                  focus:ring-orange-500 transition-all ${
-                    errors.email ? "border-red-500" : "border-gray-200"
+                  focus:ring-orange-500 transition-all ${errors.email ? "border-red-500" : "border-gray-200"
                   }`}
                 placeholder='Enter your email'
               />
@@ -374,8 +392,7 @@ export const RegisterPage: React.FC = () => {
                   onChange={handleChange}
                   onFocus={() => clearError("password")}
                   className={`w-full px-4 py-3 pl-11 pr-11 border rounded-lg focus:ring-2 
-                    focus:ring-orange-500 transition-all ${
-                      errors.password ? "border-red-500" : "border-gray-200"
+                    focus:ring-orange-500 transition-all ${errors.password ? "border-red-500" : "border-gray-200"
                     }`}
                   placeholder='Create password'
                 />
@@ -423,10 +440,9 @@ export const RegisterPage: React.FC = () => {
                   onChange={handleChange}
                   onFocus={() => clearError("confirmPassword")}
                   className={`w-full px-4 py-3 pl-11 pr-11 border rounded-lg focus:ring-2 
-                    focus:ring-orange-500 transition-all ${
-                      errors.confirmPassword
-                        ? "border-red-500"
-                        : "border-gray-200"
+                    focus:ring-orange-500 transition-all ${errors.confirmPassword
+                      ? "border-red-500"
+                      : "border-gray-200"
                     }`}
                   placeholder='Confirm password'
                 />
@@ -495,10 +511,9 @@ export const RegisterPage: React.FC = () => {
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
             className={`w-full py-3 px-4 bg-orange-500 text-white rounded-lg font-medium
-              ${
-                loading
-                  ? "opacity-70 cursor-not-allowed"
-                  : "hover:bg-orange-600"
+              ${loading
+                ? "opacity-70 cursor-not-allowed"
+                : "hover:bg-orange-600"
               } 
               transition-all duration-200`}
           >

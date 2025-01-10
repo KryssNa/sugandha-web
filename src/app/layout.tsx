@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import 'sweetalert2/dist/sweetalert2.min.css';
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "Sugandha Express Yourself through Fragrance",
@@ -19,7 +20,10 @@ export default function RootLayout({
       <body 
       className='flex flex-col min-h-screen bg-gray-100 text-gray-800 font-sans'
       >
+        <Providers>
+
         {children}
+        </Providers>
       </body>
     </html>
   );

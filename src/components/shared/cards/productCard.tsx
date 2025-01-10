@@ -10,7 +10,7 @@ export interface ProductCardProps {
   secondaryImage?: string;
   title: string;
   price: number;
-  slug?: string;
+  slug: string;
   originalPrice?: number;
   discount?: number;
   rating?: number;
@@ -19,8 +19,8 @@ export interface ProductCardProps {
   endDate?: Date;
   onAddToWishlist?: () => void;
   onQuickView?: () => void;
-  onCompare?: () => void;
   onAddToCart?: () => void;
+  viewMode?: 'grid' | 'list';
   className?: string;
 }
 
@@ -38,7 +38,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   endDate,
   onAddToWishlist,
   onQuickView,
-  onCompare,
   onAddToCart,
   className,
 }) => {
@@ -48,7 +47,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const actionButtons = [
     { Icon: Heart, label: "Add to Wishlist", onClick: onAddToWishlist },
     { Icon: Eye, label: "Quick View", onClick: onQuickView },
-    { Icon: Shuffle, label: "Compare", onClick: onCompare },
+    // { Icon: Shuffle, label: "Compare", onClick: onCompare },
   ];
 
   return (

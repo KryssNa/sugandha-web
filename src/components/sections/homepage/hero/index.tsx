@@ -2,7 +2,6 @@
 import { CustomSlider } from "@/components/shared/sliders/customSlider";
 import { CartIcon, LeftArrowIcon, RightArrowIcon } from "@/utils/helpers/svgicon";
 import Link from "next/link";
-import { start } from "repl";
 
 interface Slide {
   title: {
@@ -20,10 +19,10 @@ const BannerContent = ({ slide }: { slide: Slide }) => (
     <div className="space-y-6">
       <h1 className="text-white text-4xl md:text-6xl font-bold font-quicksand ">
         <div className="pb-2 md:pb-4 xl:pb-6">
-        {slide.title.start}{" "}
-        <span className="text-4xl md:text-8xl font-dancing font-extrabold text-[#211f49]">
-          {slide.title.middle}{" "}
-        </span>{" "}
+          {slide.title.start}{" "}
+          <span className="text-4xl md:text-8xl font-dancing font-extrabold text-[#211f49]">
+            {slide.title.middle}{" "}
+          </span>{" "}
         </div>
         {slide.title.end}
       </h1>
@@ -56,7 +55,7 @@ const BannerSlider = () => {
   const slides = [
     {
       title: {
-        start : "Make Your",
+        start: "Make Your",
         middle: "Pahichan",
         end: "Your Story in Scents",
       },
@@ -65,7 +64,7 @@ const BannerSlider = () => {
     },
     {
       title: {
-        start : "Express Your",
+        start: "Express Your",
         middle: "Swabhav",
         end: "Heritage of Excellence",
       },
@@ -74,7 +73,7 @@ const BannerSlider = () => {
     },
     {
       title: {
-        start : "Make Your",
+        start: "Make Your",
         middle: "Pahichan",
         end: "A Luxurious Legacy Defined",
       },
@@ -95,7 +94,9 @@ const BannerSlider = () => {
     next: <RightArrowIcon className="w-5 h-5" />
   };
 
-  return (    <section className="relative bg-gradient-to-b md:bg-gradient-to-r from-[#826740] via-[#b5a388] to-[#e9dfd1] overflow-hidden cursor-grab group">
+  return (
+
+    <section className="relative   bg-gradient-to-b md:bg-gradient-to-r from-[#826740] via-[#b5a388] to-[#e9dfd1] overflow-hidden cursor-grab group">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10 bg-cover bg-center" />
 
@@ -105,7 +106,7 @@ const BannerSlider = () => {
         autoPlayInterval={5000}
         showArrows={true}
         showDots={true}
-        className="h-[85vh]"
+        className="h-[85vh]  px-4 sm:px-6 lg:px-12 xl:px-24 2xl:px-32"
         // className="h-[88vh]"
         containerClassName="container mx-auto px-4 h-full flex items-center"
         arrowClassName="w-8 h-8 flex items-center justify-center rounded-full border border-secondaryBg text-seborder-secondaryBg hover:bg-primary hover:text-white hover:border-primary transition-colors opacity-0 group-hover:opacity-100"

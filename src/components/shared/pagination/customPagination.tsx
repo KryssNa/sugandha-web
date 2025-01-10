@@ -73,6 +73,7 @@ const ItemsPerPageSelector: React.FC<{
         onChange={(e) => onChange(Number(e.target.value))}
         className="px-2 py-1 border border-gray-200 rounded-lg text-sm focus:outline-none
           focus:ring-2 focus:ring-orange-500"
+          title='items per page'
       >
         {options.map((option) => (
           <option key={option} value={option}>

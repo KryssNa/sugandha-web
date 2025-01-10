@@ -1,60 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
+import { Product } from "@/components/shared/types/productTypes";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { addToCart } from "@/store/slices/cartSlice";
+import { removeFromWishlist } from "@/store/slices/wishlistSlice";
+import { AnimatePresence, motion } from "framer-motion";
+import { ShoppingCart, Star, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, ShoppingCart, Star } from "lucide-react";
-
-// Types
-interface WishlistProduct {
-  id: string;
-  name: string;
-  image: string;
-  price: number;
-  rating: number;
-  reviews: number;
-  tags: string[];
-  inStock: boolean;
-}
+import React from "react";
 
 const WishlistSection: React.FC = () => {
-  // State for wishlist items
-  const [wishlistItems, setWishlistItems] = useState<WishlistProduct[]>([
-    {
-      id: "1",
-      name: "Creed Aventus EDP 100ml",
-      image: "/assets/images/products/image3.png",
-      price: 125.00,
-      rating: 4.8,
-      reviews: 128,
-      tags: ["Premium", "Luxury"],
-      inStock: true,
-    },
-    {
-      id: "2",
-      name: "Luxurious Elixir Rough 100ml",
-      image: "/assets/images/products/armani.png",
-      price: 125.00,
-      rating: 4.8,
-      reviews: 128,
-      tags: ["Premium", "Luxury"],
-      inStock: true,
-    },
-    // Add more items as needed
-  ]);
+  const dispatch = useAppDispatch();
+  const wishlistItems = useAppSelector((state) => state.wishlist.items);
 
   // Handlers
-  const removeFromWishlist = (id: string) => {
-    setWishlistItems(prev => prev.filter(item => item.id !== id));
+  const handleRemoveFromWishlist = (id: string) => {
+    dispatch(removeFromWishlist(id));
   };
 
-  const addToCart = (item: WishlistProduct) => {
-    console.log("Adding to cart:", item);
-    // Add your cart logic here
+  const handleAddToCart = (item: Product) => {
+    dispatch(addToCart(item));
+    dispatch(removeFromWishlist(item.id)); // Optionally remove from wishlist after adding to cart
   };
 
   return (
-    <div className="sm:max-w-[640px]  md:max-w-[768px] lg:max-w-[1024px] xl:max-w-[1280px] 2xl:max-w-[1500px] mx-auto p-6  ">
+    <div className="sm:max-w-[640px] md:max-w-[768px] lg:max-w-[1024px] xl:max-w-[1280px] 2xl:max-w-[1500px] mx-auto p-6">
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         {/* Header */}
         <div className="grid grid-cols-12 border-b border-gray-200 bg-white text-lg font-bold">
@@ -81,7 +51,7 @@ const WishlistSection: React.FC = () => {
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => removeFromWishlist(item.id)}
+                  onClick={() => handleRemoveFromWishlist(item.id)}
                   className="flex items-center gap-2 text-gray-500 hover:text-red-500 
                     transition-colors duration-200"
                 >
@@ -95,26 +65,26 @@ const WishlistSection: React.FC = () => {
                 <div className="flex gap-4">
                   <div className="relative w-[150px] h-[150px] border border-gray-200 rounded-lg overflow-hidden">
                     <Image
-                      src={item.image}
-                      alt={item.name}
+                      src={item.thumbnail}
+                      alt={item.title}
                       fill
                       className="object-contain p-4"
                     />
                   </div>
                   <div className="flex flex-col">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {item.name}
+                      {item.title}
                     </h3>
                     <div className="flex items-center gap-2 mb-3">
                       <div className="flex items-center">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
                         <span className="ml-1 font-semibold text-gray-900">
-                          {item.rating}
+                          {item.rating.average.toFixed(1)}
                         </span>
                       </div>
                       <span className="text-gray-300">|</span>
                       <span className="text-gray-600">
-                        {item.reviews} Reviews
+                        {item.reviews.length} Reviews
                       </span>
                     </div>
                     <div className="flex gap-2">
@@ -135,16 +105,15 @@ const WishlistSection: React.FC = () => {
               {/* Price */}
               <div className="col-span-2 p-6 flex items-center justify-center">
                 <span className="text-lg font-semibold text-gray-900">
-                  ${item.price.toFixed(2)}
+                  ${item.basePrice.toFixed(2)}
                 </span>
               </div>
 
               {/* Stock Status */}
               <div className="col-span-2 p-6 flex items-center justify-center">
                 <span
-                  className={`font-semibold ${
-                    item.inStock ? "text-green-600" : "text-red-500"
-                  }`}
+                  className={`font-semibold ${item.inStock ? "text-green-600" : "text-red-500"
+                    }`}
                 >
                   {item.inStock ? "In Stock" : "Out of Stock"}
                 </span>
@@ -155,13 +124,12 @@ const WishlistSection: React.FC = () => {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => addToCart(item)}
+                  onClick={() => handleAddToCart(item)}
                   disabled={!item.inStock}
                   className={`flex items-center gap-2 px-6 py-3 rounded-lg
-                    ${
-                      item.inStock
-                        ? "bg-orange-500 hover:bg-orange-600 text-white"
-                        : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    ${item.inStock
+                      ? "bg-orange-500 hover:bg-orange-600 text-white"
+                      : "bg-gray-200 text-gray-500 cursor-not-allowed"
                     } transition-colors duration-200`}
                 >
                   <ShoppingCart className="w-5 h-5" />
@@ -192,7 +160,7 @@ const WishlistSection: React.FC = () => {
   );
 };
 
-// Add loading state component
+// Loading state component
 const WishlistSkeleton: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -223,4 +191,5 @@ const WishlistSkeleton: React.FC = () => {
   );
 };
 
+export { WishlistSkeleton };
 export default WishlistSection;
