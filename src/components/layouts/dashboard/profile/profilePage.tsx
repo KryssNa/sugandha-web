@@ -1,26 +1,137 @@
 'use client';
 
 import { showToast } from '@/components/shared/toast/showAlet';
+import useToast from '@/hooks/useToast';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { updateUserProfile } from '@/store/slices/authSlice';
 import { motion } from 'framer-motion';
 import {
     Camera,
-    Lock,
+    Loader,
     Mail,
     MapPin,
     Save,
-    Shield,
     User
 } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 const ProfilePage = () => {
+    const toast = useToast();
 
     const dispatch = useAppDispatch();
+    const ProfileAvatar = ({
+        user,
+        onUpload
+    }: {
+        user: any,
+        onUpload: (file: File) => Promise<void>
+    }) => {
+        const [isUploading, setIsUploading] = useState(false);
+        const fileInputRef = useRef<HTMLInputElement>(null);
+
+        const getInitials = () => {
+            return `${user?.firstName?.[0] || ''}${user?.lastName?.[0] || ''}`.toUpperCase();
+        };
+
+        const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                toast("error", 'File size should be less than 5MB');
+                return;
+            }
+
+            if (!file.type.startsWith('image/')) {
+                toast("error", 'Please upload an image file');
+                return;
+            }
+
+            setIsUploading(true);
+            try {
+                await onUpload(file);
+                toast("success", 'Profile picture updated successfully');
+            } catch (error) {
+                toast("error", 'Failed to upload profile picture');
+            } finally {
+                setIsUploading(false);
+            }
+        };
+
+        return (
+            <div className="relative">
+                {user?.avatar ? (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="w-20 h-20 rounded-full overflow-hidden"
+                    >
+                        <img
+                            src={user.avatar}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                        />
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        initial={{ scale: 0.9 }}
+                        animate={{ scale: 1 }}
+                        className="w-20 h-20 rounded-full bg-primary/10 flex items-center 
+                  justify-center text-primary text-2xl font-bold"
+                    >
+                        {getInitials()}
+                    </motion.div>
+                )}
+
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                />
+
+                <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="absolute bottom-0 right-0 p-1.5 bg-white rounded-full 
+                shadow-lg border border-gray-200 hover:border-primary transition-colors"
+                >
+                    {isUploading ? (
+                        <Loader className="w-4 h-4 animate-spin text-primary" />
+                    ) : (
+                        <Camera className="w-4 h-4 text-gray-600" />
+                    )}
+                </motion.button>
+            </div>
+        );
+    };
+
+    const handleProfilePictureUpload = async (file: File) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/uploads/profile-picture`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to upload profile picture');
+        }
+
+        const data = await response.json();
+        await dispatch(updateUserProfile(data.avatar));
+    };
+
+
 
     const { user } = useAppSelector(state => state.auth);
-    console.log('user', user);
 
     // const { user } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
@@ -48,7 +159,6 @@ const ProfilePage = () => {
         e.preventDefault();
         try {
             const response = await dispatch(updateUserProfile(formData)).unwrap();
-            console.log('response1', response);
             // Handle success
             showToast('success', 'Profile updated successfully');
             setIsEditing(false);
@@ -65,7 +175,7 @@ const ProfilePage = () => {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <div className="relative">
-                        <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center 
+                        {/* <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center 
               justify-center text-primary text-2xl font-bold">
                             {user?.firstName?.charAt(0)}
                         </div>
@@ -74,7 +184,8 @@ const ProfilePage = () => {
                             title='Change Profile Picture'
                         >
                             <Camera className="w-4 h-4 text-gray-600" />
-                        </button>
+                        </button> */}
+                        <ProfileAvatar user={user} onUpload={handleProfilePictureUpload} />
                     </div>
                     <div>
                         <h2 className="text-xl font-semibold text-gray-900">
@@ -290,46 +401,6 @@ const ProfilePage = () => {
                 </div>
             </div>
 
-            {/* Security Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                <div className="p-6">
-                    <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
-                        <Shield className="w-4 h-4 text-primary" />
-                        Security Settings
-                    </h3>
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <div>
-                                <p className="font-medium text-gray-900">Change Password</p>
-                                <p className="text-sm text-gray-500">Update your password</p>
-                            </div>
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="px-4 py-2 text-primary hover:bg-primary/10 rounded-lg 
-                  transition-colors flex items-center gap-2"
-                            >
-                                <Lock className="w-4 h-4" />
-                                Update
-                            </motion.button>
-                        </div>
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <div>
-                                <p className="font-medium text-gray-900">Two-Factor Authentication</p>
-                                <p className="text-sm text-gray-500">Add an extra layer of security</p>
-                            </div>
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="px-4 py-2 text-primary hover:bg-primary/10 rounded-lg 
-                  transition-colors flex items-center gap-2"
-                            >
-                                Enable
-                            </motion.button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };
