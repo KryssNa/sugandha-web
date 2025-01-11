@@ -111,7 +111,7 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
               Home
             </Link>
             <Link
-              href='/shop'
+              href='/products'
               className='block py-2 text-gray-700 hover:text-primary'
             >
               Shop

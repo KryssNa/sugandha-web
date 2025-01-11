@@ -276,13 +276,14 @@ export const RegisterPage: React.FC = () => {
 
       if (registerUser.fulfilled.match(resultAction)) {
         createAlert("success", "Registration successful");
+        // dispatch(resetRegistrationSuccess());
         setFormData({
           name: "",
           email: "",
           password: "",
           confirmPassword: ""
         });
-        router.push("/auth/login");
+        router.push("/");
       } else if (registerUser.rejected.match(resultAction)) {
         createAlert("error", resultAction.payload as string);
       }

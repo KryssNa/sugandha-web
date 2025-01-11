@@ -160,6 +160,30 @@ export const authService = {
   async register(data: RegisterData): Promise<AuthResponse> {
     try {
       const response = await api.post('/auth/register', data);
+      const { tokens, user } = response.data.data;
+
+      if (tokens?.accessToken) {
+        // Set in both cookies and localStorage
+        Cookies.set('accessToken', tokens.accessToken, {
+          expires: 7, // 7 days
+          sameSite: 'strict',
+          secure: process.env.NODE_ENV === 'production'
+        });
+
+        Cookies.set('refreshToken', tokens.refreshToken, {
+          expires: 30, // 30 days
+          sameSite: 'strict',
+          secure: process.env.NODE_ENV === 'production'
+        });
+
+        localStorage.setItem('accessToken', tokens.accessToken);
+        localStorage.setItem('refreshToken', tokens.refreshToken);
+        localStorage.setItem('user', JSON.stringify(user));
+
+        // Set default auth header
+        api.defaults.headers.common['Authorization'] = `Bearer ${tokens.accessToken}`;
+      }
+
       return {
         success: true,
         data: response.data
@@ -179,12 +203,12 @@ export const authService = {
 
       if (tokens?.accessToken) {
         // Set in both cookies and localStorage
-        Cookies.set('accessToken', tokens.accessToken, { 
+        Cookies.set('accessToken', tokens.accessToken, {
           expires: 7, // 7 days
           sameSite: 'strict',
           secure: process.env.NODE_ENV === 'production'
         });
-        
+
         Cookies.set('refreshToken', tokens.refreshToken, {
           expires: 30, // 30 days
           sameSite: 'strict',
@@ -194,7 +218,7 @@ export const authService = {
         localStorage.setItem('accessToken', tokens.accessToken);
         localStorage.setItem('refreshToken', tokens.refreshToken);
         localStorage.setItem('user', JSON.stringify(user));
-        
+
         // Set default auth header
         api.defaults.headers.common['Authorization'] = `Bearer ${tokens.accessToken}`;
       }
@@ -232,9 +256,7 @@ export const authService = {
       // Clear both cookies and localStorage
       Cookies.remove('accessToken');
       Cookies.remove('refreshToken');
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
+      localStorage.clear();
       delete api.defaults.headers.common['Authorization'];
     }
   },

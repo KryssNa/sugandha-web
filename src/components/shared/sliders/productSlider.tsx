@@ -100,12 +100,22 @@ export const ProductSlider: React.FC<ProductSliderProps> = ({
               style={{ width: `${CARD_WIDTH}px`, marginRight: `${GAP}px` }}
             >
               <ProductCard
-                {...product}
+                key={index}
+                slug={product.slug}
+                primaryImage={product.thumbnail}
+                secondaryImage={product.coverImage}
+                title={product.title}
+                price={product.basePrice}
+                originalPrice={product.originalPrice}
+                discount={product.discount}
+                rating={product.rating.average}
+                reviews={product.reviews.length}
+                isHot={product.isHot}
+                endDate={product.discountEndDate}
                 onAddToWishlist={() => console.log("Added to wishlist")}
                 onQuickView={() => console.log("Quick view opened")}
-                onCompare={() => console.log("Added to compare")}
                 onAddToCart={() => console.log("Added to cart")}
-                className='max-h-[460px]'
+                className='w-[360px]'
               />
             </div>
           ))}

@@ -30,7 +30,7 @@ const BannerContent = ({ slide }: { slide: Slide }) => (
       <p className="text-white/90 text-lg max-w-lg">{slide.subtitle}</p>
 
       <Link
-        href="/shop"
+        href="/products"
         className="inline-flex items-center px-8 py-3 rounded-full border-2 border-white text-white hover:bg-white hover:text-gray-900 transition-colors gap-2 group"
       >
         Shop Now

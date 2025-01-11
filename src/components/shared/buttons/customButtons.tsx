@@ -4,7 +4,9 @@ export const CustomButton: React.FC<{
     children: React.ReactNode;
     onClick?: () => void;
     className?: string;
-}> = ({ variant = 'primary', size = 'md', children, onClick, className = '' }) => {
+    disabled?: boolean;
+    type?: 'button' | 'submit' | 'reset';
+}> = ({ variant = 'primary', size = 'md', children, onClick, className = '',disabled=false,type="button" }) => {
     const baseStyles = "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none";
     const variantStyles = {
         primary: "bg-orange-500 text-white hover:bg-orange-600",
@@ -21,6 +23,8 @@ export const CustomButton: React.FC<{
         <button
             onClick={onClick}
             className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+            disabled={disabled}
+            type={type}
         >
             {children}
         </button>

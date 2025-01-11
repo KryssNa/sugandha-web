@@ -2,22 +2,23 @@
 import OfferCard from "@/components/shared/cards/offerCard";
 import { ProductSlider } from "@/components/shared/sliders/productSlider";
 import { Product } from "@/components/shared/types/productTypes";
+import { RootState } from "@/store";
+import { useAppDispatch } from "@/store/hooks";
+import { fetchProducts } from "@/store/slices/productSlice";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 
 export const NewArrivals: React.FC = () => {
-  const dummyProducts: Product[] = Array(6).fill({
-    href: "/",
-    primaryImage: "/assets/images/products/armani.png",
-    secondaryImage: "/assets/images/products/image3.png",
-    title: "Creed Aventus EDP 100ml",
-    price: 12500,
-    originalPrice: 15000,
-    discount: 29,
-    rating: 4.8,
-    reviews: 12000,
-    isHot: true,
-  });
+  const dispatch =useAppDispatch();
+  
+  const { products, loading, metadata } = useSelector(
+    (state: RootState) => state.product
+  );
+  // Fetch products when component mounts or filters change
+  useEffect(() => {
+    dispatch(fetchProducts({}));  // Dispatch the action to fetch products with filters
+  }, [dispatch]);
 
   return (
     <div className='px-4 md:px-12 xl:px-24 py-6 md:py-16 space-y-6 bg-white'>
@@ -44,14 +45,14 @@ export const NewArrivals: React.FC = () => {
           />
         </div>
         <div className='w-full md:w-[40%] lg:w-[51%] xl:w-[60%] 2xl:w-[67%]'>
-          <ProductSlider products={dummyProducts} position='right' />
+          <ProductSlider products={products} position='right' />
         </div>
       </div>
 
       {/* Left slide section */}
       <div className='flex flex-col justify-between md:flex-row gap-4'>
         <div className='w-full md:w-[40%] lg:w-[50%] xl:w-[60%] 2xl:w-[67%]'>
-          <ProductSlider products={dummyProducts} position='left' />
+          <ProductSlider products={products} position='left' />
         </div>
         <div className='offercard flex flex-col justify-center items-center'>
           <OfferCard

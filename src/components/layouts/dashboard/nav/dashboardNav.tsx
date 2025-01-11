@@ -14,11 +14,14 @@ import {
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { logoutUser } from '@/store/slices/authSlice';
+import useSweetAlert from '@/components/shared/toast/showToast';
 
 export const DashboardNav = () => {
   const router = useRouter();
   const pathname = usePathname();
   const  logout  = useAuth();
+  const createAlert = useSweetAlert();
+
 
   const navigationItems = [
     {
@@ -50,6 +53,7 @@ export const DashboardNav = () => {
 
   const handleLogout = useCallback(async () => {
     await logoutUser();
+    createAlert('success', 'Logged out successfully');
     router.push('/auth/login');
   }, [logout, router]);
 

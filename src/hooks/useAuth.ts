@@ -32,6 +32,7 @@ export const useAuth = () => {
   const login = async (email: string, password: string) => {
     try {
       const result = await dispatch(loginUser({ email, password }));
+      
       if (loginUser.fulfilled.match(result)) {
         router.push('/dashboard');
       }

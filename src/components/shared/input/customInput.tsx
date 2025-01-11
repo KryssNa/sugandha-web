@@ -26,7 +26,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({
   tooltipText = "",
 }) => (
   <div className='space-y-1'>
-    {label &&  <label className='block text-sm font-medium text-gray-700'>{label}</label>}
+    {label &&(  <label className='block text-sm font-medium text-gray-700'>{label} {required && <span className="text-red"> *</span>}</label>)}
     <input
       type={type}
       value={value}

@@ -1,5 +1,6 @@
 'use client';
 
+import useSweetAlert from '@/components/shared/toast/showToast';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch } from '@/store/hooks';
 import { logoutUser } from '@/store/slices/authSlice';
@@ -30,6 +31,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     const pathname = usePathname();
     const dispatch = useAppDispatch();
     const { user } = useAuth();
+    const createAlert = useSweetAlert();
+
 
     const navigationItems = [
         {
@@ -56,6 +59,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
     const handleLogout = async () => {
         dispatch(logoutUser());
+        createAlert('success', 'Logged out successfully');
         router.push('/auth/login');
     };
 

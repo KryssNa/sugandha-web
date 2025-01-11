@@ -54,7 +54,7 @@ export interface TableProps<T> {
     };
 }
 
-interface TableAction<T> {
+export interface TableAction<T> {
     icon?: React.ReactNode;
     label: string;
     onClick: (row: T) => void;
@@ -322,7 +322,7 @@ const TableRow = <T extends {}>({
                     </td>
                 )}
 
-                {/* Expand Button */}
+                {/* Expand Button
                 {expandable && (
                     <td className="w-12 px-6 py-4">
                         <motion.button
@@ -347,7 +347,7 @@ const TableRow = <T extends {}>({
                 `} />
                         </motion.button>
                     </td>
-                )}
+                )} */}
 
                 {/* Data Cells */}
                 {columns.map((column, cellIndex) => (

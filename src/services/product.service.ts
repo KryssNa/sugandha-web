@@ -1,81 +1,82 @@
-
-  // src/services/product.service.ts
+// src/services/product.service.ts
 import { Product, Review } from '@/components/shared/types/productTypes';
 import { api } from '@/lib/axios';
 
-  export class ProductService {
-    // Get all products with filtering
-    // static async getProducts(filters: ProductFilterProps = {}) {
-    //   const params = new URLSearchParams();
-      
-    //   Object.entries(filters).forEach(([key, value]) => {
-    //     if (value !== undefined) {
-    //       params.append(key, value.toString());
-    //     }
-    //   });
-  
-    //   return api.get<any, { data: Product[]; metadata: any }>(`/products?${params}`);
-    // }
-  
-    // Get product by ID
-    static async getProductById(id: string) {
-      return api.get<any, { data: Product }>(`/products/${id}`);
+// Get all products with filtering
+export const getProducts = async (filters = {}) => {
+  const params = new URLSearchParams(filters).toString();
+  try {
+    const response = await api.get(`/products?${params}`);
+    if (response.data.success) {
+      return {
+        data: response.data.data.products,
+        metadata: response.data.metadata
+      }
     }
-  
-    // Get product by slug
-    static async getProductBySlug(slug: string) {
-      return api.get<any, { data: Product }>(`/products/slug/${slug}`);
-    }
-  
-    // Create product
-    static async createProduct(productData: Partial<Product>) {
-      return api.post<any, { data: Product }>('/products', productData);
-    }
-  
-    // Update product
-    static async updateProduct(id: string, updateData: Partial<Product>) {
-      return api.patch<any, { data: Product }>(`/products/${id}`, updateData);
-    }
-  
-    // Delete product
-    static async deleteProduct(id: string) {
-      return api.delete(`/products/${id}`);
-    }
-  
-    // Add review
-    static async addReview(productId: string, review: Review) {
-      return api.post<any, { data: Product }>(`/products/${productId}/reviews`, review);
-    }
-  
-    // Update stock
-    static async updateStock(id: string, quantity: number) {
-      return api.patch(`/products/${id}/stock`, { quantity });
-    }
-  
-    // Update variant stock
-    static async updateVariantStock(id: string, variantSku: string, quantity: number) {
-      return api.patch(`/products/${id}/variant-stock`, { variantSku, quantity });
-    }
-  
-    // Get featured products
-    static async getFeaturedProducts() {
-      return api.get<any, { data: Product[] }>('/products/featured');
-    }
-  
-    // Get new arrivals
-    static async getNewArrivals() {
-      return api.get<any, { data: Product[] }>('/products/new-arrivals');
-    }
-  
-    // Get best sellers
-    static async getBestSellers() {
-      return api.get<any, { data: Product[] }>('/products/best-sellers');
-    }
-  
-    // Get related products
-    static async getRelatedProducts(id: string) {
-      return api.get<any, { data: Product[] }>(`/products/${id}/related`);
-    }
+    return { success: false, message: response.data.message };
+  } catch (error) {
+    console.error('Error in getProducts:', error);
+    throw error;
   }
-  
- 
+};
+
+
+// Get product by ID
+export const getProductById = async (id: string) => {
+  return api.get<any, { data: Product }>(`/products/${id}`);
+};
+
+// Get product by slug
+export const getProductBySlug = async (slug: string) => {
+  return api.get<any, { data: Product }>(`/products/slug/${slug}`);
+};
+
+// Create product
+export const createProduct = async (productData: Partial<Product>) => {
+  return api.post<any, { data: Product }>('/products', productData);
+};
+
+// Update product
+export const updateProduct = async (id: string, updateData: Partial<Product>) => {
+  return api.patch<any, { data: Product }>(`/products/${id}`, updateData);
+};
+
+// Delete product
+export const deleteProduct = async (id: string) => {
+  return api.delete(`/products/${id}`);
+};
+
+// Add review
+export const addReview = async (productId: string, review: Review) => {
+  return api.post<any, { data: Product }>(`/products/${productId}/reviews`, review);
+};
+
+// Update stock
+export const updateStock = async (id: string, quantity: number) => {
+  return api.patch(`/products/${id}/stock`, { quantity });
+};
+
+// Update variant stock
+export const updateVariantStock = async (id: string, variantSku: string, quantity: number) => {
+  return api.patch(`/products/${id}/variant-stock`, { variantSku, quantity });
+};
+
+// Get featured products
+export const getFeaturedProducts = async () => {
+  return api.get<any, { data: Product[] }>('/products/featured');
+};
+
+// Get new arrivals
+export const getNewArrivals = async () => {
+  return api.get<any, { data: Product[] }>('/products/new-arrivals');
+};
+
+// Get best sellers
+export const getBestSellers = async () => {
+  return api.get<any, { data: Product[] }>('/products/best-sellers');
+};
+
+// Get related products
+export const getRelatedProducts = async (id: string) => {
+  return api.get<any, { data: Product[] }>(`/products/${id}/related`);
+};

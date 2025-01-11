@@ -151,7 +151,7 @@ const ConfirmationPage: React.FC<ConfirmationPageProps> = ({
 
   const handleContinueShopping = () => {
     dispatch(resetCheckout());
-    router.push('/shop'); // Adjust the route as needed
+    router.push('/products'); // Adjust the route as needed
   };
 
   return (

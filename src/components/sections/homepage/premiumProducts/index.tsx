@@ -1,7 +1,11 @@
 "use client";
 import { ProductCard } from "@/components/shared/cards/productCard";
 import { Product } from "@/components/shared/types/productTypes";
-import React, { useState } from "react";
+import { RootState } from "@/store";
+import { useAppDispatch } from "@/store/hooks";
+import { fetchProducts } from "@/store/slices/productSlice";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 interface DummyProducts {
   onSale: Product[];
@@ -9,135 +13,146 @@ interface DummyProducts {
   bestRated: Product[];
 }
 
-const dummyProducts: DummyProducts = {
-  onSale: [
-    {
-      slug: "/",
-      primaryImage: "/assets/images/products/armani.png",
-      secondaryImage: "/assets/images/products/image3.png",
-      title: "Creed Aventus EDP 100ml",
-      price: 12500,
-      originalPrice: 15000,
-      discount: 29,
-      rating: 4.8,
-      reviews: 12000,
-      isHot: true,
-      brand: "Brand Name",
-      category: "Category Name",
-      inStock: true,
-      endDate: new Date("2024-12-31"),
-    },
-    // Add more products as needed
-  ],
-  featured: [
-    {
-      slug: "/",
-      primaryImage: "/assets/images/products/armani.png",
-      secondaryImage: "/assets/images/products/image3.png",
-      title: "Creed Aventus EDP 100ml",
-      price: 12500,
-      originalPrice: 15000,
-      discount: 29,
-      rating: 4.8,
-      reviews: 12000,
-      isHot: true,
-      brand: "Brand Name",
-      category: "Category Name",
-      inStock: true,
-      endDate: new Date("2024-12-31"),
-    },
-    {
-      slug: "/",
-      primaryImage: "/assets/images/products/armani.png",
-      secondaryImage: "/assets/images/products/image3.png",
-      title: "Creed Aventus EDP 100ml",
-      price: 12500,
-      originalPrice: 15000,
-      discount: 29,
-      rating: 4.8,
-      reviews: 12000,
-      isHot: true,
-      brand: "Brand Name",
-      category: "Category Name",
-      inStock: true,
-      endDate: new Date("2024-12-31"),
-    },
-    {
-      slug: "/",
-      primaryImage: "/assets/images/products/armani.png",
-      secondaryImage: "/assets/images/products/image3.png",
-      title: "Creed Aventus EDP 100ml",
-      price: 12500,
-      originalPrice: 15000,
-      discount: 29,
-      rating: 4.8,
-      reviews: 12000,
-      isHot: true,
-      brand: "Brand Name",
-      category: "Category Name",
-      inStock: true,
-      endDate: new Date("2024-12-31"),
-    },
-  ],
-  bestRated: [
-    {
-      slug: "/",
-      primaryImage: "/assets/images/products/armani.png",
-      secondaryImage: "/assets/images/products/image3.png",
-      title: "Creed Aventus EDP 100ml",
-      price: 12500,
-      originalPrice: 15000,
-      discount: 29,
-      rating: 4.8,
-      reviews: 12000,
-      isHot: true,
-      brand: "Brand Name",
-      category: "Category Name",
-      inStock: true,
-      endDate: new Date("2024-12-31"),
-    },
-    {
-      slug: "/",
-      primaryImage: "/assets/images/products/armani.png",
-      secondaryImage: "/assets/images/products/image3.png",
-      title: "Creed Aventus EDP 100ml",
-      price: 12500,
-      originalPrice: 15000,
-      discount: 29,
-      rating: 4.8,
-      reviews: 12000,
-      isHot: true,
-      brand: "Brand Name",
-      category: "Category Name",
-      inStock: true,
-      endDate: new Date("2024-12-31"),
-    },
-    {
-      slug: "/",
-      primaryImage: "/assets/images/products/armani.png",
-      secondaryImage: "/assets/images/products/image3.png",
-      title: "Creed Aventus EDP 100ml",
-      price: 12500,
-      originalPrice: 15000,
-      discount: 29,
-      rating: 4.8,
-      reviews: 12000,
-      isHot: true,
-      brand: "Brand Name",
-      category: "Category Name",
-      inStock: true,
-      endDate: new Date("2024-12-31"),
-    },
-  ],
-};
+// const dummyProducts: DummyProducts = {
+//   onSale: [
+//     {
+//       slug: "/",
+//       primaryImage: "/assets/images/products/armani.png",
+//       secondaryImage: "/assets/images/products/image3.png",
+//       title: "Creed Aventus EDP 100ml",
+//       price: 12500,
+//       originalPrice: 15000,
+//       discount: 29,
+//       rating: 4.8,
+//       reviews: 12000,
+//       isHot: true,
+//       brand: "Brand Name",
+//       category: "Category Name",
+//       inStock: true,
+//       endDate: new Date("2024-12-31"),
+//     },
+//     // Add more products as needed
+//   ],
+//   featured: [
+//     {
+//       slug: "/",
+//       primaryImage: "/assets/images/products/armani.png",
+//       secondaryImage: "/assets/images/products/image3.png",
+//       title: "Creed Aventus EDP 100ml",
+//       price: 12500,
+//       originalPrice: 15000,
+//       discount: 29,
+//       rating: 4.8,
+//       reviews: 12000,
+//       isHot: true,
+//       brand: "Brand Name",
+//       category: "Category Name",
+//       inStock: true,
+//       endDate: new Date("2024-12-31"),
+//     },
+//     {
+//       slug: "/",
+//       primaryImage: "/assets/images/products/armani.png",
+//       secondaryImage: "/assets/images/products/image3.png",
+//       title: "Creed Aventus EDP 100ml",
+//       price: 12500,
+//       originalPrice: 15000,
+//       discount: 29,
+//       rating: 4.8,
+//       reviews: 12000,
+//       isHot: true,
+//       brand: "Brand Name",
+//       category: "Category Name",
+//       inStock: true,
+//       endDate: new Date("2024-12-31"),
+//     },
+//     {
+//       slug: "/",
+//       primaryImage: "/assets/images/products/armani.png",
+//       secondaryImage: "/assets/images/products/image3.png",
+//       title: "Creed Aventus EDP 100ml",
+//       price: 12500,
+//       originalPrice: 15000,
+//       discount: 29,
+//       rating: 4.8,
+//       reviews: 12000,
+//       isHot: true,
+//       brand: "Brand Name",
+//       category: "Category Name",
+//       inStock: true,
+//       endDate: new Date("2024-12-31"),
+//     },
+//   ],
+//   bestRated: [
+//     {
+//       slug: "/",
+//       primaryImage: "/assets/images/products/armani.png",
+//       secondaryImage: "/assets/images/products/image3.png",
+//       title: "Creed Aventus EDP 100ml",
+//       price: 12500,
+//       originalPrice: 15000,
+//       discount: 29,
+//       rating: 4.8,
+//       reviews: 12000,
+//       isHot: true,
+//       brand: "Brand Name",
+//       category: "Category Name",
+//       inStock: true,
+//       endDate: new Date("2024-12-31"),
+//     },
+//     {
+//       slug: "/",
+//       primaryImage: "/assets/images/products/armani.png",
+//       secondaryImage: "/assets/images/products/image3.png",
+//       title: "Creed Aventus EDP 100ml",
+//       price: 12500,
+//       originalPrice: 15000,
+//       discount: 29,
+//       rating: 4.8,
+//       reviews: 12000,
+//       isHot: true,
+//       brand: "Brand Name",
+//       category: "Category Name",
+//       inStock: true,
+//       endDate: new Date("2024-12-31"),
+//     },
+//     {
+//       slug: "/",
+//       primaryImage: "/assets/images/products/armani.png",
+//       secondaryImage: "/assets/images/products/image3.png",
+//       title: "Creed Aventus EDP 100ml",
+//       price: 12500,
+//       originalPrice: 15000,
+//       discount: 29,
+//       rating: 4.8,
+//       reviews: 12000,
+//       isHot: true,
+//       brand: "Brand Name",
+//       category: "Category Name",
+//       inStock: true,
+//       endDate: new Date("2024-12-31"),
+//     },
+//   ],
+// };
 
 export const PremiumProducts: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState<keyof DummyProducts>("onSale");
+  const [selectedTab, setSelectedTab] = useState("onSale");
+  const dispatch = useAppDispatch();
 
   const handleTabSelect = (tab: keyof DummyProducts) => {
     setSelectedTab(tab);
   };
+    // Access Redux state for products, loading, filters, etc.
+    const { products, loading, metadata } = useSelector(
+      (state: RootState) => state.product
+    );
+    // Fetch products when component mounts or filters change
+    useEffect(() => {
+      dispatch(fetchProducts({}));  // Dispatch the action to fetch products with filters
+    }, [dispatch, selectedTab]);
+    console.log("premium products", products);
 
+    
   return (
     <div className='px-4 md:px-12 xl:px-24 py-6 space-y-6 bg-white'>
       <div className='w-full  h-11 relative flex max-sm:flex-col max-sm:pb-24 max-sm:gap-4 max-sm:px-0 justify-between items-center'>
@@ -179,23 +194,22 @@ export const PremiumProducts: React.FC = () => {
       </div>
 
       <div className='flex flex-wrap gap-4 justify-center'>
-        {dummyProducts[selectedTab].map((product, i) => (
+        {products.map((product, i) => (
           <ProductCard
             key={i}
             slug={product.slug}
-            primaryImage={product.primaryImage}
-            secondaryImage={product.secondaryImage}
+            primaryImage={product.coverImage}
+            secondaryImage={product.thumbnail}
             title={product.title}
-            price={product.price}
+            price={product.basePrice}
             originalPrice={product.originalPrice}
             discount={product.discount}
-            rating={product.rating}
-            reviews={product.reviews}
+            rating={product.rating.average}
+            reviews={product.reviews.length}
             isHot={product.isHot}
-            endDate={product.endDate}
+            endDate={product.discountEndDate}
             onAddToWishlist={() => console.log("Added to wishlist")}
             onQuickView={() => console.log("Quick view opened")}
-            onCompare={() => console.log("Added to compare")}
             onAddToCart={() => console.log("Added to cart")}
             className='w-[360px]'
           />

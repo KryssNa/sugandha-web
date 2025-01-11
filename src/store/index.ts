@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
+import authReducer from './slices/authSlice';
 import cartReducer from './slices/cartSlice';
+import categoryReducer from './slices/categorySlice';
 import checkoutReducer from './slices/checkoutSlice';
+import filterReducer from './slices/filterSlice';
 import productReducer from './slices/productSlice';
 import userReducer from './slices/userSlice';
 import wishlistReducer from './slices/wishlistSlice';
-import filterReducer from './slices/filterSlice';
-import authReducer from './slices/authSlice';
+import variantReducer from './slices/variantSlice';
 
 export const store = configureStore({
     reducer: {
@@ -16,6 +18,8 @@ export const store = configureStore({
         wishlist: wishlistReducer,
         filter: filterReducer,
         auth: authReducer,
+        categories: categoryReducer,
+        variants: variantReducer,
     },
 });
 

@@ -38,6 +38,7 @@ export interface IImage {
       5: number;
     };
   }
+
   
   export interface Review {
     id?: string;

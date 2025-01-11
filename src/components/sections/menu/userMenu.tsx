@@ -1,3 +1,4 @@
+import useSweetAlert from '@/components/shared/toast/showToast';
 import { logoutUser, User as UserType } from '@/store/slices/authSlice';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -19,8 +20,11 @@ interface UserMenuProps {
 const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dispatch = useDispatch();
+    const createAlert = useSweetAlert();
+
 
     const handleLogout = () => {
+        createAlert('success', 'Logged out successfully');
         dispatch(logoutUser());
     };
 

@@ -9,6 +9,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: string;
+  avatar?: string;
 }
 
 interface AuthState {
@@ -52,8 +53,19 @@ export const registerUser = createAsyncThunk(
   async (userData: { firstName: string; lastName: string; email: string; password: string },
     { rejectWithValue }) => {
     try {
+
       const response = await authService.register(userData);
-      return response.data;
+      if (response.success) {
+        const { tokens, user } = response.data.data;
+
+        // Store tokens in localStorage
+        localStorage.setItem('accessToken', tokens.accessToken);
+        localStorage.setItem('refreshToken', tokens.refreshToken);
+        localStorage.setItem('user', JSON.stringify(user));
+
+        return { tokens, user };
+      }
+      return rejectWithValue(response.message || 'Registration failed');
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || 'Registration failed'
@@ -100,6 +112,7 @@ export const fetchCurrentUser = createAsyncThunk(
   }
 );
 
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -112,6 +125,7 @@ const authSlice = createSlice({
       state.registrationSuccess = false;
 
       // Clear localStorage
+      localStorage.clear();
       authService.logout();
     },
     clearError: (state) => {
@@ -128,9 +142,15 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(registerUser.fulfilled, (state) => {
+      .addCase(registerUser.fulfilled, (state, action) => {
+        const { user, tokens } = action.payload;
         state.loading = false;
+        state.isAuthenticated = true;
         state.registrationSuccess = true;
+        state.user = user;
+        state.accessToken = tokens.accessToken;
+        state.refreshToken = tokens.refreshToken;
+
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
@@ -142,7 +162,7 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      // In your authSlice.ts, modify the loginUser success case
+
       .addCase(loginUser.fulfilled, (state, action) => {
         const { tokens, user } = action.payload;
         state.loading = false;

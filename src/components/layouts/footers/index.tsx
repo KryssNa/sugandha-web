@@ -82,7 +82,7 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
             <ul className='space-y-4'>
               <li>
                 <Link
-                  href='/shop'
+                  href='/products'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
                   Privacy Policy
@@ -90,7 +90,7 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
               </li>
               <li>
                 <Link
-                  href='/shop'
+                  href='/products'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
                   About Us
@@ -105,7 +105,7 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
             <ul className='space-y-4'>
               <li>
                 <Link
-                  href='/shop'
+                  href='/products'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
                   Help Center
@@ -121,7 +121,7 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
               </li>
               <li>
                 <Link
-                  href='/shop'
+                  href='/products'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
                   Policies & Rules
@@ -129,7 +129,7 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
               </li>
               <li>
                 <Link
-                  href='/shop'
+                  href='/products'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
                   Online Shopping
@@ -144,7 +144,7 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
             <ul className='space-y-4'>
               <li>
                 <Link
-                  href='/shop'
+                  href='/products'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
                   My Account
