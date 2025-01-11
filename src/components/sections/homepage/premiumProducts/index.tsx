@@ -1,11 +1,11 @@
 "use client";
 import { ProductCard } from "@/components/shared/cards/productCard";
-import { Product } from "@/components/shared/types/productTypes";
+import { Product } from "@/components/shared/types/product.types";
 import { RootState } from "@/store";
 import { useAppDispatch } from "@/store/hooks";
 import { fetchProducts } from "@/store/slices/productSlice";
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 interface DummyProducts {
   onSale: Product[];
@@ -142,17 +142,17 @@ export const PremiumProducts: React.FC = () => {
   const handleTabSelect = (tab: keyof DummyProducts) => {
     setSelectedTab(tab);
   };
-    // Access Redux state for products, loading, filters, etc.
-    const { products, loading, metadata } = useSelector(
-      (state: RootState) => state.product
-    );
-    // Fetch products when component mounts or filters change
-    useEffect(() => {
-      dispatch(fetchProducts({}));  // Dispatch the action to fetch products with filters
-    }, [dispatch, selectedTab]);
-    console.log("premium products", products);
+  // Access Redux state for products, loading, filters, etc.
+  const { products, loading, metadata } = useSelector(
+    (state: RootState) => state.product
+  );
+  // Fetch products when component mounts or filters change
+  useEffect(() => {
+    dispatch(fetchProducts({}));  // Dispatch the action to fetch products with filters
+  }, [dispatch, selectedTab]);
+  console.log("premium products", products);
 
-    
+
   return (
     <div className='px-4 md:px-12 xl:px-24 py-6 space-y-6 bg-white'>
       <div className='w-full  h-11 relative flex max-sm:flex-col max-sm:pb-24 max-sm:gap-4 max-sm:px-0 justify-between items-center'>
@@ -161,31 +161,28 @@ export const PremiumProducts: React.FC = () => {
         </h1>
         <div className='flex gap-2'>
           <span
-            className={`cursor-pointer ${
-              selectedTab === "onSale"
+            className={`cursor-pointer ${selectedTab === "onSale"
                 ? "bg-[#fa6800] text-white border-[#fa6800]"
                 : "border border-[#bdbdbd] text-[#121535]"
-            } rounded-full pt-[6px] pb-2 px-4`}
+              } rounded-full pt-[6px] pb-2 px-4`}
             onClick={() => handleTabSelect("onSale")}
           >
             On Sale
           </span>
           <span
-            className={`cursor-pointer ${
-              selectedTab === "featured"
+            className={`cursor-pointer ${selectedTab === "featured"
                 ? "bg-[#fa6800] text-white border-[#fa6800]"
                 : "border border-[#bdbdbd] text-[#121535]"
-            } rounded-full pt-[6px] pb-2 px-4`}
+              } rounded-full pt-[6px] pb-2 px-4`}
             onClick={() => handleTabSelect("featured")}
           >
             Featured Products
           </span>
           <span
-            className={`cursor-pointer ${
-              selectedTab === "bestRated"
+            className={`cursor-pointer ${selectedTab === "bestRated"
                 ? "bg-[#fa6800] text-white border-[#fa6800]"
                 : "border border-[#bdbdbd] text-[#121535]"
-            } rounded-full pt-[6px] pb-2 px-4`}
+              } rounded-full pt-[6px] pb-2 px-4`}
             onClick={() => handleTabSelect("bestRated")}
           >
             Best Rated

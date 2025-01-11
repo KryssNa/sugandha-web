@@ -1,6 +1,6 @@
 'use client';
 
-import { IScentNote } from '@/components/shared/types/productTypes';
+import { IScentNote } from '@/components/shared/types/product.types';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     Plus,

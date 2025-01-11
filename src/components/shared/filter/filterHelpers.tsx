@@ -1,14 +1,11 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Product } from "../types/productTypes";
-import { 
-  FilterAccordionProps, 
-  ProductFilterProps, 
-  RangeSliderProps, 
-  FilterCheckboxProps 
+import {
+  FilterAccordionProps,
+  FilterCheckboxProps,
+  RangeSliderProps
 } from "../types/filterTypes";
-import { Search, X } from "lucide-react";
 
 // Format currency utility
 export const formatCurrency = (value: number): string => {
@@ -104,8 +101,8 @@ export const CustomCheckbox: React.FC<FilterCheckboxProps> = ({
     <div className="flex items-center">
       <div
         className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200
-          ${checked 
-            ? "bg-orange-500 border-orange-500" 
+          ${checked
+            ? "bg-orange-500 border-orange-500"
             : "border-gray-300 group-hover:border-orange-500"
           }`}
         onClick={() => onChange(!checked)}

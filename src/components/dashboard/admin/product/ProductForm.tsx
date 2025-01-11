@@ -1,5 +1,5 @@
 import { CustomButton } from '@/components/shared/buttons/customButtons';
-import ProductImageGallery from '@/components/shared/image/ProductImageGallery';
+import ImageGallery from '@/components/shared/image/ImageGallery';
 import CustomInput from '@/components/shared/input/customInput';
 import { CustomSelect } from '@/components/shared/select/customSelect';
 import { Category } from '@/components/shared/types/category.types';
@@ -37,7 +37,6 @@ export interface ProductFormData {
   slug: string;
   sku: string;
   brand: string;
-  description: string;
   shortDescription: string;
   metaTitle: string;
   metaDescription: string;
@@ -56,7 +55,6 @@ export interface ProductFormData {
   // Pricing & Inventory
   basePrice: number;
   originalPrice: number;
-  discount: number;
   discountEndDate?: Date;
   quantity: number;
   inStock: boolean;
@@ -129,7 +127,6 @@ const INITIAL_FORM_DATA: ProductFormData = {
   slug: '',
   sku: '',
   brand: '',
-  description: '',
   shortDescription: '',
   metaTitle: '',
   metaDescription: '',
@@ -145,7 +142,6 @@ const INITIAL_FORM_DATA: ProductFormData = {
   // Pricing
   basePrice: 0,
   originalPrice: 0,
-  discount: 0,
   quantity: 0,
   inStock: true,
 
@@ -209,7 +205,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     // Basic Info Validation
     if (!formData.title.trim()) errors.push("Product title is required");
     if (!formData.brand.trim()) errors.push("Brand is required");
-    if (!formData.description.trim()) errors.push("Description is required");
     if (!formData.shortDescription.trim()) errors.push("Short description is required");
     if (!formData.sku.trim()) errors.push("SKU is required");
 
@@ -246,7 +241,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
     // Additional Details Validation
     if (!formData.madeIn.trim()) errors.push("Country of origin is required");
-    if (formData.discount > 0 && !formData.discountEndDate) {
+    if (!formData.discountEndDate) {
       errors.push("Discount end date is required when discount is applied");
     }
 
@@ -461,20 +456,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       // Prepare the data
       const submitData = {
         ...formData,
-        // Calculate discount if not provided
-        discount: formData.discount || Math.round(
-          ((formData.originalPrice - formData.basePrice) / formData.originalPrice) * 100
-        ),
-        // Ensure dates are in ISO format
-        discountEndDate: formData.discountEndDate?.toISOString(),
-        // Set timestamps
-        updatedAt: new Date().toISOString(),
+        discountEndDate: formData.discountEndDate ? new Date(formData.discountEndDate) : undefined
       };
 
-      await onSubmit({
-        ...submitData,
-        discountEndDate: formData.discountEndDate ? new Date(formData.discountEndDate) : undefined,
-      });
+      await onSubmit(submitData);
+      // await onSubmit({
+      //   ...submitData,
+      //   discountEndDate: formData.discountEndDate ? new Date(formData.discountEndDate) : undefined,
+      // });
 
       // Show success message (you might want to use a toast here)
       alert('Product saved successfully!');
@@ -569,6 +558,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </div>
               </div>
             </div>
+            <CustomInput
+              label="SKU"
+              name="sku"
+              value={formData.sku}
+              onChange={handleInputChange}
+              required
+              placeholder="Enter product SKU"
+              />
+
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -615,8 +613,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               Description<span className="text-red"> *</span>
             </label>
             <textarea
-              name="description"
-              value={formData.description}
+              name="shortDescription"
+              value={formData.shortDescription}
               onChange={handleInputChange}
               rows={4}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none 
@@ -631,11 +629,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     {
       title: 'Images',
       content: (
-        <ProductImageGallery
+        <ImageGallery
           images={formData.images}
-          onImagesChange={handleImagesChange}
+          onImagesChange={(newImages) => {
+            setFormData(prev => ({
+              ...prev,
+              images: newImages,
+              // Automatically set thumbnail and cover image
+              thumbnail: newImages.find(img => img.isPrimary)?.url || '',
+              coverImage: newImages.find(img => img.isPrimary)?.url || '',
+            }));
+          }}
           maxImages={8}
-          uploadEndpoint="/api/products/images/upload"
+          uploadEndpoint={`/uploads/products/images`}
         />
       )
     },

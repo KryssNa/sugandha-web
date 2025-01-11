@@ -1,4 +1,4 @@
-import { Rating, Review } from '@/components/shared/types/productTypes';
+import { Rating, Review } from '@/components/shared/types/product.types';
 import { motion } from 'framer-motion';
 import { MessageSquare } from 'lucide-react';
 
@@ -149,7 +149,7 @@ const ProductReviews = ({ rating, reviews }: ProductReviewsProps) => {
           {reviews.map((review) => (
             <ReviewCard key={review.id} review={review} />
           ))}
-          
+
           {/* Load More Button */}
           <div className="text-center pt-4">
             <motion.button

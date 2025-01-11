@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { IImage } from '@/components/shared/types/product.types';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import { Timer } from 'lucide-react';
-import { IImage } from '@/components/shared/types/productTypes';
+import Image from 'next/image';
+import { useState } from 'react';
 
 interface ImageGalleryProps {
   images: IImage[];

@@ -1,6 +1,6 @@
 // hooks/useProductReviews.ts
-import { Rating, Review } from '@/components/shared/types/productTypes';
-import { useState, useCallback, useEffect } from 'react';
+import { Rating, Review } from '@/components/shared/types/product.types';
+import { useCallback, useEffect, useState } from 'react';
 import Swal from "sweetalert2";
 
 interface ReviewFilters {

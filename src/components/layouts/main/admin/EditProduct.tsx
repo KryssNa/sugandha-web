@@ -1,7 +1,7 @@
 // pages/admin/products/edit/[id].tsx
 
 import ProductForm, { ProductFormData } from '@/components/dashboard/admin/product/ProductForm';
-import { Category } from '@/components/shared/types/productTypes';
+import { Category } from '@/components/shared/types/product.types';
 import { RootState, store } from '@/store';
 import { fetchProducts } from '@/store/slices/productSlice';
 import { useRouter } from 'next/router';

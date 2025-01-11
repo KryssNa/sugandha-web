@@ -1,6 +1,6 @@
+import { Product } from '@/components/shared/types/product.types';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Product } from '@/components/shared/types/productTypes';
 import ProductReviews from './ProductReview';
 
 interface ProductTabsProps {
@@ -19,11 +19,10 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
         <div className="flex space-x-8">
           <button
             onClick={() => setActiveTab('description')}
-            className={`py-4 px-1 relative ${
-              activeTab === 'description'
+            className={`py-4 px-1 relative ${activeTab === 'description'
                 ? 'text-orange-500'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             Description
             {activeTab === 'description' && (
@@ -35,11 +34,10 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
           </button>
           <button
             onClick={() => setActiveTab('reviews')}
-            className={`py-4 px-1 relative ${
-              activeTab === 'reviews'
+            className={`py-4 px-1 relative ${activeTab === 'reviews'
                 ? 'text-orange-500'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             Reviews
             {activeTab === 'reviews' && (

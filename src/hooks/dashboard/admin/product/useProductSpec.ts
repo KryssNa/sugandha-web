@@ -1,6 +1,6 @@
 // hooks/useProductSpecs.ts
-import { ISpecification } from '@/components/shared/types/productTypes';
-import { useState, useCallback } from 'react';
+import { ISpecification } from '@/components/shared/types/product.types';
+import { useState } from 'react';
 import Swal from "sweetalert2";
 
 interface ProductSpecsState {
@@ -57,7 +57,7 @@ export const useProductSpecs = (productId: string) => {
         ...prev,
         specifications: [...prev.specifications, data.specification]
       }));
-      
+
       showToast('success', 'Specification added successfully');
       return true;
     } catch (err) {
@@ -91,7 +91,7 @@ export const useProductSpecs = (productId: string) => {
           spec.label === specId ? { ...spec, ...updates } : spec
         )
       }));
-      
+
       showToast('success', 'Specification updated successfully');
       return true;
     } catch (err) {
@@ -131,7 +131,7 @@ export const useProductSpecs = (productId: string) => {
         ...prev,
         specifications: prev.specifications.filter(spec => spec.label !== specId)
       }));
-      
+
       showToast('success', 'Specification deleted successfully');
       return true;
     } catch (err) {
@@ -160,7 +160,7 @@ export const useProductSpecs = (productId: string) => {
         ...prev,
         features
       }));
-      
+
       showToast('success', 'Ingredients updated successfully');
       return true;
     } catch (err) {
@@ -198,7 +198,7 @@ export const useProductSpecs = (productId: string) => {
           specifications: reorderedSpecs
         };
       });
-      
+
       showToast('success', 'Specifications reordered successfully');
       return true;
     } catch (err) {
@@ -235,28 +235,28 @@ export const useProductSpecs = (productId: string) => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ingredients }),
-        });
+      });
 
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to update ingredients');
-            }
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update ingredients');
+      }
 
-            setState(prev => ({
-                ...prev,
-                ingredients
-            }));
+      setState(prev => ({
+        ...prev,
+        ingredients
+      }));
 
-            showToast('success', 'Ingredients updated successfully');
-            return true;
-        } catch (err) {
-            showToast('error', err instanceof Error ? err.message : 'Failed to update ingredients');
-            return false;
-        }
-        finally {
-            setState(prev => ({ ...prev, loading: false }));
-        }
+      showToast('success', 'Ingredients updated successfully');
+      return true;
+    } catch (err) {
+      showToast('error', err instanceof Error ? err.message : 'Failed to update ingredients');
+      return false;
     }
+    finally {
+      setState(prev => ({ ...prev, loading: false }));
+    }
+  }
 
 
   const bulkAddSpecifications = async (specs: Array<Omit<ISpecification, 'id'>>) => {
@@ -284,7 +284,7 @@ export const useProductSpecs = (productId: string) => {
         ...prev,
         specifications: [...prev.specifications, ...data.specifications]
       }));
-      
+
       showToast('success', 'Specifications added successfully');
       return true;
     } catch (err) {

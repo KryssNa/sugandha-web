@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useModal } from '@/components/shared/customModal/customModal';
 import { Column, Table, TableAction } from '@/components/shared/customTable/customTable';
-import { Product } from '@/components/shared/types/productTypes';
+import { Product } from '@/components/shared/types/product.types';
 import { useProducts } from '@/hooks/dashboard/admin/product/useProducts';
 // import useCategories from '@/hooks/dashboard/admin/useCategories';
 import { RootState } from '@/store';

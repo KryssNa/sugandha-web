@@ -1,6 +1,6 @@
 'use client';
 
-import { Product } from '@/components/shared/types/productTypes';
+import { Product } from '@/components/shared/types/product.types';
 import {
   Clock,
   DollarSign,

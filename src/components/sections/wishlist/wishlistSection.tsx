@@ -1,6 +1,6 @@
 "use client";
 
-import { Product } from "@/components/shared/types/productTypes";
+import { Product } from "@/components/shared/types/product.types";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addToCart } from "@/store/slices/cartSlice";
 import { removeFromWishlist } from "@/store/slices/wishlistSlice";

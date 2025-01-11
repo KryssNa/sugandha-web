@@ -1,4 +1,4 @@
-import { Product } from '@/components/shared/types/productTypes';
+import { Product } from '@/components/shared/types/product.types';
 import { motion } from 'framer-motion';
 import { Heart, Shield, ShoppingCart, Truck } from 'lucide-react';
 
@@ -31,8 +31,8 @@ const ProductInfo = ({
                                 key={i}
                                 whileHover={{ scale: 1.2 }}
                                 className={`w-5 h-5 ${i < Math.floor(product.rating.average)
-                                        ? "text-yellow-400"
-                                        : "text-gray-300"
+                                    ? "text-yellow-400"
+                                    : "text-gray-300"
                                     }`}
                                 fill="currentColor"
                                 viewBox="0 0 20 20"

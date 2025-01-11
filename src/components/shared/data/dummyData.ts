@@ -1,4 +1,3 @@
-import { Product } from "../types/productTypes";
 
 export const generateSampleProducts = (count: number) => {
     const products = Array(count).fill(null).map((_, index) => ({

@@ -4,10 +4,11 @@ import cartReducer from './slices/cartSlice';
 import categoryReducer from './slices/categorySlice';
 import checkoutReducer from './slices/checkoutSlice';
 import filterReducer from './slices/filterSlice';
+import imageReducer from './slices/image.slice';
 import productReducer from './slices/productSlice';
 import userReducer from './slices/userSlice';
-import wishlistReducer from './slices/wishlistSlice';
 import variantReducer from './slices/variantSlice';
+import wishlistReducer from './slices/wishlistSlice';
 
 export const store = configureStore({
     reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
         auth: authReducer,
         categories: categoryReducer,
         variants: variantReducer,
+        images: imageReducer
     },
 });
 

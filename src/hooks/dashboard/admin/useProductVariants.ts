@@ -1,5 +1,5 @@
 // hooks/useVariants.ts
-import { IVariant } from '@/components/shared/types/productTypes';
+import { IVariant } from '@/components/shared/types/product.types';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   bulkUpdateVariantStock,

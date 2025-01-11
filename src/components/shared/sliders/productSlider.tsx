@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { NavigationButton } from "../buttons/navigationButtons";
 import ProductCard from "../cards/productCard";
-import { Product } from "../types/productTypes";
+import { Product } from "../types/product.types";
 
 interface ProductSliderProps {
   products: Product[];

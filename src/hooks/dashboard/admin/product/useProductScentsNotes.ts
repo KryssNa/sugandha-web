@@ -1,6 +1,6 @@
 // hooks/useProductScentNotes.ts
-import { IScentNote } from '@/components/shared/types/productTypes';
-import { useState, useCallback } from 'react';
+import { IScentNote } from '@/components/shared/types/product.types';
+import { useCallback, useState } from 'react';
 import Swal from "sweetalert2";
 
 export const useProductScentNotes = (productId: string) => {
@@ -70,7 +70,7 @@ export const useProductScentNotes = (productId: string) => {
       setLoading(false);
     }
   }
-  , [productId]);
+    , [productId]);
 
   const updateScentNotes = async (type: string, notes: string[]) => {
     try {
@@ -89,10 +89,10 @@ export const useProductScentNotes = (productId: string) => {
         throw new Error(error.message || 'Failed to update scent notes');
       }
 
-      setScentNotes(prev => prev.map(sn => 
+      setScentNotes(prev => prev.map(sn =>
         sn.type === type ? { ...sn, notes } : sn
       ));
-      
+
       showToast('success', 'Scent notes updated successfully');
       return true;
     } catch (err) {
@@ -156,10 +156,10 @@ export const useProductScentNotes = (productId: string) => {
         throw new Error(error.message || 'Failed to reorder scent notes');
       }
 
-      setScentNotes(prev => prev.map(sn => 
+      setScentNotes(prev => prev.map(sn =>
         sn.type === type ? { ...sn, notes: newOrder } : sn
       ));
-      
+
       showToast('success', 'Scent notes reordered successfully');
       return true;
     } catch (err) {
@@ -173,7 +173,7 @@ export const useProductScentNotes = (productId: string) => {
   const validateScentNotes = (notes: IScentNote[]): string[] => {
     const errors: string[] = [];
     const validTypes = ['top', 'middle', 'base'];
-    
+
     // Check for duplicate types
     const types = notes.map(note => note.type);
     const uniqueTypes = new Set(types);

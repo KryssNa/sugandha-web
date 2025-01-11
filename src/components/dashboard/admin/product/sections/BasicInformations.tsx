@@ -1,7 +1,7 @@
 'use client';
 
+import { Category, Product } from '@/components/shared/types/product.types';
 import React from 'react';
-import { Category, Product } from '@/components/shared/types/productTypes';
 
 interface BasicInformationSectionProps {
   formData: Partial<Product>;
@@ -17,12 +17,12 @@ const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
-      
+
       {/* Title and Brand */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label 
-            htmlFor="title" 
+          <label
+            htmlFor="title"
             className="block text-sm font-medium text-gray-700 mb-2"
           >
             Product Title
@@ -39,8 +39,8 @@ const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
           />
         </div>
         <div>
-          <label 
-            htmlFor="brand" 
+          <label
+            htmlFor="brand"
             className="block text-sm font-medium text-gray-700 mb-2"
           >
             Brand
@@ -60,8 +60,8 @@ const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
 
       {/* Description */}
       <div>
-        <label 
-          htmlFor="description" 
+        <label
+          htmlFor="description"
           className="block text-sm font-medium text-gray-700 mb-2"
         >
           Description
@@ -81,8 +81,8 @@ const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Category */}
         <div>
-          <label 
-            htmlFor="category" 
+          <label
+            htmlFor="category"
             className="block text-sm font-medium text-gray-700 mb-2"
           >
             Category
@@ -90,9 +90,9 @@ const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
           <select
             id="category"
             value={formData.category?.[0] || ''}
-            onChange={(e) => setFormData(prev => ({ 
-              ...prev, 
-              category: e.target.value ? [e.target.value] : [] 
+            onChange={(e) => setFormData(prev => ({
+              ...prev,
+              category: e.target.value ? [e.target.value] : []
             }))}
             className="block w-full rounded-md border-gray-300 shadow-sm 
               focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50"
@@ -109,8 +109,8 @@ const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
 
         {/* Gender */}
         <div>
-          <label 
-            htmlFor="gender" 
+          <label
+            htmlFor="gender"
             className="block text-sm font-medium text-gray-700 mb-2"
           >
             Gender
@@ -130,8 +130,8 @@ const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
 
         {/* Concentration */}
         <div>
-          <label 
-            htmlFor="concentration" 
+          <label
+            htmlFor="concentration"
             className="block text-sm font-medium text-gray-700 mb-2"
           >
             Concentration
@@ -153,8 +153,8 @@ const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
       {/* Pricing */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label 
-            htmlFor="basePrice" 
+          <label
+            htmlFor="basePrice"
             className="block text-sm font-medium text-gray-700 mb-2"
           >
             Base Price
@@ -163,9 +163,9 @@ const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
             type="number"
             id="basePrice"
             value={formData.basePrice || 0}
-            onChange={(e) => setFormData(prev => ({ 
-              ...prev, 
-              basePrice: parseFloat(e.target.value) 
+            onChange={(e) => setFormData(prev => ({
+              ...prev,
+              basePrice: parseFloat(e.target.value)
             }))}
             min="0"
             step="0.01"
@@ -175,8 +175,8 @@ const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
           />
         </div>
         <div>
-          <label 
-            htmlFor="originalPrice" 
+          <label
+            htmlFor="originalPrice"
             className="block text-sm font-medium text-gray-700 mb-2"
           >
             Original Price (Optional)
@@ -185,9 +185,9 @@ const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
             type="number"
             id="originalPrice"
             value={formData.originalPrice || 0}
-            onChange={(e) => setFormData(prev => ({ 
-              ...prev, 
-              originalPrice: parseFloat(e.target.value) 
+            onChange={(e) => setFormData(prev => ({
+              ...prev,
+              originalPrice: parseFloat(e.target.value)
             }))}
             min="0"
             step="0.01"

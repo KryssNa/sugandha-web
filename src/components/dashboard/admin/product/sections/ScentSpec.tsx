@@ -204,7 +204,7 @@
 
 'use client';
 
-import { ISpecification } from '@/components/shared/types/productTypes';
+import { ISpecification } from '@/components/shared/types/product.types';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     Edit,
@@ -455,7 +455,7 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
                                         <button
                                             type="button"
                                             onClick={() => setEditingSpec({
-                                                id: spec.value+1,
+                                                id: spec.value + 1,
                                                 label: spec.label,
                                                 value: spec.value
                                             })}
@@ -466,7 +466,7 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => handleRemoveSpecification(spec.value+99)}
+                                            onClick={() => handleRemoveSpecification(spec.value + 99)}
                                             className="text-red-500 hover:text-red-700"
                                             title="Remove Specification"
                                         >

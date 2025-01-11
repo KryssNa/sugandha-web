@@ -1,4 +1,4 @@
-import { Product } from "./productTypes";
+import { Product } from "./product.types";
 
 export interface PriceRange {
   min: number;

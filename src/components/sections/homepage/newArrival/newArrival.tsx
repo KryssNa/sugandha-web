@@ -1,7 +1,6 @@
 "use client";
 import OfferCard from "@/components/shared/cards/offerCard";
 import { ProductSlider } from "@/components/shared/sliders/productSlider";
-import { Product } from "@/components/shared/types/productTypes";
 import { RootState } from "@/store";
 import { useAppDispatch } from "@/store/hooks";
 import { fetchProducts } from "@/store/slices/productSlice";
@@ -10,8 +9,8 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 export const NewArrivals: React.FC = () => {
-  const dispatch =useAppDispatch();
-  
+  const dispatch = useAppDispatch();
+
   const { products, loading, metadata } = useSelector(
     (state: RootState) => state.product
   );

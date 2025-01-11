@@ -1,7 +1,7 @@
 // hooks/useProducts.ts
 import useSweetAlert from '@/components/shared/toast/showToast';
-import { Product } from '@/components/shared/types/productTypes';
-import { useState, useEffect, useCallback } from 'react';
+import { Product } from '@/components/shared/types/product.types';
+import { useCallback, useEffect, useState } from 'react';
 
 interface ProductFilters {
   category?: string[];
@@ -47,7 +47,7 @@ export const useProducts = (initialFilters?: Partial<ProductFilters>) => {
     loading: true,
     error: null,
   });
-  
+
   const [filters, setFilters] = useState<ProductFilters>({
     sortBy: 'createdAt',
     sortOrder: 'desc',
@@ -65,7 +65,7 @@ export const useProducts = (initialFilters?: Partial<ProductFilters>) => {
         ...(filters.category && { category: filters.category.join(',') }),
         ...(filters.gender && { gender: filters.gender }),
         ...(filters.concentration && { concentration: filters.concentration }),
-        ...(filters.priceRange && { 
+        ...(filters.priceRange && {
           minPrice: filters.priceRange[0].toString(),
           maxPrice: filters.priceRange[1].toString()
         }),
@@ -129,13 +129,13 @@ export const useProducts = (initialFilters?: Partial<ProductFilters>) => {
 
       createAlert("success",
         "Product created successfully",
-     );
+      );
 
       return data.product;
     } catch (err) {
       createAlert("error",
         err instanceof Error ? err.message : 'Failed to create product',
-       );
+      );
       throw err;
     }
   };
@@ -169,7 +169,7 @@ export const useProducts = (initialFilters?: Partial<ProductFilters>) => {
     } catch (err) {
       createAlert("error",
         err instanceof Error ? err.message : 'Failed to update product',
-       );
+      );
       throw err;
     }
   };

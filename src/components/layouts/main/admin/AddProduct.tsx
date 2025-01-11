@@ -4,7 +4,12 @@ import ProductForm, { ProductFormData } from '@/components/dashboard/admin/produ
 import { useCategories } from '@/hooks/dashboard/admin/useCategories';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-
+import { 
+    createProduct,
+    updateProduct,
+    deleteProduct 
+  } from '@/store/slices/productSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 export const AddProduct = () => {
     const router = useRouter();
     const {
@@ -12,11 +17,13 @@ export const AddProduct = () => {
         loadCategories,
     } = useCategories();
 
-    
-
     useEffect(() => {
         loadCategories();
     }, [loadCategories]);
+
+    const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector(state => state.product);
+
     // Handle form submission
     const handleSubmit = async (productData: ProductFormData) => {
         try {

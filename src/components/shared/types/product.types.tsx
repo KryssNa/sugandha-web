@@ -134,3 +134,25 @@ export interface IImage {
     createdAt: Date;
     updatedAt: Date;
   }
+  export interface ProductFilters {
+    page?: number;
+    limit?: number;
+    search?: string;
+    category?: string;
+    brand?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    gender?: 'male' | 'female' | 'unisex';
+    sort?: string;
+    tags?: string[];
+  }
+  
+  export interface ProductResponse {
+    products: Product[];
+    metadata: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  }

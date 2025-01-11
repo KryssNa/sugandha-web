@@ -1,6 +1,6 @@
 // hooks/useProductImages.ts
-import { IImage } from '@/components/shared/types/productTypes';
-import { useState, useCallback } from 'react';
+import { IImage } from '@/components/shared/types/product.types';
+import { useCallback, useState } from 'react';
 import Swal from "sweetalert2";
 
 interface ImageUploadResponse {
@@ -119,7 +119,7 @@ export const useProductImages = (productId: string) => {
       const reorderedImages = newOrder
         .map(id => images.find(img => img.id === id))
         .filter((img): img is IImage => img !== undefined);
-      
+
       setImages(reorderedImages);
       showToast('success', 'Images reordered successfully');
       return true;
@@ -148,7 +148,7 @@ export const useProductImages = (productId: string) => {
         ...img,
         isPrimary: img.id === imageId
       })));
-      
+
       showToast('success', 'Primary image updated');
       return true;
     } catch (err) {
@@ -176,10 +176,10 @@ export const useProductImages = (productId: string) => {
         throw new Error(error.message || 'Failed to update image alt text');
       }
 
-      setImages(prev => prev.map(img => 
+      setImages(prev => prev.map(img =>
         img.id === imageId ? { ...img, alt } : img
       ));
-      
+
       showToast('success', 'Image alt text updated');
       return true;
     } catch (err) {
@@ -207,7 +207,7 @@ export const useProductImages = (productId: string) => {
       setLoading(false);
     }
   }
-  , [productId]);
+    , [productId]);
 
   return {
     images,

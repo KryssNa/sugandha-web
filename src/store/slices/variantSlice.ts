@@ -1,5 +1,5 @@
 // store/slices/variantSlice.ts
-import { IVariant } from '@/components/shared/types/productTypes';
+import { IVariant } from '@/components/shared/types/product.types';
 import { api } from '@/lib/axios';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
