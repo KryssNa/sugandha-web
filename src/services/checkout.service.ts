@@ -182,7 +182,6 @@ export class CheckoutService {
             };
 
             const response = await api.post('/checkout', checkoutData);
-            console.log("response", response)
 
             try {
                 const paymentResponse = await api.post('/payment/initiate', {
@@ -191,8 +190,6 @@ export class CheckoutService {
                     paymentMethod: formData.paymentMethod,
                     orderId: response?.data?.data?.orderId
                 });
-                console.log('checkout Response:', response.data);
-                console.log('Payment Response:', paymentResponse.data);
                 const { paymentUrl } = paymentResponse.data.data;
 
                 // Create a form and submit it programmatically
