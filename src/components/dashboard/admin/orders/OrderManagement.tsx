@@ -48,7 +48,6 @@ const OrdersManagement: React.FC<OrdersManagementProps> = ({
     onDeleteOrder,
     onUpdateStatus,
 }) => {
-    console.log("orders", orders);
     const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<Order['status'] | 'all'>('all');
@@ -60,7 +59,6 @@ const OrdersManagement: React.FC<OrdersManagementProps> = ({
         const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
         return matchesSearch && matchesStatus;
     });
-    console.log("filteredOrders", filteredOrders);
     const handleSelectAll = (checked: boolean) => {
         setSelectedOrders(checked ? orders.map(order => order.id) : []);
     };
