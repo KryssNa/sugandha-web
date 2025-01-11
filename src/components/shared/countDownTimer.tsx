@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface CountdownProps {
   targetDate: Date;
@@ -20,6 +20,7 @@ export const CountdownTimer: React.FC<CountdownProps> = ({ targetDate }) => {
     const interval = setInterval(() => {
       const newTimeRemaining = getTimeRemaining(targetDate);
       setTimeRemaining(newTimeRemaining);
+
       if (newTimeRemaining.total <= 0) {
         clearInterval(interval);
       }
@@ -28,9 +29,14 @@ export const CountdownTimer: React.FC<CountdownProps> = ({ targetDate }) => {
     return () => clearInterval(interval);
   }, [targetDate]);
 
+  // Hide the countdown if the target date is in the past
+  if (timeRemaining.total <= 0) {
+    return null;
+  }
+
   return (
-    <>
-      <div className='grow shrink basis-0 self-stretch pl-[9.88px] pr-[8.48px] pt-[3.50px] pb-[5.50px] bg-[#121535] rounded-lg flex-col justify-center items-center gap-1.5 inline-flex'>
+    <div className="flex space-x-2">
+      <div className="grow shrink basis-0 self-stretch pl-[9.88px] pr-[8.48px] pt-[3.50px] pb-[5.50px] bg-[#121535] rounded-lg flex-col justify-center items-center gap-1.5 inline-flex">
         <div className="w-[45.64px] h-8 text-[#fa6800] text-center text-2xl font-medium font-['Inter'] leading-9">
           {timeRemaining.days}
         </div>
@@ -38,7 +44,7 @@ export const CountdownTimer: React.FC<CountdownProps> = ({ targetDate }) => {
           Days
         </div>
       </div>
-      <div className='grow shrink basis-0 self-stretch pl-[15.64px] pr-[15.24px] pt-[3.50px] pb-[5.50px] bg-[#121535] rounded-lg flex-col justify-center items-center gap-1.5 inline-flex'>
+      <div className="grow shrink basis-0 self-stretch pl-[15.64px] pr-[15.24px] pt-[3.50px] pb-[5.50px] bg-[#121535] rounded-lg flex-col justify-center items-center gap-1.5 inline-flex">
         <div className="w-[27.13px] h-8 text-[#fa6800] text-2xl font-medium font-['Inter'] leading-9 text-center">
           {timeRemaining.hours}
         </div>
@@ -46,7 +52,7 @@ export const CountdownTimer: React.FC<CountdownProps> = ({ targetDate }) => {
           Hour
         </div>
       </div>
-      <div className='grow shrink basis-0 self-stretch pl-[17.50px] pr-[16.27px] pt-[3.50px] pb-[5.50px] bg-[#121535] rounded-lg flex-col justify-center items-center gap-1.5 inline-flex'>
+      <div className="grow shrink basis-0 self-stretch pl-[17.50px] pr-[16.27px] pt-[3.50px] pb-[5.50px] bg-[#121535] rounded-lg flex-col justify-center items-center gap-1.5 inline-flex">
         <div className="w-[30.23px] h-8 text-[#fa6800] text-2xl font-medium font-['Inter'] leading-9 text-center">
           {timeRemaining.minutes}
         </div>
@@ -54,7 +60,7 @@ export const CountdownTimer: React.FC<CountdownProps> = ({ targetDate }) => {
           Min
         </div>
       </div>
-      <div className='grow shrink basis-0 self-stretch pl-[16.97px] pr-[15.89px] pt-[3.50px] pb-[5.50px] bg-[#121535] rounded-lg flex-col justify-center items-center gap-1.5 inline-flex'>
+      <div className="grow shrink basis-0 self-stretch pl-[16.97px] pr-[15.89px] pt-[3.50px] pb-[5.50px] bg-[#121535] rounded-lg flex-col justify-center items-center gap-1.5 inline-flex">
         <div className="w-[31.14px] h-8 text-[#fa6800] text-2xl font-medium font-['Inter'] leading-9 text-center">
           {timeRemaining.seconds}
         </div>
@@ -62,6 +68,6 @@ export const CountdownTimer: React.FC<CountdownProps> = ({ targetDate }) => {
           Sec
         </div>
       </div>
-    </>
+    </div>
   );
 };
