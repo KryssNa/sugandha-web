@@ -2,9 +2,9 @@
 import { api } from "@/lib/axios";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-const PaymentStatus = () => {
+const PaymentStatusContent = () => {
     const router = useRouter();
     const [status, setStatus] = useState("verifying");
     const searchParams = useSearchParams();
@@ -71,5 +71,14 @@ const PaymentStatus = () => {
         </div>
     );
 };
+
+const PaymentStatus: React.FC = () => {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <PaymentStatusContent />
+        </Suspense>
+    );
+};
+
 
 export default PaymentStatus;
