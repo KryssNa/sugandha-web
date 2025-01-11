@@ -4,6 +4,7 @@ import DashboardHeader from '@/components/dashboard/admin/header/dashboardHeader
 import useSweetAlert from '@/components/shared/toast/showToast';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logoutUser } from '@/store/slices/authSlice';
+import { fetchCSRFToken } from '@/utils/csrf/CSRFToken';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     ChevronRight,
@@ -75,6 +76,10 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             router.push('/auth/login');
         }
     }, [isAuthenticated, router]);
+
+    useEffect(() => {
+        fetchCSRFToken();
+    }, []);
 
     // If not authenticated, return null to prevent rendering
     if (!isAuthenticated) {
