@@ -31,7 +31,6 @@ const getIconForOption = (text: string): JSX.Element => {
 };
 
 const parsePerfumeRecommendation = (content: string) => {
-    console.log('Raw content:', content);
 
     if (content.includes('🌟') && content.includes('📝') && content.includes('💫')) {
         const parts = content?.split('\n').filter(Boolean);
