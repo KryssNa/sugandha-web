@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AuthLayout } from "../authSection";
+import useToast from "@/hooks/useToast";
 
 // Types
 interface PasswordStrength {
@@ -137,6 +138,7 @@ export const RegisterPage: React.FC = () => {
   const { loading, error, registrationSuccess } = useSelector(
     (state: RootState) => state.auth
   );
+  const toast =useToast();
   // Form state
   const [formData, setFormData] = useState({
     name: "",
@@ -285,7 +287,11 @@ export const RegisterPage: React.FC = () => {
         });
         router.push("/");
       } else if (registerUser.rejected.match(resultAction)) {
-        createAlert("error", resultAction.payload as string);
+      const errors = resultAction.payload as any;
+      errors.forEach((err: any) => {
+        toast("error", err.message);
+        createAlert("error", err.message);
+      });
       }
     } catch (error) {
       createAlert("error", "Registration failed. Please try again.");

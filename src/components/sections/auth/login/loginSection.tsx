@@ -1,18 +1,17 @@
 "use client";
 import useSweetAlert from "@/components/shared/toast/showToast";
 import { FormErrors } from "@/components/shared/types/formTypes";
-import { AppDispatch, RootState } from "@/store";
+import { RootState } from "@/store";
+import { useAppDispatch } from "@/store/hooks";
 import { loginUser } from "@/store/slices/authSlice";
-import { Facebook } from "@/utils/helpers/svgicon";
+import { fetchCart } from "@/store/slices/cartSlice";
 import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { AuthLayout } from "../authSection";
-import { fetchCart } from "@/store/slices/cartSlice";
-import { useAppDispatch } from "@/store/hooks";
 
 
 const formVariants = {
@@ -41,6 +40,9 @@ export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [rememberMe, setRememberMe] = useState(false);
+  const [twoFactorToken, setTwoFactorToken] = useState("");
+  const [isTwoFactorRequired, setIsTwoFactorRequired] = useState(false);
+
   const router = useRouter();
   const createAlert = useSweetAlert();
   // const { login, loading, error } = useAuth();
@@ -57,8 +59,10 @@ export const LoginPage: React.FC = () => {
     if (!password) {
       newErrors.password = "Password is required";
     }
-
-
+    if (isTwoFactorRequired && !twoFactorToken.trim()) {
+      newErrors.twoFactorToken = "Two-factor token is required.";
+    }
+    
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -68,49 +72,65 @@ export const LoginPage: React.FC = () => {
     try {
       const response = await dispatch(fetchCart());
       if (fetchCart.fulfilled.match(response)) {
-        console.log("Cart fetched successfully");
       }
     } catch (error) {
       console.error("Failed to fetch cart", error);
     }
   }
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (!validateForm()) return;
-
-  //   try {
-  //     // Reset errors and loading state (if needed)
-  //     setErrors({});
-  //     console.log("loading", loading);
-  //     const result = await login(email, password);
-
-  //     console.log(result);
-
-  //   } catch (error) {
-  //     createAlert("error", "Login failed. Please try again.");
-  //   }
-  // };
-
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     try {
-      const resultAction = await dispatch(loginUser({ email, password }));
+      const payload: { email: string; password: string; twoFactorToken?: string } = { email, password };
+      if (isTwoFactorRequired) {
+        payload.twoFactorToken = twoFactorToken;
+      }
+
+      const resultAction = await dispatch(loginUser(payload));
       if (loginUser.fulfilled.match(resultAction)) {
         createAlert("success", "Signed in successfully");
         fetchCartData();
         setEmail('');
         setPassword('');
+        setTwoFactorToken('');
+        setIsTwoFactorRequired(false);
         router.push("/");
       } else if (loginUser.rejected.match(resultAction)) {
-        createAlert("error", resultAction.payload as string);
+        const errorMessage = resultAction.payload as string;
+
+        if (errorMessage === "2FA token is required") {
+          createAlert("info", "An extra security layer is added. Please provide your 2FA token.");
+          setIsTwoFactorRequired(true);
+        } else {
+          createAlert("error", errorMessage);
+        }
       }
     } catch (error) {
       createAlert("error", "An error occurred. Please try again later.");
     }
   };
+
+
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!validateForm()) return;
+
+  //   try {
+  //     const resultAction = await dispatch(loginUser({ email, password }));
+  //     if (loginUser.fulfilled.match(resultAction)) {
+  //       createAlert("success", "Signed in successfully");
+  //       fetchCartData();
+  //       setEmail('');
+  //       setPassword('');
+  //       router.push("/");
+  //     } else if (loginUser.rejected.match(resultAction)) {
+  //       createAlert("error", resultAction.payload as string);
+  //     }
+  //   } catch (error) {
+  //     createAlert("error", "An error occurred. Please try again later.");
+  //   }
+  // };
   return (
     <AuthLayout>
       <div className="space-y-6">
@@ -135,7 +155,7 @@ export const LoginPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className={`w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 
-                  focus:ring-orange-500 transition-all ${errors.email ? "border-red-500" : "border-gray-200"
+                  focus:ring-orange-500 transition-all ${errors.email ? "border-red" : "border-gray-200"
                   }`}
                 placeholder="Enter your email"
               />
@@ -145,7 +165,7 @@ export const LoginPage: React.FC = () => {
               <motion.span
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-red-500"
+                className="text-sm text-red"
               >
                 {errors.email}
               </motion.span>
@@ -161,7 +181,7 @@ export const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className={`w-full px-4 py-3 pl-11 pr-11 border rounded-lg focus:ring-2 
-                  focus:ring-orange-500 transition-all ${errors.password ? "border-red-500" : "border-gray-200"
+                  focus:ring-orange-500 transition-all ${errors.password ? "border-red" : "border-gray-200"
                   }`}
                 placeholder="Enter your password"
               />
@@ -183,12 +203,40 @@ export const LoginPage: React.FC = () => {
               <motion.span
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-red-500"
+                className="text-sm text-red"
               >
                 {errors.password}
               </motion.span>
             )}
           </motion.div>
+          {isTwoFactorRequired && (
+            <motion.div variants={itemVariants} className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Two-Factor Authentication Token
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={twoFactorToken}
+                  onChange={(e) => setTwoFactorToken(e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 
+          focus:ring-orange-500 transition-all ${errors.twoFactorToken ? "border-red" : "border-gray-200"
+                    }`}
+                  placeholder="Enter your 2FA token"
+                />
+              </div>
+              {errors.twoFactorToken && (
+                <motion.span
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-sm text-red"
+                >
+                  {errors.twoFactorToken}
+                </motion.span>
+              )}
+            </motion.div>
+          )}
+
 
           {/* Remember Me & Forgot Password */}
           <motion.div variants={itemVariants} className="flex items-center justify-between">
