@@ -3,7 +3,10 @@
 import Footer from '@/components/layouts/footers';
 import Header from '@/components/layouts/headers';
 import { useAuth } from '@/hooks/useAuth';
-import axios from 'axios';
+import { useAppDispatch } from '@/store/hooks';
+import { fetchCurrentUser } from '@/store/slices/authSlice';
+import { fetchCart } from '@/store/slices/cartSlice';
+import { fetchCSRFToken } from '@/utils/csrf/CSRFToken';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     Bell,
@@ -15,6 +18,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -59,6 +63,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             description: 'Account preferences and settings'
         }
     ];
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        dispatch(fetchCart());
+        dispatch(fetchCurrentUser());
+    }, [dispatch]);
+    useEffect(() => {
+        fetchCSRFToken();
+      }, []);
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
@@ -89,9 +102,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                             </div>
                             <button className="p-2 bg-white text-gray-600 hover:text-primary rounded-lg 
                 transition-colors relative shadow-sm border border-gray-100"
-                title='Notifications'
+                                title='Notifications'
 
-                >
+                            >
                                 <Bell className="w-5 h-5" />
                                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" />
                             </button>
