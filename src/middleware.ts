@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 const PUBLIC_PATHS = ['/auth/login', '/auth/register', '/auth/forgot-password'];
-const PROTECTED_PATHS = ['/dashboard', '/profile', '/settings'];
+const PROTECTED_PATHS = ['/dashboard', '/dashboard/profile', '/dashboard/settings','/admin','/admin/customers','/admin/products','/admin/orders','/admin/reviews','/admin/settings','/admin/categories','/admin/reports'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -19,9 +19,14 @@ export function middleware(request: NextRequest) {
 
   // Get the token from the cookies
   const token = request.cookies.get('accessToken')?.value;
+  const role = request.cookies.get('role')?.value;
+  console.log("role",role)
 
   // If trying to access public path while logged in
   if (isPublicPath && token) {
+    if (role === 'admin') {
+      return NextResponse.redirect(new URL('/admin', request.url));
+    }
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
@@ -38,6 +43,7 @@ export const config = {
     '/auth/:path*',
     '/dashboard/:path*',
     '/profile/:path*',
-    '/settings/:path*'
+    '/settings/:path*',
+    '/admin/:path*'
   ]
 };
