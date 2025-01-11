@@ -11,6 +11,7 @@ interface ImageGalleryProps {
 const ImageGallery = ({ images, title }: ImageGalleryProps) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
+  console.log("images", images);
 
 
   return (
@@ -30,6 +31,7 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
             className="object-contain"
             referrerPolicy='no-referrer'
             crossOrigin='anonymous'
+            unoptimized
           />
         </motion.div>
 
@@ -47,10 +49,13 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
               ${selectedImage === index ? "border-orange-500" : "border-gray-200"}`}
           >
             <Image
-              src={image.url}
+              src={`${image.url}`}
               alt={image.alt}
               fill
               className="object-cover rounded-lg"
+              unoptimized 
+              referrerPolicy='no-referrer'
+              crossOrigin='anonymous'
             />
           </motion.button>
         ))}

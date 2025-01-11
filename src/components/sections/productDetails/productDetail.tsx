@@ -7,12 +7,12 @@ import { addToWishlist, removeFromWishlist } from '@/store/slices/wishlistSlice'
 import { useEffect, useState } from 'react';
 
 // Components
+import { showToast } from '@/components/shared/toast/showAlet';
 import { RootState } from '@/store';
 import ImageGallery from './ImageGallery';
 import { FloatingButtons, MobileBottomBar } from './MobileButtons';
 import ProductInfo from './ProductInfo';
 import ProductTabs from './ProductTab';
-import { showToast } from '@/components/shared/toast/showAlet';
 
 interface ProductDetailsSectionProps {
   slug: string;
@@ -67,7 +67,7 @@ const ProductDetailsSection = ({ slug }: ProductDetailsSectionProps) => {
   const handleAddToCart = () => {
     showToast("success", "Item added to cart");
     dispatch(addItemToCart({
-      product:product,
+      product: product,
       productId: product.id as string,
       quantity
     }));
@@ -103,21 +103,20 @@ const ProductDetailsSection = ({ slug }: ProductDetailsSectionProps) => {
           onToggleWishlist={handleToggleWishlist}
         />
       </div>
-
       {/* Tabs Section */}
       <ProductTabs product={product} />
-
       {/* Mobile Actions */}
       <MobileBottomBar
         price={product.basePrice}
         quantity={quantity}
         onAddToCart={handleAddToCart}
       />
-
       {/* Floating Buttons */}
       <FloatingButtons
         isInWishlist={isInWishlist}
         onToggleWishlist={handleToggleWishlist}
+        productUrl={`${process.env.NEXT_PUBLIC_BASE_URL}/products/${slug}`}
+        productTitle={selectedProduct.title}
       />
     </div>
   );
