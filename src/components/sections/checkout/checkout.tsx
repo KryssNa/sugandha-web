@@ -1,6 +1,8 @@
 "use client";
+import { showToast } from "@/components/shared/toast/showAlet";
 import { useCheckout } from "@/hooks/useCheckout";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { addItemToCart } from "@/store/slices/cartSlice";
 import { setOrderSummary, setStep } from "@/store/slices/checkoutSlice";
 import { addToWishlist } from "@/store/slices/wishlistSlice";
 import { AnimatePresence, motion } from "framer-motion";
@@ -13,14 +15,12 @@ import { ProgressSteps } from "./progressStep";
 import { ShippingForm } from "./shippingForm";
 import { TopBanner } from "./topBanner";
 import { TrustBadges } from "./trustBadge";
-import { showToast } from "@/components/shared/toast/showAlet";
-import { addItemToCart } from "@/store/slices/cartSlice";
 
 interface CheckoutPageProps {
   product?: any;
 }
 
-const CheckoutPage = ({product}:CheckoutPageProps) => {
+const CheckoutPage = ({ product }: CheckoutPageProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   // const { step, formData, orderSummary } = useAppSelector((state) => state.checkout);
@@ -103,7 +103,6 @@ const CheckoutPage = ({product}:CheckoutPageProps) => {
   const handleAddToWishlist = (item: any) => {
     // dispatch(addToWishlist(item));
     dispatch(addToWishlist(item));
-    console.log("Added to wishlist", item);
   }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,7 +119,7 @@ const CheckoutPage = ({product}:CheckoutPageProps) => {
         console.log("step 2");
         // Validate payment details before creating checkout
         if (!formData.paymentMethod) {
-          showToast('error','Please select a payment method');
+          showToast('error', 'Please select a payment method');
           console.log("Please select a payment method");
           return;
         }
@@ -131,7 +130,7 @@ const CheckoutPage = ({product}:CheckoutPageProps) => {
 
         // If checkout is successful, move to confirmation step
         if (checkoutResult) {
-          showToast('success','Successfully placed order');
+          showToast('success', 'Successfully placed order');
           console.log("Successfully placed order", checkoutResult);
           router.push(`/checkout/confirmation/${checkoutResult.data.orderId}`);
           dispatch(setStep(step + 1));
@@ -182,43 +181,46 @@ const CheckoutPage = ({product}:CheckoutPageProps) => {
                 )}
                 {step === 3 && (
                   <>
-
-                    checkout confirm
+                  <div className="text-center">
+                    <div className="flex justify-center items-center">
+                      <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+                      <p className="ml-4">Confirming your order...</p>
+                    </div>
+                    
+                  </div>
                   </>
-                  // <ConfirmationPage
-                  //   formData={formData}
-                  //   orderSummary={orderSummary}
-                  //   orderNumber="123456"
-                  //   onBackStep={() => dispatch(setStep(step - 1))}
-                  //   currentStep={step}
-                  // />
+                 
                 )}
               </motion.div>
             </AnimatePresence>
           </div>
 
           {/* Order Summary */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm space-y-6">
-              <h3 className="text-xl font-bold text-gray-900">Order Summary</h3>
-              {orderSummary.items.map((item: any, index: any) => (
-                <OrderSummaryItem key={index} item={item} index={index}
+          {
+            step == 3 ? <></> :
 
-                  onRemove={
-                    () => handleRemoveItem(index)
-                  }
-                  onSaveForLater={
-                    () => handleAddToWishlist(item)
-                  }
-                  onUpdateQuantity={
-                    (id: string, newQuantity: number) => handleUpdateQuantity(id, newQuantity)
-                  }
-                />
-              ))}
-              <PriceBreakdown orderSummary={orderSummary} />
-              <TrustBadges />
-            </div>
-          </div>
+              <div className="lg:col-span-1 space-y-6">
+                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm space-y-6">
+                  <h3 className="text-xl font-bold text-gray-900">Order Summary</h3>
+                  {orderSummary.items.map((item: any, index: any) => (
+                    <OrderSummaryItem key={index} item={item} index={index}
+
+                      onRemove={
+                        () => handleRemoveItem(index)
+                      }
+                      onSaveForLater={
+                        () => handleAddToWishlist(item)
+                      }
+                      onUpdateQuantity={
+                        (id: string, newQuantity: number) => handleUpdateQuantity(id, newQuantity)
+                      }
+                    />
+                  ))}
+                  <PriceBreakdown orderSummary={orderSummary} />
+                  <TrustBadges />
+                </div>
+              </div>
+          }
         </div>
       </div>
     </div>

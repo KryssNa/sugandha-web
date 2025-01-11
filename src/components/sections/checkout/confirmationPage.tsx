@@ -90,7 +90,6 @@ const ConfirmationPage: React.FC<{ orderId: string }> = ({ orderId }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { orderDetails, loading, error } = useOrderConfirmation(orderId);
-  console.log("orderDetails", orderDetails);
 
   // Determine order steps based on current status
   const orderSteps: OrderStep[] = useMemo(() => {

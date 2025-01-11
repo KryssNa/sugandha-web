@@ -85,7 +85,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           <div className='bg-gray-100 px-4 py-2 rounded-lg'>
             <span className='text-sm text-gray-600'>Total Amount: </span>
             <span className='font-semibold text-orange-500'>
-              ${orderTotal.toFixed(2)}
+              Rs{orderTotal.toFixed(2)}
             </span>
           </div>
         </div>
