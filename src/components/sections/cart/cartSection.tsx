@@ -52,6 +52,9 @@ const CartItem: React.FC<CartItemProps> = ({
           alt={item.title}
           fill
           className="object-cover"
+          referrerPolicy="no-referrer"
+          crossOrigin="anonymous"
+          unoptimized
         />
       </div>
 
