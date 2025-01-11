@@ -72,6 +72,9 @@ const WishlistSection: React.FC = () => {
                       src={item.thumbnail}
                       alt={item.title}
                       fill
+                      unoptimized
+                      referrerPolicy="no-referrer"
+                      crossOrigin="anonymous"
                       className="object-contain p-4"
                     />
                   </div>

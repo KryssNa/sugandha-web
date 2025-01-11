@@ -1,3 +1,4 @@
+"use client"
 import useSweetAlert from '@/components/shared/toast/showToast';
 import { logoutUser, User as UserType } from '@/store/slices/authSlice';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -7,11 +8,14 @@ import {
     LogOut,
     Settings,
     ShoppingBag,
-    User
+    User,
+    Shield
 } from 'lucide-react';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import { cookies } from 'next/headers';
 
 interface UserMenuProps {
     user: UserType;
@@ -21,11 +25,19 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dispatch = useDispatch();
     const createAlert = useSweetAlert();
+    const router = useRouter();
 
 
     const handleLogout = () => {
         createAlert('success', 'Logged out successfully');
         dispatch(logoutUser());
+        router.push('/auth/login');
+    };
+
+    const handleAdminNavigation = () => {
+        if (user.role=="admin") {
+            router.push('/admin');
+        }
     };
 
     const getUserInitials = () => {
@@ -77,6 +89,16 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
                             </div>
 
                             <div className="py-2">
+                                {user.role=="admin" && (
+                                    <button
+                                        onClick={handleAdminNavigation}
+                                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 
+                        hover:bg-gray-50 hover:text-primary transition-colors w-full text-left"
+                                    >
+                                        <Shield className="w-4 h-4" />
+                                        Admin Dashboard
+                                    </button>
+                                )}
                                 <Link
                                     href="/dashboard"
                                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 
