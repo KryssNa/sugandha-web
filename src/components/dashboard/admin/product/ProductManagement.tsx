@@ -78,7 +78,6 @@ export const ProductManagement: React.FC = () => {
   const handleDeleteProduct = (productId: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       // Dispatch delete action
-      console.log('Deleting product:', productId);
     }
   };
   const router = useRouter();

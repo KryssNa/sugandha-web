@@ -171,7 +171,6 @@ const OrdersPage = () => {
       };
       setLoading(false);
 
-      console.log(response);
     };
     fetchOrders();
   }, []);
