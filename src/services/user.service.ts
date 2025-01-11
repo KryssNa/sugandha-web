@@ -26,5 +26,46 @@ export const userService = {
   
   async deleteUser(id: string) {
     return api.delete(`/users/${id}`);
+  },
+  async setupTwoFA(method: string) {
+    const response = await api.post('/users/2fa/setup', { method });
+    return response.data;
+  },
+
+  async enableTwoFA(token: string) {
+    const response = await api.post('/users/2fa/enable', { token });
+    return response.data;
+  },
+
+  async disableTwoFA(token: string) {
+    const response = await api.post('/users/2fa/disable', { token });
+    return response.data;
+  },
+
+  // Email Verification
+  async sendVerificationEmail() {
+    const response = await api.post('/users/send-verification-email');
+    return response.data;
+  },
+
+  async verifyEmail(token: string) {
+    const response = await api.post('/users/verify-email', { token });
+    return response.data;
+  },
+
+  // Active Devices
+  async getActiveDevices() {
+    const response = await api.get('/users/active-devices');
+    return response.data.data;
+  },
+
+  // Password Management
+  async changePassword(currentPassword: string, newPassword: string) {
+    const response = await api.patch('/users/change-password', { 
+      currentPassword, 
+      newPassword 
+    });
+    return response.data;
   }
 };
+

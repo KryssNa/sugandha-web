@@ -9,6 +9,7 @@ import productReducer from './slices/productSlice';
 import userReducer from './slices/userSlice';
 import variantReducer from './slices/variantSlice';
 import wishlistReducer from './slices/wishlistSlice';
+import securityReducer from './slices/securitySlice';
 
 export const store = configureStore({
     reducer: {
@@ -21,7 +22,8 @@ export const store = configureStore({
         auth: authReducer,
         categories: categoryReducer,
         variants: variantReducer,
-        images: imageReducer
+        images: imageReducer,
+        security: securityReducer,
     },
 });
 
