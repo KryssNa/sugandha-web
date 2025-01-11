@@ -25,7 +25,6 @@ export const AddProduct = () => {
 
     // Handle form submission
     const handleSubmit = async (productData: Product) => {
-        console.log('Product Data:', productData);
         try {
             // Create product
             await dispatch(createProduct(productData)).unwrap();
