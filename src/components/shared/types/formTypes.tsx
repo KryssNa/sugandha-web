@@ -6,4 +6,5 @@ export interface FormErrors {
   confirmPassword?: string;
   name?: string;
   terms?: string;
+  twoFactorToken?: string;
 }
