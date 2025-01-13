@@ -1,6 +1,9 @@
 // src/components/checkout/ConfirmationPage.tsx
 import { OrderSummary } from "@/components/shared/types/checkout";
-import { AnimatePresence, motion } from "framer-motion";
+import { OrderService, useOrderConfirmation } from "@/services/order.service";
+import { useAppDispatch } from "@/store/hooks";
+import { resetCheckout } from "@/store/slices/checkoutSlice";
+import { motion } from "framer-motion";
 import {
   AlertCircle,
   ArrowRight,
@@ -8,17 +11,16 @@ import {
   CheckCircle,
   Clock,
   Download,
+  Loader2,
   Mail,
-  MapPin,
   Package,
-  Phone,
   PrinterIcon,
-  Share2,
+  Share2
 } from "lucide-react";
-import { OrderAndShippingDetails } from "./detailCard";
-import { useAppDispatch } from "@/store/hooks";
-import { resetCheckout } from "@/store/slices/checkoutSlice";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import { OrderAndShippingDetails } from "./detailCard";
+import toast from "react-hot-toast";
 
 
 
@@ -37,7 +39,7 @@ interface ConfirmationPageProps {
     cardNumber: string;
     expiryDate: string;
     cvv: string;
-  } ;
+  };
   orderSummary: OrderSummary;
   orderNumber: string;
   onBackStep: () => void;
@@ -64,13 +66,12 @@ const OrderTimeline: React.FC<{ steps: OrderStep[] }> = ({ steps }) => (
         <div className="flex items-center">
           <motion.div
             className={`w-8 h-8 rounded-full flex items-center justify-center z-10
-                ${
-                  step.status === "completed"
-                    ? "bg-green-500"
-                    : step.status === "current"
-                    ? "bg-orange-500"
-                    : "bg-gray-200"
-                }`}
+                ${step.status === "completed"
+                ? "bg-green-500"
+                : step.status === "current"
+                  ? "bg-orange-500"
+                  : "bg-gray-200"
+              }`}
             whileHover={{ scale: 1.1 }}
           >
             {step.status === "completed" ? (
@@ -108,51 +109,127 @@ const OrderTimeline: React.FC<{ steps: OrderStep[] }> = ({ steps }) => (
   </div>
 );
 
-const ConfirmationPage: React.FC<ConfirmationPageProps> = ({
-  formData,
-  orderSummary,
-  orderNumber,
-  currentStep,
-  onBackStep,
-
-}) => {
+const ConfirmationPage: React.FC<{ orderId: string }> = ({ orderId }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { orderDetails, loading, error } = useOrderConfirmation(orderId);
 
-  const orderSteps: OrderStep[] = [
-    {
-      title: "Order Confirmed",
-      date: "Just now",
-      status: "completed",
-    },
-    {
-      title: "Processing Order",
-      date: "Estimated: Today",
-      status: "current",
-    },
-    {
-      title: "Shipping",
-      date: "Estimated: Tomorrow",
-      status: "upcoming",
-    },
-    {
-      title: "Delivery",
-      date: "Estimated: In 2-3 days",
-      status: "upcoming",
-    },
-  ];
+  // Determine order steps based on current status
+  const orderSteps: OrderStep[] = useMemo(() => {
+    if (!orderDetails) return [];
 
-  const orderActions = [
-    { icon: <Mail />, label: "Email Order" },
-    { icon: <Download />, label: "Download PDF" },
-    { icon: <PrinterIcon />, label: "Print Order" },
-    { icon: <Share2 />, label: "Share Order" },
-  ];
+    const statusMap: Record<string, OrderStep['status']> = {
+      'pending': 'current',
+      'processing': 'current',
+      'shipped': 'upcoming',
+      'delivered': 'completed'
+    };
+
+    return [
+      {
+        title: "Order Confirmed",
+        date: new Date(orderDetails.createdAt).toLocaleString(),
+        status: orderDetails.status === 'pending' ? 'completed' : 'completed'
+      },
+      {
+        title: "Processing Order",
+        date: "Estimated: Today",
+        status: orderDetails.status === 'processing' ? 'current' :
+          orderDetails.status === 'pending' ? 'upcoming' : 'completed'
+      },
+      {
+        title: "Shipping",
+        date: "Estimated: Tomorrow",
+        status: orderDetails.status === 'shipped' ? 'current' :
+          ['processing', 'pending'].includes(orderDetails.status) ? 'upcoming' : 'completed'
+      },
+      {
+        title: "Delivery",
+        date: orderDetails.estimatedDelivery,
+        status: orderDetails.status === 'delivered' ? 'completed' :
+          ['shipped', 'processing', 'pending'].includes(orderDetails.status) ? 'upcoming' : 'upcoming'
+      }
+    ];
+  }, [orderDetails]);
+
+  // Handle order actions
+  const handleDownloadInvoice = () => {
+    if (orderId) {
+      OrderService.downloadInvoice(orderId);
+    }
+  };
+
+  const handleShareOrder = () => {
+    if (orderId) {
+      OrderService.shareOrder(orderId);
+    }
+  };
 
   const handleContinueShopping = () => {
     dispatch(resetCheckout());
-    router.push('/products'); // Adjust the route as needed
+    router.push('/products');
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="animate-spin w-12 h-12 text-orange-500" />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !orderDetails) {
+    return (
+      <div className="text-center py-16">
+        <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Order Details Unavailable
+        </h2>
+        <p className="text-gray-600 mb-6">{error || 'Unable to retrieve order information'}</p>
+        <button
+          onClick={() => router.push('/orders')}
+          className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600"
+        >
+          View Orders
+        </button>
+      </div>
+    );
+  }
+
+
+  const orderActions = [
+    {
+      icon: <Mail />,
+      label: "Email Order",
+      onClick: () => {
+        if (orderDetails) {
+          OrderService.emailOrderReceipt(orderDetails.id)
+            .then(() => toast.success('Order receipt sent to email'))
+            .catch(() => toast.error('Failed to send order receipt'));
+        }
+      }
+    },
+    {
+      icon: <Download />,
+      label: "Download PDF",
+      onClick: handleDownloadInvoice // Already defined earlier in the component
+    },
+    {
+      icon: <PrinterIcon />,
+      label: "Print Order",
+      onClick: () => {
+        window.print(); // Browser's native print functionality
+      }
+    },
+    {
+      icon: <Share2 />,
+      label: "Share Order",
+      onClick: handleShareOrder // Already defined earlier in the component
+    }
+  ];
+
 
   return (
     <div className="space-y-8">
@@ -210,14 +287,48 @@ const ConfirmationPage: React.FC<ConfirmationPageProps> = ({
       </motion.div>
 
       {/* Order Information */}
+      {/* Order Information */}
       <OrderAndShippingDetails
-        formData={formData}
-        orderNumber={orderNumber}
-        orderSummary={orderSummary}
+        shippingAddress={{
+          firstName: orderDetails.shippingAddress.firstName,
+          lastName: orderDetails.shippingAddress.lastName,
+          email: orderDetails.shippingAddress.email,
+          phone: orderDetails.shippingAddress.phone,
+          address: orderDetails.shippingAddress.street,
+          city: orderDetails.shippingAddress.city,
+          state: orderDetails.shippingAddress.state,
+          country: orderDetails.shippingAddress.country,
+          postalCode: orderDetails.shippingAddress.postalCode
+        }}
+        paymentDetails={{
+          method: orderDetails.paymentMethod,
+          cardDetails: orderDetails.paymentMethod === 'credit-card'
+            ? {
+              lastFourDigits: orderDetails.cardDetails?.lastFourDigits
+            }
+            : undefined
+        }}
+        orderNumber={orderDetails.orderNumber}
+        orderSummary={{
+          items: orderDetails.items.map(item => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          total: orderDetails.totalAmount,
+          subtotal: orderDetails.subtotal,
+          shipping: orderDetails.shippingCost,
+          tax: orderDetails.tax
+        }}
+        onEditAddress={() => {
+          // Optional: Implement address editing logic
+          // Could open a modal or navigate to an edit address page
+          router.push(`/orders/${orderId}/edit-address`);
+        }}
       />
 
-{/* Timeline Section */}
-<motion.div
+      {/* Timeline Section */}
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm"
@@ -239,56 +350,6 @@ const ConfirmationPage: React.FC<ConfirmationPageProps> = ({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">Order Items</h2>
-          <span className="text-sm text-gray-600">
-            Total Items: {orderSummary.items.reduce((acc, item) => acc + item.quantity, 0)}
-          </span>
-        </div>
-        <div className="space-y-4">
-          <AnimatePresence>
-            {orderSummary.items.map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, x: -100 }}
-                transition={{ delay: index * 0.1 }}
-                className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg
-                    hover:bg-gray-100 transition-colors duration-200"
-              >
-                <div className="relative">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-16 h-16 rounded-lg object-cover"
-                  />
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-orange-500 
-                      rounded-full flex items-center justify-center text-white text-xs">
-                    {item.quantity}
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900">{item.name}</h3>
-                  <p className="text-sm text-gray-500">
-                    Unit Price: ${item.price.toFixed(2)}
-                  </p>
-                </div>
-                <p className="font-medium text-gray-900">
-                  ${(item.price * item.quantity).toFixed(2)}
-                </p>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      </motion.div>
-
-      {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
         className="grid grid-cols-2 md:grid-cols-4 gap-4"
       >
         {orderActions.map((action, index) => (
@@ -296,30 +357,46 @@ const ConfirmationPage: React.FC<ConfirmationPageProps> = ({
             key={action.label}
             whileHover={{ scale: 1.02, y: -5 }}
             whileTap={{ scale: 0.98 }}
+            onClick={action.onClick}
             className="flex flex-col items-center p-6 bg-white rounded-xl border 
-                border-gray-200 shadow-sm hover:shadow-md transition-all duration-200
-                hover:border-orange-200"
+        border-gray-200 shadow-sm hover:shadow-md transition-all duration-200
+        hover:border-orange-200 group"
           >
             <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-50 
-                rounded-full flex items-center justify-center mb-3">
+        rounded-full flex items-center justify-center mb-3 group-hover:rotate-6 
+        transition-transform duration-300">
               <div className="w-6 h-6 text-orange-500">{action.icon}</div>
             </div>
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-700 group-hover:text-orange-600 
+        transition-colors">
               {action.label}
             </span>
           </motion.button>
         ))}
       </motion.div>
 
-      {/* Footer Actions */}
-      <div className="flex justify-center pt-8 border-t border-gray-200">
+      {/* Order Actions Section */}
+      <div className="flex items-center justify-between pt-8 border-t border-gray-200">
+        {/* Track Order Button */}
+        <motion.button
+          whileHover={{ scale: 1.02, x: -5 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => router.push(`/orders/${orderId}/track`)}
+          className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:text-orange-500 
+      transition-colors duration-200 border border-gray-200 rounded-lg"
+        >
+          <Package className="w-5 h-5" />
+          <span>Track Order</span>
+        </motion.button>
+
+        {/* Continue Shopping Button */}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleContinueShopping}
           className="flex items-center px-8 py-4 bg-orange-500 text-white 
-            rounded-lg hover:bg-orange-600 transition-colors duration-200
-            shadow-lg shadow-orange-200"
+      rounded-lg hover:bg-orange-600 transition-colors duration-200
+      shadow-lg shadow-orange-200"
         >
           <span>Continue Shopping</span>
           <ArrowRight className="ml-2 w-5 h-5" />

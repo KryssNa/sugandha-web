@@ -84,7 +84,7 @@ export const DynamicBreadcrumb: React.FC<BreadcrumbProps> = ({
       {/* Navigation */}
       <div className='relative z-10 container mx-auto px-4'>
         <div className='flex max-sm:flex-col   justify-between items-center'>
-          <h1 className='text-2xl md:text-3xl font-bold text-white sm:text-[#222222] uppercase tracking-wider'>
+          <h1 className='text-2xl md:text-3xl font-bold text-white sm:text-[#40331a] uppercase tracking-wider'>
             {breadcrumbItems[breadcrumbItems.length - 1]?.title || "Home"}
           </h1>
           <nav

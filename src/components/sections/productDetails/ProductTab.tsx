@@ -125,7 +125,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-gray-600">Category:</span>
-                <span className="font-medium">{product.category}</span>
+                {/* <span className="font-medium">{product.category}</span> */}
               </div>
             </div>
           </motion.div>
@@ -137,7 +137,9 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
             exit={{ opacity: 0, y: -20 }}
             className="py-6"
           >
-            <ProductReviews rating={product.rating} reviews={product.reviews} />
+            {product.rating && (
+              <ProductReviews rating={product.rating} reviews={product.reviews || []} />
+            )}
           </motion.div>
         )}
       </AnimatePresence>

@@ -11,7 +11,7 @@ export default async function Page({ params }: { params: Params }) {
 
   return (
     <div>
-      <ProductDetailsPage />{" "}
+      <ProductDetailsPage slug={slug} />{" "}
     </div>
   );
 }

@@ -46,7 +46,8 @@ export class ProductService {
   // Get product by slug
   static async getProductBySlug(slug: string): Promise<Product> {
     const response = await api.get(`/products/slug/${slug}`);
-    return response.data.data;
+    console.log('response:', response);
+    return response.data.data.product;
   }
 
   // Create product

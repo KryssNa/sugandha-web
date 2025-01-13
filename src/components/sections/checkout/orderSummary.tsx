@@ -1,20 +1,12 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { Product } from "@/components/shared/types/product.types";
+import { AnimatePresence, motion } from "framer-motion";
+import { Heart, Minus, Plus, Trash2 } from "lucide-react";
 import React, { useState } from "react";
-import { Minus, Plus, Trash2, Heart } from "lucide-react";
 
-interface OrderItem {
-  id: string;
-  image: string;
-  name: string;
-  price: number;
-  quantity: number;
-  description?: string;
-  brand?: string;
-  inStock?: boolean;
-}
+
 
 interface OrderSummaryItemProps {
-  item: OrderItem;
+  item: Product;
   index: number;
   onUpdateQuantity?: (id: string, newQuantity: number) => void;
   onRemove?: (id: string) => void;
@@ -33,7 +25,9 @@ export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({
 
   const handleQuantityChange = (change: number) => {
     const newQuantity = Math.max(1, item.quantity + change);
-    onUpdateQuantity?.(item.id, newQuantity);
+    if (item.id) {
+      onUpdateQuantity?.(item.id, newQuantity);
+    }
   };
 
   return (
@@ -49,13 +43,13 @@ export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({
       <div className="p-4">
         <div className="flex items-center space-x-4">
           {/* Product Image with Quantity Badge */}
-          <motion.div 
+          <motion.div
             className="relative w-24 h-24 group"
             whileHover={{ scale: 1.05 }}
           >
             <img
-              src={item.image}
-              alt={item.name}
+              src={item.thumbnail}
+              alt={item.title}
               className="rounded-lg object-cover w-full h-full"
             />
             <motion.div
@@ -68,7 +62,7 @@ export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({
             >
               {item.quantity}
             </motion.div>
-            
+
             {/* Stock Status */}
             {item.inStock ? (
               <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2
@@ -91,21 +85,21 @@ export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({
                   cursor-pointer transition-colors"
                   onClick={() => setShowDetails(!showDetails)}
                 >
-                  {item.name}
+                  {item.title}
                 </h4>
                 {item.brand && (
                   <p className="text-sm text-gray-500">{item.brand}</p>
                 )}
               </div>
               <p className="font-bold text-gray-900">
-                ${(item.price * item.quantity).toFixed(2)}
+                ${(item.basePrice * item.quantity).toFixed(2)}
               </p>
             </div>
 
             {/* Price Per Unit */}
             <div className="mt-1 flex items-center justify-between">
               <p className="text-sm text-gray-500">
-                ${item.price.toFixed(2)} per unit
+                ${item.basePrice.toFixed(2)} per unit
               </p>
             </div>
 
@@ -121,9 +115,9 @@ export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({
                 >
                   <Minus size={16} className="text-gray-600" />
                 </motion.button>
-                
+
                 <span className="w-8 text-center font-medium">{item.quantity}</span>
-                
+
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -140,7 +134,7 @@ export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => onSaveForLater?.(item.id)}
+                  onClick={() => item.id && onSaveForLater?.(item.id)}
                   className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center
                     hover:bg-pink-100 transition-colors"
                 >
@@ -149,7 +143,7 @@ export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => onRemove?.(item.id)}
+                  onClick={() => item.id && onRemove?.(item.id)}
                   className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center
                     hover:bg-red-100 transition-colors"
                 >
@@ -188,7 +182,7 @@ export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-600">Subtotal ({item.quantity} items):</span>
               <span className="font-bold text-orange-500">
-                ${(item.price * item.quantity).toFixed(2)}
+                ${(item.basePrice * item.quantity).toFixed(2)}
               </span>
             </div>
           </motion.div>

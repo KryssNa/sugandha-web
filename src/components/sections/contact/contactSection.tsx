@@ -1,4 +1,6 @@
 "use client"
+import useToast from '@/hooks/useToast';
+import { ContactFormData, ContactService, ContactType } from '@/services/contact.service';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     AlertCircle,
@@ -99,9 +101,6 @@ const tabContents: Record<string, TabContent> = {
     }
 };
 
-interface FormData {
-    [key: string]: string;
-}
 
 const CustomFormField = ({ field, value, onChange }: { field: any; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void }) => {
     switch (field.type) {
@@ -152,16 +151,43 @@ const CustomFormField = ({ field, value, onChange }: { field: any; value: string
 };
 
 const ContactSection = () => {
-    const [selectedTab, setSelectedTab] = useState('general');
-    const [formData, setFormData] = useState<FormData>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [attachments, setAttachments] = useState<File[]>([]);
+    const toast = useToast();
+    const [selectedTab, setSelectedTab] = useState<ContactType>(ContactType.GENERAL);
+    const [formData, setFormData] = useState<ContactFormData>({
+        type: ContactType.GENERAL,
+        fullName: '',
+        email: '',
+        message: ''
+    });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
+        });
+    };
+    const handleTabChange = (tabValue: ContactType) => {
+        setSelectedTab(tabValue);
+
+        // Reset form data with new type while preserving common fields
+        setFormData({
+            type: tabValue,
+            fullName: formData.fullName || '',
+            email: formData.email || '',
+            message: '',
+            // Reset all other fields
+            phone: '',
+            companyName: '',
+            position: '',
+            subject: '',
+            productDetails: '',
+            quantity: undefined,
+            orderNumber: '',
+            issueType: '',
+            partnershipType: '',
         });
     };
 
@@ -174,14 +200,34 @@ const ContactSection = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        // Simulate API call
-        setTimeout(() => {
-            setIsSubmitting(false);
-            setSubmitStatus('success');
-            setFormData({});
+
+        try {
+            await ContactService.submitContact({
+                ...formData,
+                attachments
+            });
+
+            toast("success",
+                "Your message has been sent successfully. We'll get back to you soon.",
+            );
+
+            // Reset form
+            setFormData({
+                type: selectedTab,
+                fullName: '',
+                email: '',
+                message: ''
+            });
             setAttachments([]);
-        }, 1500);
+
+        } catch (error: any) {
+            toast("error", error.message || "Failed to send message. Please try again.",
+            );
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+
     const contactInfo = [
         {
             icon: <Phone className='w-5 h-5' />,
@@ -322,6 +368,7 @@ const ContactSection = () => {
                         </div>
 
                         {/* Enhanced Request Type Selector */}
+                        {/* Enhanced Request Type Selector */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                             {requestTypes.map((type) => (
                                 <motion.label
@@ -329,23 +376,23 @@ const ContactSection = () => {
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     className={`flex flex-col items-center p-4 rounded-lg border-2 cursor-pointer
-                    transition-all duration-200 relative ${selectedTab === type.value
+                transition-all duration-200 relative ${selectedTab === type.value
                                             ? 'border-orange-500 bg-orange-50'
                                             : 'border-gray-200 hover:border-orange-200'
                                         }`}
-                                    onClick={() => setSelectedTab(type.value)}
+                                    onClick={() => handleTabChange(type.value as ContactType)}
                                 >
                                     <input
                                         type="radio"
                                         name="requestType"
                                         value={type.value}
                                         checked={selectedTab === type.value}
-                                        onChange={() => setSelectedTab(type.value)}
+                                        onChange={() => handleTabChange(type.value as ContactType)}
                                         className="sr-only"
                                         placeholder='Select Request Type'
                                     />
                                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2
-                    ${selectedTab === type.value ? 'text-orange-500' : 'text-gray-400'}`}>
+                ${selectedTab === type.value ? 'text-orange-500' : 'text-gray-400'}`}>
                                         {type.icon}
                                     </div>
                                     <span className="text-sm text-center font-medium text-gray-700">{type.label}</span>
@@ -380,7 +427,7 @@ const ContactSection = () => {
                                             </label>
                                             <CustomFormField
                                                 field={field}
-                                                value={formData[field.name] || ''}
+                                                value={String(formData[field.name as keyof ContactFormData] || '')}
                                                 onChange={handleInputChange}
                                             />
                                         </div>

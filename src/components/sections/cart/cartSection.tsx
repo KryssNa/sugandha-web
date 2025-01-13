@@ -1,27 +1,32 @@
+// components/cart/CartSection.tsx
 "use client";
+
+import { CartItem as CartItemType } from "@/components/shared/types/cart.types";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  applyCartCoupon,
+  removeItemFromCart,
+  updateCartQuantity,
+  updateCartTotals
+} from "@/store/slices/cartSlice";
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Minus, Plus, Star, Trash2 } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  removeFromCart,
-  updateQuantity,
-  setCouponCode,
-  updateTotals,
-} from "@/store/slices/cartSlice";
 import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 
 // Cart Item Component
-const CartItem = ({ 
-  item, 
-  onUpdateQuantity, 
-  onRemoveItem 
-}: { 
-  item: any; 
-  onUpdateQuantity: (id: string, change: number) => void;
+interface CartItemProps {
+  item: CartItemType;
+  onUpdateQuantity: (id: string, quantity: number) => void;
   onRemoveItem: (id: string) => void;
+}
+
+const CartItem: React.FC<CartItemProps> = ({
+  item,
+  onUpdateQuantity,
+  onRemoveItem
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -32,7 +37,7 @@ const CartItem = ({
     {/* Product Info */}
     <div className="col-span-3 flex gap-4">
       <button
-        onClick={() => onRemoveItem(item.id)}
+        onClick={() => onRemoveItem(item.id ?? '')}
         className="p-2 hover:bg-red-50 rounded-full transition-colors"
         title="Remove Item"
       >
@@ -54,14 +59,19 @@ const CartItem = ({
           <div className="flex items-center">
             <Star className="w-4 h-4 text-yellow-400 fill-current" />
             <span className="ml-1 text-sm text-gray-600">
-              {item.rating.average.toFixed(1)}
+              {item.rating?.average?.toFixed(1) || "N/A"}
             </span>
           </div>
           <span className="text-gray-300">|</span>
           <span className="text-sm text-gray-600">
-            {item.reviews.length} Reviews
+            {item.reviews?.length || 0} Reviews
           </span>
         </div>
+        {item.selectedVariant && (
+          <div className="mt-1 text-sm text-gray-600">
+            Size: {item.selectedVariant.size}ml
+          </div>
+        )}
         <div className="flex gap-2 mt-2">
           {item.tags?.map((tag: string) => (
             <span
@@ -76,13 +86,15 @@ const CartItem = ({
     </div>
 
     {/* Price */}
-    <div className="text-center">${item.basePrice.toFixed(2)}</div>
+    <div className="text-center">
+      ${(item.selectedVariant?.price || item.basePrice).toFixed(2)}
+    </div>
 
     {/* Quantity */}
     <div className="flex items-center justify-center">
       <div className="flex border border-gray-200 rounded-lg">
         <button
-          onClick={() => onUpdateQuantity(item.id, -1)}
+          onClick={() => onUpdateQuantity(item.id ?? "", Math.max(0, item.quantity - 1))}
           className="p-2 hover:bg-gray-100 transition-colors"
           title="Decrease Quantity"
         >
@@ -92,7 +104,7 @@ const CartItem = ({
           {item.quantity}
         </div>
         <button
-          onClick={() => onUpdateQuantity(item.id, 1)}
+          onClick={() => onUpdateQuantity(item.id ?? "", item.quantity + 1)}
           className="p-2 hover:bg-gray-100 transition-colors"
           title="Increase Quantity"
         >
@@ -103,20 +115,28 @@ const CartItem = ({
 
     {/* Subtotal */}
     <div className="text-right font-medium">
-      ${((item.quantity || 1) * item.basePrice).toFixed(2)}
+      ${((item.quantity) * (item.selectedVariant?.price || item.basePrice)).toFixed(2)}
     </div>
   </motion.div>
 );
 
 // Cart Totals Component
-const CartTotals = ({
+interface CartTotalsProps {
+  totals: {
+    subtotal: number;
+    shipping: number;
+    tax: number;
+    discount: number;
+    total: number;
+  };
+  onCheckout: () => void;
+  disabled: boolean;
+}
+
+const CartTotals: React.FC<CartTotalsProps> = ({
   totals,
   onCheckout,
   disabled
-}: {
-  totals: any;
-  onCheckout: () => void;
-  disabled: boolean;
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -133,12 +153,24 @@ const CartTotals = ({
           ${totals.subtotal.toFixed(2)}
         </span>
       </div>
+      {totals.discount > 0 && (
+        <div className="flex justify-between py-3 bg-green-50 px-4 rounded-lg">
+          <span className="text-green-600">Discount</span>
+          <span className="font-medium text-green-600">
+            -${totals.discount.toFixed(2)}
+          </span>
+        </div>
+      )}
       <div className="flex justify-between py-3 bg-gray-50 px-4 rounded-lg">
-        <span className="text-gray-600">Estimated Delivery</span>
-        <span className="font-medium text-green-500">Free</span>
+        <span className="text-gray-600">Shipping</span>
+        {totals.shipping === 0 ? (
+          <span className="font-medium text-green-500">Free</span>
+        ) : (
+          <span className="font-medium">${totals.shipping.toFixed(2)}</span>
+        )}
       </div>
       <div className="flex justify-between py-3 bg-gray-50 px-4 rounded-lg">
-        <span className="text-gray-600">Estimated Tax</span>
+        <span className="text-gray-600">Tax</span>
         <span className="font-medium">${totals.tax.toFixed(2)}</span>
       </div>
     </div>
@@ -170,32 +202,41 @@ const CartTotals = ({
 const CartSection: React.FC = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { items: cartItems, couponCode, totals: cartTotals } = useAppSelector(
+  const { items: cartItems, couponCode, totals: cartTotals, isLoading } = useAppSelector(
     (state) => state.cart
   );
 
   // Update totals whenever cart items change
   useEffect(() => {
-    dispatch(updateTotals());
+    dispatch(updateCartTotals());
   }, [cartItems, dispatch]);
 
   // Handlers
-  const handleUpdateQuantity = (id: string, change: number) => {
-    dispatch(updateQuantity({ id, change }));
+  const handleUpdateQuantity = (id: string, quantity: number) => {
+    dispatch(updateCartQuantity({ productId: id, quantity }));
   };
 
   const handleRemoveItem = (id: string) => {
-    dispatch(removeFromCart(id));
+    dispatch(removeItemFromCart({ productId: id }));
   };
 
-  const handleApplyCoupon = () => {
-    // Add coupon logic here
-    console.log("Applying coupon:", couponCode);
+  const handleApplyCoupon = (code: string) => {
+    if (code.trim()) {
+      dispatch(applyCartCoupon(code));
+    }
   };
 
   const handleProceedToCheckout = () => {
     router.push('/checkout');
   };
+
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex justify-center items-center min-h-[400px]">
+  //       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500" />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="mx-auto px-4 sm:px-6 lg:px-12 xl:px-24 2xl:px-32 py-12">
@@ -244,14 +285,14 @@ const CartSection: React.FC = () => {
               <div className="flex gap-4">
                 <input
                   type="text"
-                  value={couponCode}
-                  onChange={(e) => dispatch(setCouponCode(e.target.value))}
+                  value={couponCode || ''}
+                  onChange={(e) => handleApplyCoupon(e.target.value)}
                   placeholder="Coupon code"
                   className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none 
                     focus:ring-2 focus:ring-orange-500"
                 />
                 <button
-                  onClick={handleApplyCoupon}
+                  onClick={() => handleApplyCoupon(couponCode || '')}
                   className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 
                     transition-colors duration-200"
                 >

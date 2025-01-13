@@ -1,15 +1,14 @@
 // pages/admin/products/new.tsx
 "use client"
-import ProductForm, { ProductFormData } from '@/components/dashboard/admin/product/ProductForm';
+import ProductForm from '@/components/dashboard/admin/product/ProductForm';
+import { Product } from '@/components/shared/types/product.types';
 import { useCategories } from '@/hooks/dashboard/admin/useCategories';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+    createProduct
+} from '@/store/slices/productSlice';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { 
-    createProduct,
-    updateProduct,
-    deleteProduct 
-  } from '@/store/slices/productSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 export const AddProduct = () => {
     const router = useRouter();
     const {
@@ -22,20 +21,14 @@ export const AddProduct = () => {
     }, [loadCategories]);
 
     const dispatch = useAppDispatch();
-  const { loading, error } = useAppSelector(state => state.product);
+    const { loading, error } = useAppSelector(state => state.product);
 
     // Handle form submission
-    const handleSubmit = async (productData: ProductFormData) => {
+    const handleSubmit = async (productData: Product) => {
+        console.log('Product Data:', productData);
         try {
-            // Make API call to create product
-            const response = await fetch('/api/products', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(productData)
-            });
-
-            if (!response.ok) throw new Error('Failed to create product');
-
+            // Create product
+            await dispatch(createProduct(productData)).unwrap();
             // Redirect to products list
             router.push('/admin/products');
         } catch (error) {

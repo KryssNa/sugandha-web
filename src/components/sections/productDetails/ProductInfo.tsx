@@ -1,6 +1,7 @@
 import { Product } from '@/components/shared/types/product.types';
 import { motion } from 'framer-motion';
-import { Heart, Shield, ShoppingCart, Truck } from 'lucide-react';
+import { Heart, Shield, ShoppingCart, Timer, Truck } from 'lucide-react';
+import { useState } from 'react';
 
 interface ProductInfoProps {
     product: Product;
@@ -19,10 +20,24 @@ const ProductInfo = ({
     onAddToCart,
     onToggleWishlist
 }: ProductInfoProps) => {
+    const [timeLeft] = useState({
+        hours: 6,
+        minutes: 12,
+        seconds: 11,
+    });
     return (
         <div className="lg:w-1/2 space-y-6">
             {/* Product Title and Rating */}
             <div>
+                {/* Special Offer Timer */}
+                <div className=" bg-gradient-to-r from-orange-500 to-orange-600 
+          rounded-lg p-3 text-white flex items-center justify-between">
+                    <span className="font-medium">Special Offer</span>
+                    <div className="flex gap-2">
+                        <Timer className="w-5 h-5" />
+                        <span>{`${timeLeft.hours}:${timeLeft.minutes}:${timeLeft.seconds}`}</span>
+                    </div>
+                </div>
                 <h1 className="text-3xl font-bold text-gray-900">{product.title}</h1>
                 <div className="mt-2 flex items-center gap-4">
                     <div className="flex items-center">
@@ -30,7 +45,7 @@ const ProductInfo = ({
                             <motion.svg
                                 key={i}
                                 whileHover={{ scale: 1.2 }}
-                                className={`w-5 h-5 ${i < Math.floor(product.rating.average)
+                                className={`w-5 h-5 ${i < Math.floor(product?.rating?.average ?? 0)
                                     ? "text-yellow-400"
                                     : "text-gray-300"
                                     }`}
@@ -41,7 +56,7 @@ const ProductInfo = ({
                             </motion.svg>
                         ))}
                         <span className="ml-2 text-sm text-gray-600">
-                            {product.rating.average.toFixed(1)} ({product.reviews.length} reviews)
+                            {product.rating ? product.rating.average.toFixed(1) : 'N/A'} ({product.reviews?.length ?? 0} reviews)
                         </span>
                     </div>
                     <span className="text-sm text-gray-500">|</span>
@@ -61,7 +76,7 @@ const ProductInfo = ({
                         </span>
                     )}
                 </div>
-                {product.discount > 0 && (
+                {(product.discount ?? 0) > 0 && (
                     <span className="px-2.5 py-1 bg-red-100 text-red-600 rounded-full text-sm font-medium">
                         {product.discount}% OFF
                     </span>

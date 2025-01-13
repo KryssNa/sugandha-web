@@ -2,7 +2,7 @@
 
 import { Product } from "@/components/shared/types/product.types";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { addToCart } from "@/store/slices/cartSlice";
+import { addItemToCart } from "@/store/slices/cartSlice";
 import { removeFromWishlist } from "@/store/slices/wishlistSlice";
 import { AnimatePresence, motion } from "framer-motion";
 import { ShoppingCart, Star, Trash2 } from "lucide-react";
@@ -18,9 +18,13 @@ const WishlistSection: React.FC = () => {
     dispatch(removeFromWishlist(id));
   };
 
+  console.log("wishlist item", wishlistItems)
+
   const handleAddToCart = (item: Product) => {
-    dispatch(addToCart(item));
-    dispatch(removeFromWishlist(item.id)); // Optionally remove from wishlist after adding to cart
+    if (item.id) {
+      dispatch(addItemToCart({ productId: item.id }));
+    }
+    dispatch(removeFromWishlist(item.id ? item.id : "")); // Optionally remove from wishlist after adding to cart
   };
 
   return (
@@ -51,7 +55,7 @@ const WishlistSection: React.FC = () => {
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => handleRemoveFromWishlist(item.id)}
+                  onClick={() => handleRemoveFromWishlist(item.id ? item.id : "")}
                   className="flex items-center gap-2 text-gray-500 hover:text-red-500 
                     transition-colors duration-200"
                 >
@@ -79,12 +83,12 @@ const WishlistSection: React.FC = () => {
                       <div className="flex items-center">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
                         <span className="ml-1 font-semibold text-gray-900">
-                          {item.rating.average.toFixed(1)}
+                          {item.rating ? item.rating.average.toFixed(1) : "N/A"}
                         </span>
                       </div>
                       <span className="text-gray-300">|</span>
                       <span className="text-gray-600">
-                        {item.reviews.length} Reviews
+                        {item.reviews ? item.reviews.length : 0} Reviews
                       </span>
                     </div>
                     <div className="flex gap-2">

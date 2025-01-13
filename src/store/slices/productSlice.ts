@@ -283,7 +283,7 @@ const productSlice = createSlice({
       state.error = null;
     };
 
-    const handleRejectedState = (state: ProductState, action) => {
+    const handleRejectedState = (state: ProductState, action:any) => {
       state.loading = false;
       state.error = action.payload as string;
     };

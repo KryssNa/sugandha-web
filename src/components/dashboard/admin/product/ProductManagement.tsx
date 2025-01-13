@@ -132,7 +132,9 @@ const ProductManagement: React.FC = () => {
               </button>
               <button
                 onClick={() => {
-                  productActions.deleteProduct(product.id);
+                  if (product.id) {
+                    productActions.deleteProduct(product.id);
+                  }
                   modal.hideModal();
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600"

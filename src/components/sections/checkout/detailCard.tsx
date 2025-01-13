@@ -15,108 +15,134 @@ import {
   Receipt,
 } from "lucide-react";
 
-const DetailCard = ({ title, icon: Icon, children }: any) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    whileHover={{ y: -2 }}
-    className='bg-white p-6 rounded-xl border border-gray-200 shadow-sm 
-      hover:shadow-md transition-all duration-300'
-  >
-    <div className='flex items-center mb-4'>
-      <div className='w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center'>
-        <Icon className='w-5 h-5 text-orange-500' />
-      </div>
-      <h2 className='text-xl font-bold text-gray-900 ml-3'>{title}</h2>
-    </div>
-    {children}
-  </motion.div>
-);
+// More robust type definitions
+interface ShippingAddress {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state?: string;
+  country?: string;
+  postalCode: string;
+}
 
-const DetailRow = ({ label, value, divider = true }) => (
-  <div
-    className={`flex justify-between items-center ${
-      divider ? "pb-4 border-b border-gray-100" : ""
-    }`}
-  >
-    <span className='text-gray-600'>{label}</span>
-    <span className='font-medium text-gray-900'>{value}</span>
-  </div>
-);
+interface OrderSummary {
+  total: number;
+  subtotal?: number;
+  shipping?: number;
+  tax?: number;
+  items?: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
+}
 
-export const OrderAndShippingDetails = ({
-  formData,
+interface PaymentDetails {
+  method: 'credit-card' | 'khalti' | 'esewa' | 'cash-on-delivery';
+  cardDetails?: {
+    lastFourDigits?: string;
+  };
+}
+
+interface OrderAndShippingDetailsProps {
+  shippingAddress: ShippingAddress;
+  paymentDetails: PaymentDetails;
+  orderNumber: string;
+  orderSummary: OrderSummary;
+  onEditAddress?: () => void;
+}
+
+export const OrderAndShippingDetails: React.FC<OrderAndShippingDetailsProps> = ({
+  shippingAddress,
+  paymentDetails,
   orderNumber,
   orderSummary,
+  onEditAddress
 }) => {
-  const isCashOnDelivery = formData.paymentMethod === "cash-on-delivery";
-  const codCharge = 50; // NPR 50 for COD
+  // Calculate COD charge
+  const isCashOnDelivery = paymentDetails.method === "cash-on-delivery";
+  const COD_CHARGE = 50; // NPR 50 for COD
   const totalWithCOD = isCashOnDelivery
-    ? orderSummary.total + codCharge
+    ? orderSummary.total + COD_CHARGE
     : orderSummary.total;
+
+  // Payment method icons mapping
+  const paymentMethodIcons = {
+    'credit-card': <CreditCard className='w-4 h-4 text-gray-400' />,
+    'khalti': <Banknote className='w-4 h-4 text-purple-500' />,
+    'esewa': <Banknote className='w-4 h-4 text-green-500' />,
+    'cash-on-delivery': <Banknote className='w-4 h-4 text-blue-500' />
+  };
 
   return (
     <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
       {/* Order Details Card */}
-      <DetailCard title='Order Details' icon={Receipt}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -2 }}
+        className='bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300'
+      >
+        <div className='flex items-center mb-4'>
+          <div className='w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center'>
+            <Receipt className='w-5 h-5 text-orange-500' />
+          </div>
+          <h2 className='text-xl font-bold text-gray-900 ml-3'>Order Details</h2>
+        </div>
+
         <div className='space-y-4'>
-          <DetailRow
-            label='Order Number'
-            value={
-              <div className='flex items-center'>
-                <span className='font-mono bg-gray-100 px-3 py-1 rounded'>
-                  {orderNumber}
-                </span>
-              </div>
-            }
-          />
-          <DetailRow
-            label='Order Date'
-            value={
-              <div className='flex items-center space-x-2'>
-                <Calendar className='w-4 h-4 text-gray-400' />
-                <span>{new Date().toLocaleDateString()}</span>
-              </div>
-            }
-          />
-          <DetailRow
-            label='Payment Method'
-            value={
-              <div className='flex items-center space-x-2'>
-                {isCashOnDelivery ? (
-                  <Banknote className='w-4 h-4 text-blue-500' />
-                ) : (
-                  <CreditCard className='w-4 h-4 text-gray-400' />
-                )}
-                <span className='capitalize'>
-                  {formData.paymentMethod.replace("-", " ")}
-                </span>
-              </div>
-            }
-          />
+          {/* Order Number */}
+          <div className='flex justify-between items-center pb-4 border-b border-gray-100'>
+            <span className='text-gray-600'>Order Number</span>
+            <span className='font-mono bg-gray-100 px-3 py-1 rounded'>
+              {orderNumber}
+            </span>
+          </div>
+
+          {/* Order Date */}
+          <div className='flex justify-between items-center pb-4 border-b border-gray-100'>
+            <span className='text-gray-600'>Order Date</span>
+            <div className='flex items-center space-x-2'>
+              <Calendar className='w-4 h-4 text-gray-400' />
+              <span>{new Date().toLocaleDateString()}</span>
+            </div>
+          </div>
+
+          {/* Payment Method */}
+          <div className='flex justify-between items-center pb-4 border-b border-gray-100'>
+            <span className='text-gray-600'>Payment Method</span>
+            <div className='flex items-center space-x-2'>
+              {paymentMethodIcons[paymentDetails.method]}
+              <span className='capitalize'>
+                {paymentDetails.method.replace("-", " ")}
+              </span>
+            </div>
+          </div>
+
+          {/* COD Charge (if applicable) */}
           {isCashOnDelivery && (
-            <DetailRow
-              label='COD Charge'
-              value={
-                <div className='flex items-center space-x-2 text-blue-500'>
-                  <Info className='w-4 h-4' />
-                  <span>NPR {codCharge.toFixed(2)}</span>
-                </div>
-              }
-            />
-          )}
-          <DetailRow
-            label='Total Amount'
-            value={
-              <div className='flex items-center space-x-2 text-orange-500'>
-                <CircleDollarSign className='w-5 h-5' />
-                <span className='text-lg font-bold'>
-                  ${totalWithCOD.toFixed(2)}
-                </span>
+            <div className='flex justify-between items-center pb-4 border-b border-gray-100'>
+              <span className='text-gray-600'>COD Charge</span>
+              <div className='flex items-center space-x-2 text-blue-500'>
+                <Info className='w-4 h-4' />
+                <span>NPR {COD_CHARGE.toFixed(2)}</span>
               </div>
-            }
-            divider={false}
-          />
+            </div>
+          )}
+
+          {/* Total Amount */}
+          <div className='flex justify-between items-center'>
+            <span className='text-gray-600'>Total Amount</span>
+            <div className='flex items-center space-x-2 text-orange-500'>
+              <CircleDollarSign className='w-5 h-5' />
+              <span className='text-lg font-bold'>
+                ${totalWithCOD.toFixed(2)}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* COD Instructions */}
@@ -133,9 +159,7 @@ export const OrderAndShippingDetails = ({
             <ul className='space-y-2 text-sm text-blue-600'>
               <li className='flex items-start space-x-2'>
                 <div className='w-1 h-1 bg-blue-400 rounded-full mt-2' />
-                <span>
-                  Please keep exact change ready: ${totalWithCOD.toFixed(2)}
-                </span>
+                <span>Please keep exact change ready: ${totalWithCOD.toFixed(2)}</span>
               </li>
               <li className='flex items-start space-x-2'>
                 <div className='w-1 h-1 bg-blue-400 rounded-full mt-2' />
@@ -148,69 +172,76 @@ export const OrderAndShippingDetails = ({
             </ul>
           </motion.div>
         )}
-      </DetailCard>
+      </motion.div>
 
       {/* Shipping Details Card */}
-      <DetailCard title='Shipping Details' icon={Building}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -2 }}
+        className='bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300'
+      >
+        <div className='flex items-center mb-4'>
+          <div className='w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center'>
+            <Building className='w-5 h-5 text-orange-500' />
+          </div>
+          <h2 className='text-xl font-bold text-gray-900 ml-3'>Shipping Details</h2>
+        </div>
+
         <div className='space-y-6'>
-          {/* Address Section */}
+          {/* Shipping Address */}
           <div className='flex items-start space-x-3 bg-gray-50 p-4 rounded-lg'>
             <MapPin className='w-5 h-5 text-gray-400 mt-1' />
             <div className='flex-1'>
               <div className='flex items-center justify-between'>
                 <p className='font-medium text-gray-900'>
-                  {formData.firstName} {formData.lastName}
+                  {shippingAddress.firstName} {shippingAddress.lastName}
                 </p>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className='text-orange-500 hover:text-orange-600'
-                >
-                  <Edit className='w-4 h-4' />
-                </motion.button>
+                {onEditAddress && (
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={onEditAddress}
+                    className='text-orange-500 hover:text-orange-600'
+                  >
+                    <Edit className='w-4 h-4' />
+                  </motion.button>
+                )}
               </div>
-              <p className='text-gray-600 mt-1'>{formData.address}</p>
+              <p className='text-gray-600 mt-1'>{shippingAddress.address}</p>
               <p className='text-gray-600'>
-                {formData.city}, {formData.postalCode}
+                {shippingAddress.city}, {shippingAddress.postalCode}
+                {shippingAddress.state && `, ${shippingAddress.state}`}
               </p>
             </div>
           </div>
 
           {/* Contact Information */}
           <div className='space-y-3'>
-            <div
-              className='flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg 
-              transition-colors duration-200'
-            >
+            <div className='flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition-colors duration-200'>
               <div className='w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center'>
                 <Phone className='w-4 h-4 text-blue-500' />
               </div>
               <div>
                 <p className='text-sm text-gray-500'>Phone Number</p>
-                <p className='text-gray-600 font-medium'>{formData.phone}</p>
+                <p className='text-gray-600 font-medium'>{shippingAddress.phone}</p>
               </div>
             </div>
 
-            <div
-              className='flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg 
-              transition-colors duration-200'
-            >
+            <div className='flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition-colors duration-200'>
               <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center'>
                 <Mail className='w-4 h-4 text-green-500' />
               </div>
               <div>
                 <p className='text-sm text-gray-500'>Email Address</p>
-                <p className='text-gray-600 font-medium'>{formData.email}</p>
+                <p className='text-gray-600 font-medium'>{shippingAddress.email}</p>
               </div>
             </div>
           </div>
 
-          {/* Delivery Note with COD Info */}
+          {/* Delivery Information */}
           <div className='space-y-3'>
-            <div
-              className='text-sm text-gray-500 bg-orange-50 p-3 rounded-lg border 
-              border-orange-100'
-            >
+            <div className='text-sm text-gray-500 bg-orange-50 p-3 rounded-lg border border-orange-100'>
               <div className='flex items-center mb-2'>
                 <AlertCircle className='w-4 h-4 text-orange-500 mr-2' />
                 <span className='font-medium text-orange-700'>
@@ -226,7 +257,7 @@ export const OrderAndShippingDetails = ({
             </div>
           </div>
         </div>
-      </DetailCard>
+      </motion.div>
     </div>
   );
 };

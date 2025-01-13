@@ -1204,203 +1204,86 @@
 // export default ProductDetailsSection;
 
 "use client"
-import type { RootState } from '@/store';
-import { addToCart } from '@/store/slices/cartSlice';
+
+import { useAppDispatch, useAppSelector } from '@/store/hooks'; // Add custom hooks
+import { addItemToCart } from '@/store/slices/cartSlice';
+import { fetchProductBySlug } from '@/store/slices/productSlice';
 import { addToWishlist, removeFromWishlist } from '@/store/slices/wishlistSlice';
-import { useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
+
+// Components
+import { RootState } from '@/store';
 import ImageGallery from './ImageGallery';
 import { FloatingButtons, MobileBottomBar } from './MobileButtons';
 import ProductInfo from './ProductInfo';
 import ProductTabs from './ProductTab';
+// import ProductTabs from './ProductTabs';
+// import MobileBottomBar from './MobileBottomBar';
+// import FloatingButtons from './FloatingButtons';
 
 interface ProductDetailsSectionProps {
   slug: string;
 }
 
 const ProductDetailsSection = ({ slug }: ProductDetailsSectionProps) => {
-  const dummyProducts = useMemo(() =>
-    Array(5).fill(null).map((_, index) => ({
-      id: `${index + 1}`,
-      // Basic Information
-      title: index % 3 === 0
-        ? "Creed Aventus EDP 100ml"
-        : index % 3 === 1
-          ? "Emporio Armani Stronger With You"
-          : "Tom Ford Oud Wood",
-      slug: `product-${index + 1}`,
-      sku: `SKU${(index + 1).toString().padStart(6, '0')}`,
-      brand: index % 3 === 0 ? "Creed" : index % 3 === 1 ? "Emporio Armani" : "Tom Ford",
-      description: "Luxurious fragrance with deep notes...",
-      shortDescription: "A captivating blend of...",
+  const dispatch = useAppDispatch();
 
-      // Media
-      images: [
-        {
-          id: `img-${index}-1`,
-          url: "/assets/images/products/armani.png",
-          alt: "Primary Image",
-          isPrimary: true
-        },
-        {
-          id: `img-${index}-2`,
-          url: "/assets/images/products/image3.png",
-          alt: "Secondary Image",
-          isPrimary: false
-        }
-      ],
-      thumbnail: "/assets/images/products/armani.png",
-      coverImage: "/assets/images/products/image3.png",
-      video: undefined,
-
-      // Pricing & Inventory
-      variants: [
-        {
-          size: 100,
-          sku: `SKU${(index + 1).toString().padStart(6, '0')}-100`,
-          price: 12500 + index * 1000,
-          originalPrice: 15000 + index * 1000,
-          quantity: 50,
-          inStock: true
-        },
-        {
-          size: 50,
-          sku: `SKU${(index + 1).toString().padStart(6, '0')}-50`,
-          price: (12500 + index * 1000) * 0.6,
-          originalPrice: (15000 + index * 1000) * 0.6,
-          quantity: 30,
-          inStock: true
-        }
-      ],
-      basePrice: 12500 + index * 1000,
-      originalPrice: 15000 + index * 1000,
-      discount: 29,
-      discountEndDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-      quantity: 80,
-      inStock: true,
-
-      // Categories & Organization
-      category: ["Perfume"],
-      subCategory: ["Luxury"],
-      tags: ["Premium", "Bestseller"],
-      collections: ["Summer Collection", "Luxury Edition"],
-      gender: index % 3 === 0 ? "male" : index % 3 === 1 ? "unisex" : "female",
-
-      // Perfume Specific
-      concentration: index % 2 === 0 ? "EDP" : "EDT",
-      scentNotes: [
-        {
-          type: "top",
-          notes: ["Bergamot", "Blackcurrant"]
-        },
-        {
-          type: "middle",
-          notes: ["Rose", "Jasmine"]
-        },
-        {
-          type: "base",
-          notes: ["Vanilla", "Musk"]
-        }
-      ],
-      sillage: "Strong",
-      longevity: "Long Lasting",
-      seasonality: ["Spring", "Summer"],
-      timeOfDay: ["Day", "Night"],
-      occasions: ["Casual", "Formal"],
-
-      // Product Details
-      specifications: [
-        { label: "Volume", value: "100ml" },
-        { label: "Type", value: "Eau de Parfum" }
-      ],
-      features: ["Long-lasting", "Premium Quality"],
-      ingredients: ["Alcohol", "Fragrance", "Water"],
-      madeIn: "France",
-      launchYear: 2020,
-      perfumer: "Oliver Creed",
-
-      // Ratings & Reviews
-      rating: {
-        average: 4.8 - (index % 3) * 0.5,
-        count: 1000 - index * 50,
-        distribution: {
-          1: 10,
-          2: 20,
-          3: 50,
-          4: 200,
-          5: 720
-        }
-      },
-      reviews: [
-        {
-          id: `review-${index}-1`,
-          name: "John Doe",
-          userId: "user1",
-          rating: 5,
-          title: "Amazing Fragrance",
-          comment: "Excellent fragrance! Long-lasting and unique.",
-          datePosted: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          helpful: 25,
-          verifiedPurchase: true
-        }
-      ],
-
-      // Marketing & Sales
-      isHot: index < 3,
-      isFeatured: index < 5,
-      isNewArrival: index < 4,
-      isBestSeller: index < 6,
-      isLimited: index < 2,
-
-      // SEO & Meta
-      metaTitle: "Premium Fragrance",
-      metaDescription: "Discover luxury fragrances...",
-      keywords: ["luxury", "perfume", "fragrance"],
-
-      // Timestamps
-      createdAt: new Date(),
-      updatedAt: new Date(),
-
-      // Methods
-      async updateStock(quantity: number): Promise<void> {
-        this.quantity += quantity;
-        this.inStock = this.quantity > 0;
-        // In a real implementation, this would update the database
-        return Promise.resolve();
-      }
-    })
-
-    ), []);
-
-  const product = dummyProducts[0];
-
-  console.log(product);
-  // Redux
-  const dispatch = useDispatch();
-  const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
-  const isInWishlist = wishlistItems.some(item => item.id === product.id);
+  // Redux selectors
+  const wishlistItems = useAppSelector((state: RootState) => state.wishlist.items);
+  const { selectedProduct, loading, error } = useAppSelector(
+    (state: RootState) => state.product
+  );
 
   // Local state
   const [quantity, setQuantity] = useState(1);
+
+  // Fetch product data
+  useEffect(() => {
+    if (slug) {
+      dispatch(fetchProductBySlug(slug))
+        .unwrap()
+        .catch((error) => {
+          console.error('Failed to fetch product:', error);
+        });
+    }
+  }, [dispatch, slug]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!selectedProduct) {
+    return <div>Product not found</div>;
+  }
+
+  const product = selectedProduct;
+  const isInWishlist = wishlistItems.some(item => item.id === product.id);
 
   // Handlers
   const handleQuantityChange = (type: "increase" | "decrease") => {
     setQuantity(prev => {
       if (type === "decrease") return prev > 1 ? prev - 1 : 1;
-      return prev < product.quantity ? prev + 1 : prev;
+      return prev < (product.quantity || 0) ? prev + 1 : prev;
     });
   };
 
   const handleAddToCart = () => {
-    dispatch(addToCart({
-      ...product,
+    dispatch(addItemToCart({
+      product:product,
+      productId: product.id as string,
       quantity
     }));
   };
 
   const handleToggleWishlist = () => {
     if (isInWishlist) {
-      dispatch(removeFromWishlist(product.id));
+      if (product.id) {
+        dispatch(removeFromWishlist(product.id));
+      }
     } else {
       dispatch(addToWishlist(product));
     }

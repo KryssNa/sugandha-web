@@ -1,7 +1,11 @@
 "use client";
+import { useCheckout } from "@/hooks/useCheckout";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setOrderSummary, setStep } from "@/store/slices/checkoutSlice";
+import { addToWishlist } from "@/store/slices/wishlistSlice";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import ConfirmationPage from "./confirmationPage";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
 import { OrderSummaryItem } from "./orderSummary";
 import { PaymentForm } from "./paymentForm";
 import { PriceBreakdown } from "./priceBreakdown";
@@ -9,52 +13,122 @@ import { ProgressSteps } from "./progressStep";
 import { ShippingForm } from "./shippingForm";
 import { TopBanner } from "./topBanner";
 import { TrustBadges } from "./trustBadge";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setStep, setFormData, setOrderSummary, CheckoutFormData as CustomFormData } from "@/store/slices/checkoutSlice";
 
 const CheckoutPage = () => {
   const dispatch = useAppDispatch();
-  const { step, formData, orderSummary } = useAppSelector((state) => state.checkout);
+  // const { step, formData, orderSummary } = useAppSelector((state) => state.checkout);
 
-  // Initialize with sample data (in real app, this would come from cart)
+  const { items: cartItems, couponCode, totals: cartTotals } = useAppSelector(
+    (state) => state.cart
+  );
+
+  const {
+    step,
+    formData,
+    orderSummary,
+    handleInputChange,
+    handleRemoveItem,
+    handleUpdateQuantity,
+    // handleSubmit,
+    handlePrevStep,
+    createCheckout
+  } = useCheckout();
+
+  // order summary
   useEffect(() => {
-    dispatch(setOrderSummary({
-      subtotal: 199.99,
-      shipping: 10.0,
-      tax: 20.0,
-      total: 229.99,
-      items: [
-        {
-          id: "1",
-          name: "Premium Perfume",
-          price: 99.99,
-          quantity: 1,
-          image: "/assets/images/products/image3.png",
-        },
-        {
-          id: "2",
-          name: "Luxury Fragrance",
-          price: 100.0,
-          quantity: 3,
-          image: "/assets/images/products/creed.png",
-        },
-      ],
-    }));
+    dispatch(setOrderSummary(
+      {
+        items: cartItems,
+        total: cartTotals.total,
+        subtotal: cartTotals.subtotal,
+        shipping: cartTotals.shipping,
+        tax: cartTotals.tax,
+      }
+    ));
   }, [dispatch]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    dispatch(setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    }));
+
+  // const handleInputChange = (
+  //   e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  // ) => {
+  //   dispatch(setFormData({
+  //     ...formData,
+  //     [e.target.name]: e.target.value,
+  //   }));
+  // };
+
+  // const handleRemoveItem = (index: number) => {
+  //   const updatedItems = orderSummary.items.filter((_, i) => i !== index);
+  //   dispatch(setOrderSummary({
+  //     ...orderSummary,
+  //     items: updatedItems,
+  //   }));
+  // }
+
+  // const handleUpdateQuantity = (id: string, newQuantity: number) => {
+  //   const updatedItems = orderSummary.items.map((item) => {
+  //     if (item.id === id) {
+  //       return {
+  //         ...item,
+  //         quantity: newQuantity,
+  //       };
+  //     }
+  //     return item;
+  //   });
+  //   dispatch(updateCartQuantity({ productId:id, quantity: newQuantity }));
+  //   dispatch(setOrderSummary({
+  //     ...orderSummary,
+  //     items: updatedItems,
+  //   }));
+  // }
+
+  const handleAddToWishlist = (item: any) => {
+    // dispatch(addToWishlist(item));
+    dispatch(addToWishlist(item));
+    console.log("Added to wishlist", item);
+  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // For shipping step (step 1), just move to next step
+    if (step === 1) {
+      dispatch(setStep(step + 1));
+      return;
+    }
+
+    // For payment step (step 2), create checkout
+    if (step === 2) {
+      try {
+        // Validate payment details before creating checkout
+        if (!formData.paymentMethod) {
+          toast.error('Please select a payment method');
+          return;
+        }
+
+        // Create checkout
+        const checkoutResult = await createCheckout();
+
+        // If checkout is successful, move to confirmation step
+        if (checkoutResult) {
+          dispatch(setStep(step + 1));
+        }
+      } catch (error) {
+        // Error handling is done inside createCheckout
+        console.error('Checkout failed', error);
+      }
+      return;
+    }
+
+    // For confirmation step (step 3), you might want to handle differently
+    // For example, maybe allow printing or sharing order details
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    dispatch(setStep(step + 1));
-  };
+
+
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   dispatch(setStep(step + 1));
+  // };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -83,13 +157,17 @@ const CheckoutPage = () => {
                   />
                 )}
                 {step === 3 && (
-                  <ConfirmationPage
-                    formData={formData}
-                    orderSummary={orderSummary}
-                    orderNumber="123456"
-                    onBackStep={() => dispatch(setStep(step - 1))}
-                    currentStep={step}
-                  />
+                  <>
+
+                    checkout confirm
+                  </>
+                  // <ConfirmationPage
+                  //   formData={formData}
+                  //   orderSummary={orderSummary}
+                  //   orderNumber="123456"
+                  //   onBackStep={() => dispatch(setStep(step - 1))}
+                  //   currentStep={step}
+                  // />
                 )}
               </motion.div>
             </AnimatePresence>
@@ -99,8 +177,19 @@ const CheckoutPage = () => {
           <div className="lg:col-span-1 space-y-6">
             <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm space-y-6">
               <h3 className="text-xl font-bold text-gray-900">Order Summary</h3>
-              {orderSummary.items.map((item:any, index:any) => (
-                <OrderSummaryItem key={index} item={item} index={index} />
+              {orderSummary.items.map((item: any, index: any) => (
+                <OrderSummaryItem key={index} item={item} index={index}
+
+                  onRemove={
+                    () => handleRemoveItem(index)
+                  }
+                  onSaveForLater={
+                    () => handleAddToWishlist(item)
+                  }
+                  onUpdateQuantity={
+                    (id: string, newQuantity: number) => handleUpdateQuantity(id, newQuantity)
+                  }
+                />
               ))}
               <PriceBreakdown orderSummary={orderSummary} />
               <TrustBadges />

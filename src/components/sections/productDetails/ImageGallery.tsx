@@ -1,6 +1,5 @@
 import { IImage } from '@/components/shared/types/product.types';
 import { motion } from 'framer-motion';
-import { Timer } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -12,11 +11,7 @@ interface ImageGalleryProps {
 const ImageGallery = ({ images, title }: ImageGalleryProps) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
-  const [timeLeft] = useState({
-    hours: 6,
-    minutes: 12,
-    seconds: 11,
-  });
+
 
   return (
     <div className="lg:w-1/2 space-y-4">
@@ -36,15 +31,6 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
           />
         </motion.div>
 
-        {/* Special Offer Timer */}
-        <div className="absolute top-4 left-4 right-4 bg-gradient-to-r from-orange-500 to-orange-600 
-          rounded-lg p-3 text-white flex items-center justify-between">
-          <span className="font-medium">Special Offer</span>
-          <div className="flex gap-2">
-            <Timer className="w-5 h-5" />
-            <span>{`${timeLeft.hours}:${timeLeft.minutes}:${timeLeft.seconds}`}</span>
-          </div>
-        </div>
       </div>
 
       {/* Thumbnail Gallery */}

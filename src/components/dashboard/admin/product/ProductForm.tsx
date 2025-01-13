@@ -3,6 +3,7 @@ import ImageGallery from '@/components/shared/image/ImageGallery';
 import CustomInput from '@/components/shared/input/customInput';
 import { CustomSelect } from '@/components/shared/select/customSelect';
 import { Category } from '@/components/shared/types/category.types';
+import { Product } from '@/components/shared/types/product.types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Edit, Package, Save, Trash } from 'lucide-react';
 import React, { useState } from 'react';
@@ -117,7 +118,7 @@ export interface ProductFormData {
 
 interface ProductFormProps {
   initialData?: Partial<ProductFormData>;
-  onSubmit: (data: ProductFormData) => Promise<void>;
+  onSubmit: (data: Product) => Promise<void>;
   categories: Category[];
 }
 
@@ -454,8 +455,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     setLoading(true);
     try {
       // Prepare the data
-      const submitData = {
+      const submitData: Product = {
         ...formData,
+        id: initialData?.id || '', // Ensure id is included
+        description: formData.shortDescription, // Map shortDescription to description
+        discount: formData.originalPrice - formData.basePrice, // Calculate discount
+        updateStock: () => {}, // Placeholder function for updateStock
         discountEndDate: formData.discountEndDate ? new Date(formData.discountEndDate) : undefined
       };
 

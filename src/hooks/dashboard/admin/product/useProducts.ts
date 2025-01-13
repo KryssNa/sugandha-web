@@ -1,29 +1,29 @@
 // hooks/useProducts.ts
 import useSweetAlert from '@/components/shared/toast/showToast';
-import { Product } from '@/components/shared/types/product.types';
+import { Product, ProductFilters } from '@/components/shared/types/product.types';
 import { useCallback, useEffect, useState } from 'react';
 
-interface ProductFilters {
-  category?: string[];
-  gender?: string;
-  concentration?: string;
-  priceRange?: [number, number];
-  inStock?: boolean;
-  collections?: string[];
-  seasonality?: string[];
-  sillage?: string;
-  longevity?: string;
-  searchQuery?: string;
-  sortBy?: 'price' | 'rating' | 'createdAt' | 'title';
-  sortOrder?: 'asc' | 'desc';
+// interface ProductFilters {
+//   category?: string[];
+//   gender?: string;
+//   concentration?: string;
+//   priceRange?: [number, number];
+//   inStock?: boolean;
+//   collections?: string[];
+//   seasonality?: string[];
+//   sillage?: string;
+//   longevity?: string;
+//   searchQuery?: string;
+//   sortBy?: 'price' | 'rating' | 'createdAt' | 'title';
+//   sortOrder?: 'asc' | 'desc';
 
-  brand?: string;
+//   brand?: string;
 
-  page?: number;
+//   page?: number;
 
-  limit?: number;
+//   limit?: number;
 
-}
+// }
 
 interface ProductsState {
   products: Product[];
