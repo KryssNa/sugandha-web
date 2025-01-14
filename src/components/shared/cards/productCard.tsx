@@ -1,9 +1,10 @@
 import { CartIcon } from "@/utils/helpers/svgicon";
 import { AnimatePresence, motion } from "framer-motion";
-import { Eye, Heart, Plus, Shuffle, X } from "lucide-react";
+import { ArrowUpRightFromSquareIcon, ArrowUpRightIcon, ArrowUpRightSquareIcon, Eye, Heart, Plus, X } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
 import { CountdownTimer } from "../countDownTimer";
+import { Product } from "../types/product.types";
 
 export interface ProductCardProps {
   primaryImage: string;
@@ -20,6 +21,8 @@ export interface ProductCardProps {
   onAddToWishlist?: () => void;
   onQuickView?: () => void;
   onAddToCart?: () => void;
+  checkWishlist?: (product: Product) => boolean;
+  buyNow?: () => void;
   viewMode?: 'grid' | 'list';
   className?: string;
 }
@@ -39,16 +42,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onAddToWishlist,
   onQuickView,
   onAddToCart,
+  checkWishlist,
+  buyNow,
   className,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showActions, setShowActions] = useState(false);
 
   const actionButtons = [
-    { Icon: Heart, label: "Add to Wishlist", onClick: onAddToWishlist },
+    { Icon: Heart, label: "Add to Wishlist", onClick: onAddToWishlist, enabled: checkWishlist },
     { Icon: Eye, label: "Quick View", onClick: onQuickView },
+    // car
+    { Icon: CartIcon, label: "Add to Cart", onClick: onAddToCart },
     // { Icon: Shuffle, label: "Compare", onClick: onCompare },
   ];
+
 
   return (
     <motion.div
@@ -72,6 +80,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               initial={{ opacity: 1 }}
               animate={{ opacity: isHovered && secondaryImage ? 0 : 1 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
+              referrerPolicy="no-referrer"
+              
             />
 
             {/* Secondary Image - Fades in on hover */}
@@ -83,6 +93,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isHovered ? 1 : 0 }}
                 transition={{ duration: 0.5, ease: "easeInOut" }}
+                referrerPolicy="no-referrer"
               />
             )}
           </div>
@@ -135,10 +146,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  {actionButtons.map(({ Icon, label, onClick }, index) => (
+                  {actionButtons.map(({ Icon, label, onClick,enabled }, index) => (
                     <motion.button
                       key={label}
-                      className='p-2 bg-white rounded-full shadow-sm flex items-center justify-center hover:bg-primary hover:text-white transition-colors duration-200'
+                      className={`p-2 bg-white rounded-full shadow-sm flex items-center justify-center hover:bg-primary hover:text-white transition-colors duration-200 ${enabled?"text-red":""} `}
                       onClick={onClick}
                       initial={{ opacity: 0, y: -10 }}
                       animate={{
@@ -149,7 +160,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                       whileTap={{ scale: 0.95 }}
                       title={label}
                     >
-                      <Icon size={16} />
+                      <Icon size={16} fill={enabled?"red":"none"}  />
                     </motion.button>
                   ))}
                 </motion.div>
@@ -181,9 +192,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {[...Array(5)].map((_, i) => (
               <span
                 key={i}
-                className={`text-lg ${
-                  i < rating ? "text-[#FF9F29]" : "text-gray-300"
-                }`}
+                className={`text-lg ${i < rating ? "text-[#FF9F29]" : "text-gray-300"
+                  }`}
               >
                 ★
               </span>
@@ -215,13 +225,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Add to Cart Button */}
         <motion.button
           className='w-full py-2 px-4 bg-[#e8e8e8] rounded-lg text-center text-[#121535] text-base font-medium font-inter flex items-center justify-center gap-2'
-          onClick={onAddToCart}
-          whileHover={{ backgroundColor: "#a7a7a8" }}
+          onClick={buyNow}
+          whileHover={{ backgroundColor: "#fa6800", color: "white" }}
           whileTap={{ scale: 0.98 }}
         >
-          Add To Cart{" "}
+          Buy Now
           <span>
-            <CartIcon />
+            <ArrowUpRightIcon />
           </span>
         </motion.button>
       </div>

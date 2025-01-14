@@ -1,6 +1,6 @@
 // QuizSidebar.tsx
 import { motion } from 'framer-motion';
-import { History, Lock, Star, Package } from 'lucide-react';
+import { History, Lock, Package, Star } from 'lucide-react';
 import React from 'react';
 
 interface RecommendedProduct {
@@ -39,7 +39,8 @@ const DUMMY_RECOMMENDATIONS: RecommendedProduct[] = [
     }
 ];
 
-const QuizSidebar: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => (
+const QuizSidebar: React.FC<{ isLoggedIn: boolean, user: any }> = ({ isLoggedIn, user }) => (
+
     <div className=" max-md:w-[95%] max-md:px-6 w-96 bg-white border-l border-purple-100 mx-4 my-6 rounded-lg p-4 space-y-6">
         {!isLoggedIn && (
             <motion.div
@@ -54,22 +55,38 @@ const QuizSidebar: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => (
                 <p className="text-sm text-orange-700">
                     Sign in to save your preferences and view your consultation history.
                 </p>
-                <button className="mt-3 w-full py-2 bg-orange-600 text-white rounded-lg
+                <button onClick={
+                    () => window.location.href = "/auth/login"
+                } className="mt-3 w-full py-2 bg-orange-600 text-white rounded-lg
                     hover:bg-orange-700 transition-colors text-sm font-medium">
+                    {/* <Link href={"/auth/login"}
+                        className="text-white"
+                    > */}
                     Sign In
+                    {/* </Link> */}
                 </button>
             </motion.div>
         )}
 
         {/* Recent Consultations */}
         <div className="space-y-3">
+            {/* user info */}
+            <div className="flex items-center gap-2 text-gray-700">
+                {/* welcome back message */}
+                {isLoggedIn && (
+                    <div className="flex items-center gap-2">
+                        <h3 className="font-medium text-xl">Welcome back,</h3>
+                        <h1 className="font-medium text-primary text-xl ps-4">{user?.firstName + " " + user?.lastName}</h1>
+                    </div>
+                )}
+            </div>
             <div className="flex items-center gap-2 text-gray-700">
                 <History className="w-5 h-5" />
                 <h3 className="font-medium">Recent Consultations</h3>
             </div>
             {isLoggedIn ? (
                 <div className="space-y-2">
-                    {["Floral Summer Scent", "Evening Perfume", "Office Fragrance"].map((item, idx) => (
+                    {/* {["Floral Summer Scent", "Evening Perfume", "Office Fragrance"].map((item, idx) => (
                         <motion.div
                             key={idx}
                             initial={{ opacity: 0, x: 20 }}
@@ -80,7 +97,20 @@ const QuizSidebar: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => (
                             <p className="text-sm text-purple-700 font-medium">{item}</p>
                             <p className="text-xs text-purple-500">2 days ago</p>
                         </motion.div>
-                    ))}
+                    ))} */}
+                    {/* no suggestion recorded  */}
+                    <div className="text-sm text-gray-500 italic">
+                        No consultation history found.
+                    </div>
+                    <div className="text-sm text-gray-500 italic">
+                        Start a new consultation to see your history here.
+                    </div>
+                    {/* <button onClick={
+                        () => alert("Please grant permission to save preferences and consultation history.")
+                    } className="mt-3 w-full py-2 bg-primaryLight/75 text-white rounded-lg
+                        hover:bg-primaryLight transition-colors text-sm font-medium">
+                        Grant Permission
+                    </button> */}
                 </div>
             ) : (
                 <div className="text-sm text-gray-500 italic">
@@ -94,7 +124,7 @@ const QuizSidebar: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => (
             <div className="flex items-center justify-between text-gray-700">
                 <div className="flex items-center gap-2">
                     <Package className="w-5 h-5" />
-                    <h3 className="font-medium">Trending Fragrances</h3>
+                    <h3 className="font-medium">Premium Recommended Fragrances</h3>
                 </div>
             </div>
             <div className="space-y-3">

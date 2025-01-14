@@ -1,4 +1,5 @@
 "use client"
+import { useAppSelector } from '@/store/hooks';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     Calendar,
@@ -7,16 +8,14 @@ import {
     RefreshCw,
     Send,
     Sparkles,
-    Star,
     Wind
 } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Swal from 'sweetalert2';
 import ChatMessage from './chatMessage';
 import { CustomCard, CustomCardContent } from './customCard';
-import { Message, Perfume, QuizState } from './types';
 import QuizSidebar from './sidebar';
-import { showAlert } from '@/components/shared/toast/showAlet';
+import { Message, Perfume, QuizState } from './types';
 
 // Premium perfume database with enhanced details
 const perfumeDatabase: Perfume[] = [
@@ -74,7 +73,7 @@ const PerfumeQuiz: React.FC = () => {
         budget: ''
     });
     const [error, setError] = useState<string | null>(null);
-    const [isLoggedIn] = useState(false);
+    const { user, isAuthenticated } = useAppSelector(state => state.auth)
 
     const chatEndRef = useRef<HTMLDivElement>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
@@ -213,7 +212,7 @@ const PerfumeQuiz: React.FC = () => {
             }
 
             const errorMessage = (err as Error).message || 'Failed to get recommendation';
-            showAlert('Error', errorMessage, 'error');
+            showPremiumAlert('Error', errorMessage, 'error');
 
             return {
                 id: state.messages.length + 2,
@@ -527,7 +526,7 @@ const PerfumeQuiz: React.FC = () => {
                 </div>
             </div>
             <div className="py-8"></div>
-            <QuizSidebar isLoggedIn={isLoggedIn} />
+            <QuizSidebar isLoggedIn={isAuthenticated} user={user} />
         </div>
     );
 };

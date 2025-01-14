@@ -1,11 +1,15 @@
 "use client";
 import { ProductCard } from "@/components/shared/cards/productCard";
+import { showToast } from "@/components/shared/toast/showAlet";
 import { Product } from "@/components/shared/types/product.types";
 import { RootState } from "@/store";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { addItemToCart } from "@/store/slices/cartSlice";
 import { fetchProducts } from "@/store/slices/productSlice";
+import { addToWishlist, removeFromWishlist } from "@/store/slices/wishlistSlice";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import ProductQuickView from "../../product/quickview/ProductQuickView";
 
 interface DummyProducts {
   onSale: Product[];
@@ -13,132 +17,21 @@ interface DummyProducts {
   bestRated: Product[];
 }
 
-// const dummyProducts: DummyProducts = {
-//   onSale: [
-//     {
-//       slug: "/",
-//       primaryImage: "/assets/images/products/armani.png",
-//       secondaryImage: "/assets/images/products/image3.png",
-//       title: "Creed Aventus EDP 100ml",
-//       price: 12500,
-//       originalPrice: 15000,
-//       discount: 29,
-//       rating: 4.8,
-//       reviews: 12000,
-//       isHot: true,
-//       brand: "Brand Name",
-//       category: "Category Name",
-//       inStock: true,
-//       endDate: new Date("2024-12-31"),
-//     },
-//     // Add more products as needed
-//   ],
-//   featured: [
-//     {
-//       slug: "/",
-//       primaryImage: "/assets/images/products/armani.png",
-//       secondaryImage: "/assets/images/products/image3.png",
-//       title: "Creed Aventus EDP 100ml",
-//       price: 12500,
-//       originalPrice: 15000,
-//       discount: 29,
-//       rating: 4.8,
-//       reviews: 12000,
-//       isHot: true,
-//       brand: "Brand Name",
-//       category: "Category Name",
-//       inStock: true,
-//       endDate: new Date("2024-12-31"),
-//     },
-//     {
-//       slug: "/",
-//       primaryImage: "/assets/images/products/armani.png",
-//       secondaryImage: "/assets/images/products/image3.png",
-//       title: "Creed Aventus EDP 100ml",
-//       price: 12500,
-//       originalPrice: 15000,
-//       discount: 29,
-//       rating: 4.8,
-//       reviews: 12000,
-//       isHot: true,
-//       brand: "Brand Name",
-//       category: "Category Name",
-//       inStock: true,
-//       endDate: new Date("2024-12-31"),
-//     },
-//     {
-//       slug: "/",
-//       primaryImage: "/assets/images/products/armani.png",
-//       secondaryImage: "/assets/images/products/image3.png",
-//       title: "Creed Aventus EDP 100ml",
-//       price: 12500,
-//       originalPrice: 15000,
-//       discount: 29,
-//       rating: 4.8,
-//       reviews: 12000,
-//       isHot: true,
-//       brand: "Brand Name",
-//       category: "Category Name",
-//       inStock: true,
-//       endDate: new Date("2024-12-31"),
-//     },
-//   ],
-//   bestRated: [
-//     {
-//       slug: "/",
-//       primaryImage: "/assets/images/products/armani.png",
-//       secondaryImage: "/assets/images/products/image3.png",
-//       title: "Creed Aventus EDP 100ml",
-//       price: 12500,
-//       originalPrice: 15000,
-//       discount: 29,
-//       rating: 4.8,
-//       reviews: 12000,
-//       isHot: true,
-//       brand: "Brand Name",
-//       category: "Category Name",
-//       inStock: true,
-//       endDate: new Date("2024-12-31"),
-//     },
-//     {
-//       slug: "/",
-//       primaryImage: "/assets/images/products/armani.png",
-//       secondaryImage: "/assets/images/products/image3.png",
-//       title: "Creed Aventus EDP 100ml",
-//       price: 12500,
-//       originalPrice: 15000,
-//       discount: 29,
-//       rating: 4.8,
-//       reviews: 12000,
-//       isHot: true,
-//       brand: "Brand Name",
-//       category: "Category Name",
-//       inStock: true,
-//       endDate: new Date("2024-12-31"),
-//     },
-//     {
-//       slug: "/",
-//       primaryImage: "/assets/images/products/armani.png",
-//       secondaryImage: "/assets/images/products/image3.png",
-//       title: "Creed Aventus EDP 100ml",
-//       price: 12500,
-//       originalPrice: 15000,
-//       discount: 29,
-//       rating: 4.8,
-//       reviews: 12000,
-//       isHot: true,
-//       brand: "Brand Name",
-//       category: "Category Name",
-//       inStock: true,
-//       endDate: new Date("2024-12-31"),
-//     },
-//   ],
-// };
-
 export const PremiumProducts: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("onSale");
   const dispatch = useAppDispatch();
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
+  const handleQuickView = (product: Product) => {
+    setSelectedProduct(product);
+    setIsQuickViewOpen(true);
+  };
+
+  const handleCloseQuickView = () => {
+    setIsQuickViewOpen(false);
+    setSelectedProduct(null);
+  };
   const handleTabSelect = (tab: keyof DummyProducts) => {
     setSelectedTab(tab);
   };
@@ -146,12 +39,39 @@ export const PremiumProducts: React.FC = () => {
   const { products, loading, metadata } = useSelector(
     (state: RootState) => state.product
   );
+
+  const wishlistItems = useAppSelector((state: RootState) => state.wishlist.items);
+
+  const handleAddToCart = ({ product }: { product: Product }) => {
+    showToast("success", "Item added to cart");
+    dispatch(addItemToCart({
+      product: product,
+      productId: product.id as string,
+      quantity: 1
+    }));
+  };
+
+  const checkWishlist = (product: Product) => {
+    return wishlistItems.some(item => item.id === product.id);
+  }
+
+  const handleToggleWishlist = ({ product }: { product: Product }) => {
+    const isInWishlist = wishlistItems.some(item => item.id === product.id);
+    if (isInWishlist) {
+      if (product.id) {
+        showToast("success", "Item removed from wishlist");
+        dispatch(removeFromWishlist(product.id));
+      }
+    } else {
+      showToast("success", "Item added to wishlist");
+      dispatch(addToWishlist(product));
+    }
+  };
+
   // Fetch products when component mounts or filters change
   useEffect(() => {
     dispatch(fetchProducts({}));  // Dispatch the action to fetch products with filters
   }, [dispatch, selectedTab]);
-  console.log("premium products", products);
-
 
   return (
     <div className='px-4 md:px-12 xl:px-24 py-6 space-y-6 bg-white'>
@@ -162,8 +82,8 @@ export const PremiumProducts: React.FC = () => {
         <div className='flex gap-2'>
           <span
             className={`cursor-pointer ${selectedTab === "onSale"
-                ? "bg-[#fa6800] text-white border-[#fa6800]"
-                : "border border-[#bdbdbd] text-[#121535]"
+              ? "bg-[#fa6800] text-white border-[#fa6800]"
+              : "border border-[#bdbdbd] text-[#121535]"
               } rounded-full pt-[6px] pb-2 px-4`}
             onClick={() => handleTabSelect("onSale")}
           >
@@ -171,8 +91,8 @@ export const PremiumProducts: React.FC = () => {
           </span>
           <span
             className={`cursor-pointer ${selectedTab === "featured"
-                ? "bg-[#fa6800] text-white border-[#fa6800]"
-                : "border border-[#bdbdbd] text-[#121535]"
+              ? "bg-[#fa6800] text-white border-[#fa6800]"
+              : "border border-[#bdbdbd] text-[#121535]"
               } rounded-full pt-[6px] pb-2 px-4`}
             onClick={() => handleTabSelect("featured")}
           >
@@ -180,8 +100,8 @@ export const PremiumProducts: React.FC = () => {
           </span>
           <span
             className={`cursor-pointer ${selectedTab === "bestRated"
-                ? "bg-[#fa6800] text-white border-[#fa6800]"
-                : "border border-[#bdbdbd] text-[#121535]"
+              ? "bg-[#fa6800] text-white border-[#fa6800]"
+              : "border border-[#bdbdbd] text-[#121535]"
               } rounded-full pt-[6px] pb-2 px-4`}
             onClick={() => handleTabSelect("bestRated")}
           >
@@ -201,17 +121,35 @@ export const PremiumProducts: React.FC = () => {
             price={product.basePrice}
             originalPrice={product.originalPrice}
             discount={product.discount}
-            rating={product.rating.average}
-            reviews={product.reviews.length}
+            rating={product.rating ? product.rating.average : 0}
+            reviews={product.reviews?.length ?? 0}
             isHot={product.isHot}
             endDate={product.discountEndDate}
-            onAddToWishlist={() => console.log("Added to wishlist")}
-            onQuickView={() => console.log("Quick view opened")}
-            onAddToCart={() => console.log("Added to cart")}
+            onAddToWishlist={() => handleToggleWishlist({ product })}
+            onQuickView={() => handleQuickView(product)}
+            onAddToCart={() => handleAddToCart({ product })}
+            checkWishlist={checkWishlist(product)}
             className='w-[360px]'
           />
         ))}
+        {selectedProduct && (
+        <ProductQuickView 
+          product={selectedProduct} 
+          isOpen={isQuickViewOpen} 
+          onClose={handleCloseQuickView}
+          onAddToCart={(product, quantity, size) => {
+            dispatch(addItemToCart({
+              product,
+              quantity,
+              
+            }));
+            handleCloseQuickView();
+          }}
+        />
+      )} 
       </div>
+      
+
     </div>
   );
 };

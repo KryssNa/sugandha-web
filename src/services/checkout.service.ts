@@ -9,6 +9,7 @@ import {
     setOrderSummary,
     setStep
 } from '@/store/slices/checkoutSlice';
+import { useRouter } from 'next/router';
 import { toast } from 'react-hot-toast'; // Assuming you're using react-hot-toast
 
 
@@ -61,6 +62,8 @@ interface CheckoutData {
 }
 
 export class CheckoutService {
+    
+
     // Create checkout from cart items
     static initializeCheckout(dispatch: AppDispatch, cartItems: any[], cartTotals: any) {
         dispatch(setOrderSummary({
@@ -130,61 +133,13 @@ export class CheckoutService {
     static goToPreviousStep(dispatch: AppDispatch, currentStep: number) {
         dispatch(setStep(currentStep - 1));
     }
-
-    // // Create checkout order
-    // static async createCheckout(
-    //     dispatch: AppDispatch,
-    //     formData: any,
-    //     orderSummary: CheckoutSummary
-    // ) {
-    //     try {
-    //         // Prepare checkout data
-    //         const checkoutData = {
-    //             isGuest: !formData.saveInfo, // Assuming saveInfo indicates logged-in user
-    //             guestEmail: formData.email,
-    //             items: orderSummary.items.map(item => ({
-    //                 product: item.id,
-    //                 quantity: item.quantity,
-    //                 price: item.basePrice
-    //             })),
-    //             shippingAddress: {
-    //                 firstName: formData.firstName,
-    //                 lastName: formData.lastName,
-    //                 email: formData.email,
-    //                 phone: formData.phone,
-    //                 street: formData.address,
-    //                 city: formData.city,
-    //                 state: formData.state,
-    //                 country: formData.country,
-    //                 postalCode: formData.postalCode
-    //             },
-    //             paymentMethod: formData.paymentMethod,
-    //             totalAmount: orderSummary.total
-    //         };
-
-    //         // API call to create checkout
-    //         const response = await api.post('/checkout', checkoutData);
-
-    //         // Show success message
-    //         toast.success('Checkout created successfully');
-
-    //         // Optional: Additional processing after successful checkout
-    //         // For example, clearing cart, resetting form, etc.
-    //         // dispatch(resetCart());
-
-    //         return response.data;
-    //     } catch (error: any) {
-    //         // Handle errors
-    //         const errorMessage = error.response?.data?.message || 'Checkout failed';
-    //         toast.error(errorMessage);
-    //         throw error;
-    //     }
-    // }
-
+    // Create checkout
     static async createCheckout(formData: any, cartItems: Product[], cartTotals: any) {
+        // const router = useRouter();
+        
         try {
             const checkoutData: CheckoutData = {
-                isGuest: !formData.saveInfo,
+                isGuest: formData.isGuest,
                 guestUserDetails: !formData.saveInfo ? {
                     email: formData.email,
                     firstName: formData.firstName,
@@ -195,7 +150,8 @@ export class CheckoutService {
                         product: item.id || '',
                         name: item.title,
                         price: item.basePrice,
-                        quantity: item.quantity
+                        quantity: item.quantity,
+                        image: item.thumbnail
                     })),
                     shippingAddress: {
                         firstName: formData.firstName,
@@ -224,11 +180,14 @@ export class CheckoutService {
                 }
             };
 
+            console.log('Checkout Data:', checkoutData);
+
             const response = await api.post('/checkout', checkoutData);
             return response.data;
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'Failed to create checkout';
             toast.error(errorMessage);
+            console.error('Checkout failed:', error);
             throw error;
         }
     }
@@ -254,81 +213,3 @@ export class CheckoutService {
         dispatch(resetCheckout());
     }
 }
-
-// // React Hook for Checkout
-// import { Product } from '@/components/shared/types/product.types';
-// import { useAppDispatch, useAppSelector } from '@/store/hooks';
-// import { useRouter } from 'next/navigation';
-// import { useCallback } from 'react';
-
-// export const useCheckout = () => {
-//     const dispatch = useAppDispatch();
-//     const router = useRouter();
-//     const { step, formData, orderSummary } = useAppSelector((state) => state.checkout);
-//     const { items: cartItems, totals: cartTotals } = useAppSelector((state) => state.cart);
-
-//     // Initialize checkout
-//     const initializeCheckout = useCallback(() => {
-//         CheckoutService.initializeCheckout(dispatch, cartItems, cartTotals);
-//     }, [dispatch, cartItems, cartTotals]);
-
-//     // Handle input changes
-//     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-//         CheckoutService.handleInputChange(dispatch, formData, e);
-//     }, [dispatch, formData]);
-
-//     // Remove item from order summary
-// const handleRemoveItem = useCallback((index: number) => {
-//     CheckoutService.removeItemFromOrderSummary(dispatch, orderSummary, index);
-// }, [dispatch, orderSummary]);
-
-//     // Update item quantity
-// const handleUpdateQuantity = useCallback((id: string, newQuantity: number) => {
-//     CheckoutService.updateItemQuantity(dispatch, orderSummary, id, newQuantity);
-// }, [dispatch, orderSummary]);
-
-//     // Proceed to next step
-//     const handleSubmit = useCallback((e?: React.FormEvent) => {
-//         if (e) e.preventDefault();
-//         CheckoutService.proceedToNextStep(dispatch, step);
-//     }, [dispatch, step]);
-
-//     // Go back to previous step
-//     const handleBackStep = useCallback(() => {
-//         CheckoutService.goToPreviousStep(dispatch, step);
-//     }, [dispatch, step]);
-
-//     // Create checkout order
-//     const createCheckout = useCallback(async () => {
-//         try {
-//             const checkoutResponse = await CheckoutService.createCheckout(dispatch, formData, orderSummary);
-
-//             // Redirect to confirmation or next step
-//             // router.push(`/checkout/confirmation/${checkoutResponse.data.checkoutId}`);
-
-//             return checkoutResponse;
-//         } catch (error) {
-//             console.error('Checkout failed', error);
-//             // Handle error (toast, error state, etc.)
-//         }
-//     }, [dispatch, formData, orderSummary, router]);
-
-//     // Reset checkout process
-//     const resetCheckout = useCallback(() => {
-//         CheckoutService.resetCheckoutProcess(dispatch);
-//     }, [dispatch]);
-
-//     return {
-//         step,
-//         formData,
-//         orderSummary,
-//         initializeCheckout,
-//         handleInputChange,
-//         handleRemoveItem,
-//         handleUpdateQuantity,
-//         handleSubmit,
-//         handleBackStep,
-//         createCheckout,
-//         resetCheckout
-//     };
-// };

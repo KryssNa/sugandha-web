@@ -1,73 +1,73 @@
 // services/cart.service.ts
-import { ApiCart } from '@/components/shared/types/cart.types';
+import {  ApiCartResponse } from '@/components/shared/types/cart.types';
 import { Product } from '@/components/shared/types/product.types';
 import { api } from '@/lib/axios';
 
-export const CartService = {
 
-  getCart: async () => {
-    const response = await api.get<ApiCart>('/cart');
-    return response.data;
-  },
-
-  addToCart: async (productId: string, quantity: number = 1) => {
-    // const dispatch = useDispatch();
-    // try {
-    //   const response = await api.post<ApiCart>('/cart/add', {
-    //     productId,
-    //     quantity
-    //   });
-    //   return response.data;
-    // }catch(err){
-    //  if (err.status === 401 || !err.status) {
-    //          dispatch(addToCartLocal({
-    //            product: items as Product,
-    //            quantity
-    //          }));
-    //        }
-    //   return err;
-    // }
-    const response = await api.post<ApiCart>('/cart/add', {
-      productId,
-      quantity
-    });
-    return response.data;
-  },
-
-  updateQuantity: async (productId: string, quantity: number) => {
-    const response = await api.patch<ApiCart>('/cart/quantity', {
-      productId,
-      quantity
-    });
-    return response.data;
-  },
+  export const CartService = {
+    getCart: async () => {
+      try {
+        const response = await api.get<ApiCartResponse>('/cart');
+        if (!response.data.success) {
+          throw new Error(response.data.message || 'Failed to fetch cart');
+        }
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+  
+    addToCart: async (productId: string, quantity: number = 1) => {
+      const response = await api.post<ApiCartResponse>('/cart/add', {
+        productId,
+        quantity
+      });
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Failed to add item');
+      }
+      return response.data.data;
+    },
+  
+    updateQuantity: async (productId: string, quantity: number) => {
+      const response = await api.patch<ApiCartResponse>('/cart/quantity', {
+        productId,
+        quantity
+      });
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Failed to update quantity');
+      }
+      return response.data.data;
+    },
+  
+    removeFromCart: async (productId: string) => {
+      const response = await api.delete<ApiCartResponse>(`/cart/${productId}`);
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Failed to remove item');
+      }
+      return response.data.data;
+    },
 
   bulkUpdate: async (updates: Array<{ productId: string; quantity: number }>) => {
-    const response = await api.patch<ApiCart>('/cart/bulk-update', {
+    const response = await api.patch<ApiCartResponse>('/cart/bulk-update', {
       updates
     });
     return response.data;
   },
 
-  removeFromCart: async (productId: string) => {
-    const response = await api.delete<ApiCart>(`/cart/${productId}`);
-    return response.data;
-  },
-
   applyCoupon: async (couponCode: string) => {
-    const response = await api.post<ApiCart>('/cart/coupon', {
+    const response = await api.post<ApiCartResponse>('/cart/coupon', {
       couponCode
     });
     return response.data;
   },
 
   clearCart: async () => {
-    const response = await api.delete<ApiCart>('/cart/clear');
+    const response = await api.delete<ApiCartResponse>('/cart/clear');
     return response.data;
   },
 
   mergeCart: async () => {
-    const response = await api.post<ApiCart>('/cart/merge');
+    const response = await api.post<ApiCartResponse>('/cart/merge');
     return response.data;
   }
 };

@@ -2,20 +2,19 @@
 import Footer from "@/components/layouts/footers";
 import Header from "@/components/layouts/headers";
 import AuthProvider from "@/providers/authProvider";
-import { hydrate } from "@/store/slices/cartSlice";
+import { useAppDispatch } from "@/store/hooks";
+import { fetchCart } from "@/store/slices/cartSlice";
 import Preloader from "@/utils/helpers/Preloader";
 import ScrollToTop from "@/utils/helpers/ScrollToTop";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
 
 export default function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    // Initialize cart from localStorage when app loads
-    dispatch(hydrate());
+    dispatch(fetchCart());
   }, [dispatch]);
   return (
     <AuthProvider>

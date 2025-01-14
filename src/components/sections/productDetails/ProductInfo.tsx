@@ -1,6 +1,9 @@
 import { Product } from '@/components/shared/types/product.types';
+import { useAppDispatch } from '@/store/hooks';
+import { addItemToCart } from '@/store/slices/cartSlice';
 import { motion } from 'framer-motion';
-import { Heart, Shield, ShoppingCart, Timer, Truck } from 'lucide-react';
+import { Heart, MessagesSquareIcon, Shield, ShoppingBasket, ShoppingCart, Timer, Truck } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 interface ProductInfoProps {
@@ -25,6 +28,25 @@ const ProductInfo = ({
         minutes: 12,
         seconds: 11,
     });
+    const handleWhatsApp = () => {
+        //redirect to whatsapp with product details
+        const url = `https://wa.me/9864836697?text=I%20want%20to%20buy%20${product.title}%20from%20your%20store.%20Please%20let%20me%20know%20more%20details.`;
+        window.open(url, '_blank');
+    }
+
+    const router = useRouter();
+    const dispatch = useAppDispatch();
+
+    const handleBuyNow = async () => {
+        // redirect to checkout page with product details
+        await dispatch(addItemToCart({
+            product: product,
+            productId: product.id as string,
+            quantity: 1
+        }));
+        // Save cart state to local storage or backend here if needed
+        router.push('/checkout');
+    }
     return (
         <div className="lg:w-1/2 space-y-6">
             {/* Product Title and Rating */}
@@ -138,6 +160,27 @@ const ProductInfo = ({
                         <Heart className="w-5 h-5" fill={isInWishlist ? "currentColor" : "none"} />
                         {isInWishlist ? "Remove" : "Wishlist"}
                     </motion.button>
+                </div>
+                <div className="py-4 w-full flex max-sm:flex-col gap-2">
+                    <button
+                        onClick={handleBuyNow}
+                        className="flex-1 w-full flex items-center justify-center px-6 py-3 
+                      bg-orange-500 text-white rounded-lg hover:bg-orange-600 
+                      transition-colors space-x-2"
+                    >
+                        <ShoppingBasket className="w-5 h-5" />
+                        <span>Buy Now</span>
+                    </button>
+                    <button
+                        onClick={handleWhatsApp}
+                        className="flex-1 w-full flex items-center justify-center px-6 py-3 
+                      bg-[#3acb3e] text-white rounded-lg hover:bg-[#248027] 
+                      transition-colors space-x-2"
+                    >
+                        <MessagesSquareIcon className="w-5 h-5" />
+                        <span>WhatsApp Now</span>
+                    </button>
+
                 </div>
             </div>
 

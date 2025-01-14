@@ -27,3 +27,22 @@
     background-color: #888;
     border-radius: 6px;
 }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-400 {
+  animation-delay: 0.4s;
+}

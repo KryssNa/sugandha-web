@@ -23,6 +23,8 @@ interface CartItemProps {
   onRemoveItem: (id: string) => void;
 }
 
+
+
 const CartItem: React.FC<CartItemProps> = ({
   item,
   onUpdateQuantity,

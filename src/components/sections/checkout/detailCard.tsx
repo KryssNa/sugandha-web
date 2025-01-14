@@ -73,7 +73,7 @@ export const OrderAndShippingDetails: React.FC<OrderAndShippingDetailsProps> = (
   const paymentMethodIcons = {
     'credit-card': <CreditCard className='w-4 h-4 text-gray-400' />,
     'khalti': <Banknote className='w-4 h-4 text-purple-500' />,
-    'esewa': <Banknote className='w-4 h-4 text-green-500' />,
+    'esewa': <Banknote className='w-4 h-4 text-green/50' />,
     'cash-on-delivery': <Banknote className='w-4 h-4 text-blue-500' />
   };
 
@@ -137,9 +137,9 @@ export const OrderAndShippingDetails: React.FC<OrderAndShippingDetailsProps> = (
           <div className='flex justify-between items-center'>
             <span className='text-gray-600'>Total Amount</span>
             <div className='flex items-center space-x-2 text-orange-500'>
-              <CircleDollarSign className='w-5 h-5' />
+              {/* <CircleDollarSign className='w-5 h-5' /> */}
               <span className='text-lg font-bold'>
-                ${totalWithCOD.toFixed(2)}
+                Rs{totalWithCOD.toFixed(2)}
               </span>
             </div>
           </div>
@@ -159,7 +159,7 @@ export const OrderAndShippingDetails: React.FC<OrderAndShippingDetailsProps> = (
             <ul className='space-y-2 text-sm text-blue-600'>
               <li className='flex items-start space-x-2'>
                 <div className='w-1 h-1 bg-blue-400 rounded-full mt-2' />
-                <span>Please keep exact change ready: ${totalWithCOD.toFixed(2)}</span>
+                <span>Please keep exact change ready: Rs{totalWithCOD.toFixed(2)}</span>
               </li>
               <li className='flex items-start space-x-2'>
                 <div className='w-1 h-1 bg-blue-400 rounded-full mt-2' />
@@ -229,8 +229,8 @@ export const OrderAndShippingDetails: React.FC<OrderAndShippingDetailsProps> = (
             </div>
 
             <div className='flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition-colors duration-200'>
-              <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center'>
-                <Mail className='w-4 h-4 text-green-500' />
+              <div className='w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center'>
+                <Mail className='w-4 h-4 text-red/35' />
               </div>
               <div>
                 <p className='text-sm text-gray-500'>Email Address</p>

@@ -9,20 +9,58 @@ export interface ApiCartItem {
         image: string;
         price: number;
         inStock: boolean;
+        quantity: number;
     };
     quantity: number;
 }
 
-export interface ApiCart {
-    items: ApiCartItem[];
-    couponCode?: string;
-    totals: {
+// types/cart.types.ts
+export interface ApiCartResponse {
+    success: boolean;
+    status: string;
+    message: string;
+    data: {
+      _id: string;
+      user: string;
+      items: Array<{
+        product: {
+          _id: string;
+          title: string;
+          thumbnail: string;
+          basePrice: number;
+          inStock: boolean;
+          id: string;
+          quantity: number;
+        };
+        quantity: number;
+        price: number;
+        _id: string;
+      }>;
+      totals: {
         subtotal: number;
         shipping: number;
         tax: number;
         total: number;
+      };
+        couponCode: string | null;
+        
     };
-}
+  }
+  
+  export interface CartState {
+    items: CartItem[];
+    couponCode: string | null;
+    totals: {
+      subtotal: number;
+      shipping: number;
+      tax: number;
+      discount: number;
+      total: number;
+    };
+    isLoading: boolean;
+    error: string | null;
+  }
+  
 
 // Redux State Types
 export interface CartItem extends Product {

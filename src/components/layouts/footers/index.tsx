@@ -82,7 +82,7 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
             <ul className='space-y-4'>
               <li>
                 <Link
-                  href='/products'
+                  href='/privacy-policy'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
                   Privacy Policy
@@ -90,7 +90,7 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
               </li>
               <li>
                 <Link
-                  href='/products'
+                  href='/aboutus'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
                   About Us
@@ -121,7 +121,7 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
               </li>
               <li>
                 <Link
-                  href='/products'
+                  href='/policies-and-rules'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
                   Policies & Rules
@@ -144,7 +144,7 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
             <ul className='space-y-4'>
               <li>
                 <Link
-                  href='/products'
+                  href='/auth/login'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
                   My Account
@@ -152,10 +152,10 @@ const Footer: React.FC<FooterProps> = ({ className = "" }) => {
               </li>
               <li>
                 <Link
-                  href='/order-history'
+                  href='/track-order'
                   className='text-gray-600 hover:text-primary transition-colors'
                 >
-                  Order History
+                  Track Order
                 </Link>
               </li>
               <li>

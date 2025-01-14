@@ -157,8 +157,9 @@ export interface ProductFilters {
   sillage?: string;
   longevity?: string;
   searchQuery?: string;
-  sortBy?: 'price' | 'rating' | 'createdAt' | 'title';
-  sortOrder?: 'asc' | 'desc';
+  availability?: "all" | "inStock" | "outOfStock";
+
+  sortBy?: "popular" | "priceAsc" | "priceDesc" | "price" | "rating" | "createdAt" | "title" | undefined;
 
 
 }

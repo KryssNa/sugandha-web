@@ -4,8 +4,8 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setOrderSummary, setStep } from "@/store/slices/checkoutSlice";
 import { addToWishlist } from "@/store/slices/wishlistSlice";
 import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import toast from "react-hot-toast";
 import { OrderSummaryItem } from "./orderSummary";
 import { PaymentForm } from "./paymentForm";
 import { PriceBreakdown } from "./priceBreakdown";
@@ -13,14 +13,32 @@ import { ProgressSteps } from "./progressStep";
 import { ShippingForm } from "./shippingForm";
 import { TopBanner } from "./topBanner";
 import { TrustBadges } from "./trustBadge";
+import { showToast } from "@/components/shared/toast/showAlet";
+import { addItemToCart } from "@/store/slices/cartSlice";
 
-const CheckoutPage = () => {
+interface CheckoutPageProps {
+  product?: any;
+}
+
+const CheckoutPage = ({product}:CheckoutPageProps) => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   // const { step, formData, orderSummary } = useAppSelector((state) => state.checkout);
 
   const { items: cartItems, couponCode, totals: cartTotals } = useAppSelector(
     (state) => state.cart
   );
+
+  // if no items in cart, assign product to cart
+  useEffect(() => {
+    if (cartItems.length === 0 && product) {
+      dispatch(addItemToCart({
+        product: product,
+        productId: product.id as string,
+        quantity: 1
+      }));
+    }
+  }, [dispatch, cartItems, product]);
 
   const {
     step,
@@ -99,17 +117,23 @@ const CheckoutPage = () => {
     // For payment step (step 2), create checkout
     if (step === 2) {
       try {
+        console.log("step 2");
         // Validate payment details before creating checkout
         if (!formData.paymentMethod) {
-          toast.error('Please select a payment method');
+          showToast('error','Please select a payment method');
+          console.log("Please select a payment method");
           return;
         }
 
         // Create checkout
         const checkoutResult = await createCheckout();
 
+
         // If checkout is successful, move to confirmation step
         if (checkoutResult) {
+          showToast('success','Successfully placed order');
+          console.log("Successfully placed order", checkoutResult);
+          router.push(`/checkout/confirmation/${checkoutResult.data.orderId}`);
           dispatch(setStep(step + 1));
         }
       } catch (error) {

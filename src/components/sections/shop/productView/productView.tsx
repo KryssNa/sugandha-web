@@ -1,11 +1,6 @@
 "use client";
 
-import ProductCard from "@/components/shared/cards/productCard";
-import { RootState } from "@/store";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { resetFilters, setFilters, setSortBy } from "@/store/slices/filterSlice";
-import { fetchProducts } from "@/store/slices/productSlice";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowUpDown,
   Filter,
@@ -13,10 +8,38 @@ import {
   List,
   Search,
   X
-} from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
-import ProductFilter from "../ProductFilter";
+} from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+
+import ProductCard from "@/components/shared/cards/productCard";
+// import EnhancedProductFilter from "@/components/shared/filters/EnhancedProductFilter";
+import { showToast } from '@/components/shared/toast/showAlet';
+import { Product } from "@/components/shared/types/product.types";
+import { RootState } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  addItemToCart
+} from "@/store/slices/cartSlice";
+import {
+  resetFilters,
+  setAvailability,
+  setPriceRange,
+  setSearch,
+  setSortBy,
+  toggleBrand,
+  toggleCategory,
+  toggleRating
+} from "@/store/slices/filterSlice";
+import {
+  fetchProducts
+} from "@/store/slices/productSlice";
+import {
+  addToWishlist,
+  removeFromWishlist
+} from "@/store/slices/wishlistSlice";
+import ProductQuickView from '../../product/quickview/ProductQuickView';
+import EnhancedProductFilter from '../ProductFilter';
 
 export const ProductView: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -28,85 +51,125 @@ export const ProductView: React.FC = () => {
   const { products, loading, metadata } = useSelector(
     (state: RootState) => state.product
   );
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
+  const handleQuickView = (product: Product) => {
+    setSelectedProduct(product);
+    setIsQuickViewOpen(true);
+  };
+
+  const handleCloseQuickView = () => {
+    setIsQuickViewOpen(false);
+    setSelectedProduct(null);
+  };
+
+  const wishlistItems = useAppSelector((state: RootState) => state.wishlist.items);
+
+  // Memoized filtered products
+  const filteredProducts = useMemo(() => {
+    return products.filter(product => {
+      // Price range check
+      const priceInRange =
+        product.basePrice >= filters.priceRange.current[0] &&
+        product.basePrice <= filters.priceRange.current[1];
+
+      // Brands check
+      const brandMatch =
+        filters.brands.length === 0 ||
+        filters.brands.includes(product.brand);
+
+      // Categories check
+      const categoryMatch =
+        filters.categories.length === 0 ||
+        product.category.some(cat => filters.categories.includes(cat.name));
+
+      // Ratings check
+      const ratingMatch =
+        filters.ratings.length === 0 ||
+        filters.ratings.some(r => (product.rating?.average ?? 0) >= r);
+
+      // Availability check
+      const availabilityMatch =
+        filters.availability === 'all' ||
+        (filters.availability === 'inStock' && product.inStock) ||
+        (filters.availability === 'outOfStock' && !product.inStock);
+
+      // Search check
+      const searchMatch =
+        filters.search === '' ||
+        product.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+        product.brand.toLowerCase().includes(filters.search.toLowerCase());
+
+      return priceInRange &&
+        brandMatch &&
+        categoryMatch &&
+        ratingMatch &&
+        availabilityMatch &&
+        searchMatch;
+    });
+  }, [products, filters]);
 
   // Fetch products when component mounts or filters change
   useEffect(() => {
-    dispatch(fetchProducts(filters));  // Dispatch the action to fetch products with filters
+    const productFilters = {
+      ...filters,
+      priceRange: filters.priceRange.current as [number, number]
+    };
+    dispatch(fetchProducts(productFilters));
   }, [dispatch, filters]);
 
-  // Memoize filtered products
-  const filteredProducts = useMemo(() => {
-    let result = [...products];
+  // Cart and Wishlist Handlers
+  const handleAddToCart = ({ product }: { product: Product }) => {
+    showToast("success", "Item added to cart");
+    dispatch(addItemToCart({
+      product: product,
+      productId: product.id as string,
+      quantity: 1
+    }));
+  };
 
-    // Apply filters
-    if (filters.priceRange) {
-      result = result.filter(
-        (product) =>
-          product.basePrice >= filters.priceRange.current[0] &&
-          product.basePrice <= filters.priceRange.current[1]
-      );
-    }
+  const checkWishlist = (product: Product) => {
+    return wishlistItems.some(item => item.id === product.id);
+  };
 
-    if (filters.brands.length > 0) {
-      result = result.filter((product) =>
-        filters.brands.includes(product.brand)
-      );
-    }
-
-    if (filters.categories.length > 0) {
-      result = result.filter((product) =>
-        product.category.some(cat => filters.categories.includes(cat))
-      );
-    }
-
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      result = result.filter(
-        (product) =>
-          product.title.toLowerCase().includes(searchLower) ||
-          product.brand.toLowerCase().includes(searchLower) ||
-          product.description.toLowerCase().includes(searchLower)
-      );
-    }
-
-    if (filters.rating) {
-      result = result.filter(
-        (product) => product.rating.average >= filters.rating!
-      );
-    }
-
-    if (filters.availability !== "all") {
-      result = result.filter((product) =>
-        filters.availability === "inStock"
-          ? product.inStock
-          : !product.inStock
-      );
-    }
-
-    // Sort Products
-    return result.sort((a, b) => {
-      switch (filters.sortBy) {
-        case "priceAsc":
-          return a.basePrice - b.basePrice;
-        case "priceDesc":
-          return b.basePrice - a.basePrice;
-        case "popular":
-        default:
-          return b.rating.count - a.rating.count;
+  const handleToggleWishlist = ({ product }: { product: Product }) => {
+    const isInWishlist = wishlistItems.some(item => item.id === product.id);
+    if (isInWishlist) {
+      if (product.id) {
+        showToast("success", "Item removed from wishlist");
+        dispatch(removeFromWishlist(product.id));
       }
-    });
-  }, [filters, products]);
+    } else {
+      showToast("success", "Item added to wishlist");
+      dispatch(addToWishlist(product));
+    }
+  };
 
-  // Handle filter changes
-  const handleFilterChange = (newFilters: any) => {
-    dispatch(setFilters(newFilters));
+  // Filter Handlers for EnhancedProductFilter
+  const filterHandlers = {
+    setPriceRange: (range: [number, number]) =>
+      dispatch(setPriceRange(range)),
+    toggleBrand: (brand: string) =>
+      dispatch(toggleBrand(brand)),
+    toggleCategory: (category: string) =>
+      dispatch(toggleCategory(category)),
+    toggleRating: (rating: number) =>
+      dispatch(toggleRating(rating)),
+    setAvailability: (availability: 'all' | 'inStock' | 'outOfStock') =>
+      dispatch(setAvailability(availability)),
+    setSearch: (search: string) =>
+      dispatch(setSearch(search)),
+    setSortBy: (sortBy: 'popular' | 'priceAsc' | 'priceDesc') =>
+      dispatch(setSortBy(sortBy)),
+    resetFilters: () =>
+      dispatch(resetFilters())
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Top Banner - Optional */}
+        {/* Top Banner */}
         <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-lg mb-6">
           <p className="text-sm font-medium text-center">
             Special Offer: Free shipping on orders over $150!
@@ -129,9 +192,11 @@ export const ProductView: React.FC = () => {
                   }}
                   className="sticky top-24"
                 >
-                  <ProductFilter
+                  <EnhancedProductFilter
                     products={products}
-                    onFilterChange={handleFilterChange}
+                    filters={filters}
+                    onFilterChange={filterHandlers}
+                    className="sticky top-24"
                   />
                 </motion.div>
               )}
@@ -143,7 +208,7 @@ export const ProductView: React.FC = () => {
             {/* Header Controls */}
             <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
               <div className="flex flex-wrap items-center justify-between gap-4">
-                {/* Left Side */}
+                {/* Left Side Controls */}
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => setIsFilterVisible(!isFilterVisible)}
@@ -154,6 +219,7 @@ export const ProductView: React.FC = () => {
                     <span>{isFilterVisible ? "Hide" : "Show"} Filters</span>
                   </button>
 
+                  {/* View Mode Toggles */}
                   <div className="hidden md:flex items-center gap-2">
                     <button
                       onClick={() => setViewMode('grid')}
@@ -173,17 +239,18 @@ export const ProductView: React.FC = () => {
                           : 'hover:bg-gray-100'}`}
                       title="List View"
                     >
-                      <List size={10} />
+                      <List size={18} />
                     </button>
                   </div>
                 </div>
 
-                {/* Right Side */}
+                {/* Right Side Controls */}
                 <div className="flex items-center gap-4">
                   <p className="text-sm text-gray-600">
                     Showing <span className="font-medium">{filteredProducts.length}</span> products
                   </p>
 
+                  {/* Sort Dropdown */}
                   <div className="relative">
                     <select
                       value={filters.sortBy}
@@ -229,15 +296,32 @@ export const ProductView: React.FC = () => {
                       title={product.title}
                       price={product.basePrice}
                       discount={product.discount}
-                      rating={product.rating.average}
+                      secondaryImage={product.coverImage}
+                      rating={product.rating?.average ?? 0}
                       primaryImage={product.images.find(image => image.isPrimary)?.url || ''}
                       viewMode={viewMode}
-                      onAddToWishlist={() => console.log("Added to wishlist:", product.id)}
-                      onQuickView={() => console.log("Quick view opened:", product.id)}
-                      onAddToCart={() => console.log("Added to cart:", product.id)}
+                      onAddToWishlist={() => handleToggleWishlist({ product })}
+                      onQuickView={() => handleQuickView(product)}
+                      onAddToCart={() => handleAddToCart({ product })}
+                      checkWishlist={checkWishlist(product)}
                     />
                   </motion.div>
                 ))}
+                {selectedProduct && (
+                  <ProductQuickView
+                    product={selectedProduct}
+                    isOpen={isQuickViewOpen}
+                    onClose={handleCloseQuickView}
+                    onAddToCart={(product, quantity, size) => {
+                      dispatch(addItemToCart({
+                        product,
+                        quantity,
+
+                      }));
+                      handleCloseQuickView();
+                    }}
+                  />
+                )}
               </AnimatePresence>
             </div>
 

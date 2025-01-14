@@ -34,7 +34,7 @@ const parsePerfumeRecommendation = (content: string) => {
     console.log('Raw content:', content);
 
     if (content.includes('🌟') && content.includes('📝') && content.includes('💫')) {
-        const parts = content.split('\n').filter(Boolean);
+        const parts = content?.split('\n').filter(Boolean);
 
         const title = parts.find(p => p.startsWith('🌟'))
             ?.replace('🌟', '')
@@ -42,10 +42,10 @@ const parsePerfumeRecommendation = (content: string) => {
             ?.replace(/\*\*/g, '');
 
         // Get everything between Key Notes: and Perfect For You Because:
-        const notesSection = content.split('📝 Key Notes:')[1].split('💫 Perfect For You Because:')[0].trim();
+        const notesSection = content?.split('📝 Key Notes:')[1].split('💫 Perfect For You Because:')[0].trim();
 
         // Get everything between Perfect For You Because: and NEXT_CHOICES:
-        const reasonSection = content.split('💫 Perfect For You Because:')[1].split('NEXT_CHOICES:')[0].trim();
+        const reasonSection = content?.split('💫 Perfect For You Because:')[1].split('NEXT_CHOICES:')[0].trim();
 
         const choices = content
             .split('NEXT_CHOICES:')[1]
@@ -82,7 +82,7 @@ const parsePerfumeRecommendation = (content: string) => {
         };
     }
 
-    const [mainContent, choicesSection] = content.split('NEXT_CHOICES:');
+    const [mainContent, choicesSection] = content?.split('NEXT_CHOICES:');
 
     // Process main content to handle numbered items and emojis
     const formattedContent = mainContent

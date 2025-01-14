@@ -137,7 +137,7 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
             <ul className='hidden md:flex items-center space-x-6'>
               <li>
                 <Link
-                  href='#'
+                  href='/aboutus'
                   className='text-black text-sm hover:underline py-2 block'
                 >
                   About us
@@ -419,7 +419,7 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
                         Dashboard
                       </Link>
                       <Link
-                        href="/orders"
+                        href="/dashboard/orders"
                         className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
                 hover:text-primary rounded-lg transition-colors"
                       >
@@ -433,7 +433,7 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
                         Wishlist
                       </Link>
                       <Link
-                        href="/settings"
+                        href="/dashboard/settings"
                         className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
                 hover:text-primary rounded-lg transition-colors"
                       >

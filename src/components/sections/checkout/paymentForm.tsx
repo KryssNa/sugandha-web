@@ -1,6 +1,6 @@
 // components/checkout/PaymentForm.tsx
 import CustomInput from "@/components/shared/input/customInput";
-import { FormData } from "@/components/shared/types/checkout";
+import { CheckoutFormData } from "@/components/shared/types/checkout";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
@@ -16,7 +16,7 @@ import {
 import React from "react";
 
 interface PaymentFormProps {
-  formData: FormData;
+  formData: CheckoutFormData;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
   onBackStep: () => void;
@@ -114,10 +114,9 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
               whileTap={{ scale: 0.99 }}
               className={`flex items-center p-6 border-2 rounded-xl cursor-pointer 
                 transition-all duration-200 relative overflow-hidden
-                ${
-                  formData.paymentMethod === method.id
-                    ? "border-orange-500 bg-orange-50"
-                    : "border-gray-200 hover:border-orange-200"
+                ${formData.paymentMethod === method.id
+                  ? "border-orange-500 bg-orange-50"
+                  : "border-gray-200 hover:border-orange-200"
                 }`}
             >
               {/* Selected Background Effect */}
@@ -191,7 +190,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
                 <CustomInput
                   label='Card Number'
                   name='cardNumber'
-                  value={formData.cardNumber}
+                  value={formData.cardNumber || ""}
                   onChange={handleInputChange}
                   placeholder='1234 5678 9012 3456'
                   required
@@ -200,7 +199,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
                   <CustomInput
                     label='Expiry Date'
                     name='expiryDate'
-                    value={formData.expiryDate}
+                    value={formData.expiryDate || ""}
                     onChange={handleInputChange}
                     placeholder='MM/YY'
                     required
@@ -208,7 +207,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
                   <CustomInput
                     label='CVV'
                     name='cvv'
-                    value={formData.cvv}
+                    value={formData.cvv || ""}
                     onChange={handleInputChange}
                     placeholder='123'
                     required

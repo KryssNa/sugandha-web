@@ -9,13 +9,20 @@ import {
     setOrderNumber,
     setStep
 } from '@/store/slices/checkoutSlice';
+import { useErrorHandler } from '@/utils/parser/errorParser';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import useToast from './useToast';
 
 export const useCheckout = () => {
     const dispatch = useAppDispatch();
+    const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+
     const router = useRouter();
+    const createAlert = useToast();
+    const { showError } = useErrorHandler(createAlert);
+
 
     // Get state from Redux
     const { step, formData, orderSummary } = useAppSelector(state => state.checkout);
@@ -41,7 +48,7 @@ export const useCheckout = () => {
         dispatch(setLoading(true));
         try {
             const result = await CheckoutService.createCheckout(
-                formData,
+                {...formData,isGuest: !isAuthenticated},
                 cartItems,
                 cartTotals
             );
@@ -54,8 +61,8 @@ export const useCheckout = () => {
             }
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'Checkout failed';
+            showError(error.response?.data);
             dispatch(setError(errorMessage));
-            toast.error(errorMessage);
             return null;
         } finally {
             setIsSubmitting(false);

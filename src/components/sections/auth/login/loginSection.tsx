@@ -11,6 +11,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AuthLayout } from "../authSection";
+import { fetchCart } from "@/store/slices/cartSlice";
+import { useAppDispatch } from "@/store/hooks";
+
 
 const formVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -31,7 +34,7 @@ const itemVariants = {
 
 // Login Component
 export const LoginPage: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const { loading, error } = useSelector((state: RootState) => state.auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -55,9 +58,22 @@ export const LoginPage: React.FC = () => {
       newErrors.password = "Password is required";
     }
 
+
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  const fetchCartData = async () => {
+    try {
+      const response = await dispatch(fetchCart());
+      if (fetchCart.fulfilled.match(response)) {
+        console.log("Cart fetched successfully");
+      }
+    } catch (error) {
+      console.error("Failed to fetch cart", error);
+    }
+  }
   // const handleSubmit = async (e: React.FormEvent) => {
   //   e.preventDefault();
   //   if (!validateForm()) return;
@@ -84,6 +100,7 @@ export const LoginPage: React.FC = () => {
       const resultAction = await dispatch(loginUser({ email, password }));
       if (loginUser.fulfilled.match(resultAction)) {
         createAlert("success", "Signed in successfully");
+        fetchCartData();
         setEmail('');
         setPassword('');
         router.push("/");

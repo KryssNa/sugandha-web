@@ -139,7 +139,6 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
       )
     );
   };
-  console.log("images", images);
 
   return (
     <div className="space-y-6">

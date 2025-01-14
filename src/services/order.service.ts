@@ -46,7 +46,7 @@ export class OrderService {
     // Fetch order details by ID
     static async getOrderDetails(orderId: string): Promise<OrderDetails> {
         try {
-            const response = await api.get(`/orders/${orderId}`);
+            const response = await api.get(`/checkout/orders/${orderId}`);
             // Validate and transform the response if needed
             const orderDetails = response.data.data;
 

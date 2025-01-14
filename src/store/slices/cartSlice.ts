@@ -1,6 +1,5 @@
 // store/slices/cartSlice.ts
 import {
-  ApiCart,
   CartAddPayload,
   CartItem,
   CartState,
@@ -16,27 +15,37 @@ const SHIPPING_THRESHOLD = 1000;
 const BASE_SHIPPING = 100;
 const TAX_RATE = 0.13;
 
+
 // Helper Functions
 const calculateTotals = (
   items: CartItem[],
   couponCode: string | null
 ) => {
+  // Calculate subtotal
   const subtotal = items.reduce((sum, item) => {
-    const price = item.selectedVariant?.price || item.basePrice;
-    return sum + price * item.quantity;
+    const price = item.basePrice || item.basePrice;
+    return sum + (price * (item.quantity || 1));
   }, 0);
 
+  // Calculate discount based on coupon
   const discount = couponCode ? calculateDiscount(subtotal, couponCode) : 0;
+
+  // Calculate shipping
   const shipping = subtotal > SHIPPING_THRESHOLD ? 0 : BASE_SHIPPING;
+
+  // Calculate tax on discounted amount
   const taxableAmount = subtotal - discount;
-  const tax = taxableAmount * TAX_RATE;
+  const tax = Math.round(taxableAmount * TAX_RATE * 100) / 100;
+
+  // Calculate total
+  const total = subtotal - discount + shipping + tax;
 
   return {
-    subtotal,
-    shipping,
-    tax,
-    discount,
-    total: subtotal - discount + shipping + tax
+    subtotal: Math.round(subtotal * 100) / 100,
+    shipping: Math.round(shipping * 100) / 100,
+    tax: Math.round(tax * 100) / 100,
+    discount: Math.round(discount * 100) / 100,
+    total: Math.round(total * 100) / 100
   };
 };
 
@@ -55,9 +64,13 @@ const calculateDiscount = (subtotal: number, couponCode: string): number => {
 const saveToLocalStorage = (cartState: CartState) => {
   if (typeof window !== 'undefined') {
     try {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartState));
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify({
+        items: cartState.items,
+        couponCode: cartState.couponCode,
+        totals: cartState.totals
+      }));
     } catch (error) {
-      console.error('Error saving cart:', error);
+      console.error('Error saving cart to localStorage:', error);
     }
   }
 };
@@ -67,12 +80,37 @@ const loadFromLocalStorage = (): Partial<CartState> | null => {
 
   try {
     const cartData = localStorage.getItem(CART_STORAGE_KEY);
-    return cartData ? JSON.parse(cartData) : null;
+    if (!cartData) return null;
+
+    const parsedCart = JSON.parse(cartData);
+    return {
+      items: parsedCart.items || [],
+      couponCode: parsedCart.couponCode || null,
+      totals: parsedCart.totals || {
+        subtotal: 0,
+        shipping: 0,
+        tax: 0,
+        discount: 0,
+        total: 0
+      }
+    };
   } catch (error) {
-    console.error('Error loading cart:', error);
+    console.error('Error loading cart from localStorage:', error);
     return null;
   }
 };
+
+// const loadFromLocalStorage = (): Partial<CartState> | null => {
+//   if (typeof window === 'undefined') return null;
+
+//   try {
+//     const cartData = localStorage.getItem(CART_STORAGE_KEY);
+//     return cartData ? JSON.parse(cartData) : null;
+//   } catch (error) {
+//     console.error('Error loading cart:', error);
+//     return null;
+//   }
+// };
 
 // Initial State
 const initialState: CartState = {
@@ -90,27 +128,52 @@ const initialState: CartState = {
   ...loadFromLocalStorage()
 };
 
-// Async Thunks
+// store/slices/cartSlice.ts
 export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
   async (_, { dispatch, rejectWithValue }) => {
     try {
-      // Try to fetch cart from API
-      const apiCart = await CartService.getCart();
+      const response = await CartService.getCart();
 
-      // If successful, update local storage and state
-      dispatch(updateCartLocal(apiCart));
-      return apiCart;
-    } catch (error: any) {
-      // If API fails, try to use local cart
-      const localCart = loadFromLocalStorage();
-      if (localCart) {
-        dispatch(updateCartLocal(localCart));
+      if (response.data) {
+        const formattedCart = {
+          items: response.data.items.map(item => ({
+            id: item.product.id,
+            title: item.product.title,
+            thumbnail: item.product.thumbnail,
+            basePrice: item.product.basePrice,
+            quantity: item.quantity,
+            price: item.price || item.product.basePrice,
+            inStock: item.product.inStock,
+          })),
+          totals: {
+            subtotal: response.data.totals.subtotal,
+            shipping: response.data.totals.shipping,
+            tax: response.data.totals.tax,
+            discount: 0, // Add if your API provides it
+            total: response.data.totals.total
+          },
+          couponCode: response.data.couponCode || null,
+          isLoading: false,
+          error: null
+        };
+
+        saveToLocalStorage(formattedCart);
+        return formattedCart;
       }
 
-      return rejectWithValue(
-        error.response?.data?.message || 'Failed to fetch cart'
-      );
+      const localCart = loadFromLocalStorage();
+      if (localCart) {
+        return localCart;
+      }
+
+      return initialState;
+    } catch (error: any) {
+      const localCart = loadFromLocalStorage();
+      if (localCart) {
+        return localCart;
+      }
+      return rejectWithValue(error.message || 'Failed to fetch cart');
     }
   }
 );
@@ -127,22 +190,32 @@ export const addItemToCart = createAsyncThunk(
     { dispatch, rejectWithValue }
   ) => {
     try {
-      // Try to add item via API
       const updatedCart = await CartService.addToCart(
-        product.id!,
-        quantity ?? 1
+        productId || product.id!,
+        quantity
       );
 
-      // Update local and API cart
-      dispatch(updateCartLocal(updatedCart as Partial<CartState> | ApiCart));
-      return updatedCart;
-    } catch (error: any) {
-      // If API fails, add to local cart
-      dispatch(addToCartLocal({
-        product,
-        quantity: quantity ?? 1,
-      }));
+      if (updatedCart) {
+        const formattedCart = {
+          items: updatedCart.items.map(item => ({
+            id: item.product.id,
+            title: item.product.title,
+            thumbnail: item.product.thumbnail,
+            basePrice: item.product.basePrice,
+            quantity: item.quantity,
+            price: item.price,
+            inStock: item.product.inStock,
+          })),
+          totals: updatedCart.totals
+        };
+        saveToLocalStorage(formattedCart);
+        return formattedCart;
+      }
+      throw new Error('Failed to add item');
 
+    } catch (error: any) {
+      // Fallback to local storage
+      dispatch(addToCartLocal({ product, quantity, selectedVariant }));
       return rejectWithValue(
         error.response?.data?.message || 'Failed to add item to cart'
       );
@@ -157,18 +230,29 @@ export const removeItemFromCart = createAsyncThunk(
     { dispatch, rejectWithValue }
   ) => {
     try {
-      // Try to remove item via API
-      const updatedCart = await CartService.removeFromCart(
-        productId,
-      );
+      const updatedCart = await CartService.removeFromCart(productId);
 
-      // Update local and API cart
-      dispatch(updateCartLocal(updatedCart));
-      return updatedCart;
+      if (updatedCart) {
+        const formattedCart = {
+          items: updatedCart.items.map(item => ({
+            id: item.product.id,
+            title: item.product.title,
+            thumbnail: item.product.thumbnail,
+            basePrice: item.product.basePrice,
+            quantity: item.quantity,
+            price: item.price,
+            inStock: item.product.inStock,
+          })),
+          totals: updatedCart.totals
+        };
+        saveToLocalStorage(formattedCart);
+        return formattedCart;
+      }
+      throw new Error('Failed to remove item');
+
     } catch (error: any) {
-      // If API fails, remove from local cart
+      // Fallback to local storage
       dispatch(removeFromCart({ productId, variantId }));
-
       return rejectWithValue(
         error.response?.data?.message || 'Failed to remove item from cart'
       );
@@ -183,22 +267,32 @@ export const updateCartQuantity = createAsyncThunk(
     { dispatch, rejectWithValue }
   ) => {
     try {
-      // Try to update quantity via API
       const updatedCart = await CartService.updateQuantity(
         productId,
-        quantity!,
+        quantity!
       );
 
-      // Update local and API cart
-      dispatch(updateCartLocal(updatedCart));
-      return updatedCart;
-    } catch (error: any) {
-      // If API fails, update local cart
-      dispatch(updateQuantity({
-        productId,
-        quantity: quantity!,
-      }));
+      if (updatedCart) {
+        const formattedCart = {
+          items: updatedCart.items.map(item => ({
+            id: item.product.id,
+            title: item.product.title,
+            thumbnail: item.product.thumbnail,
+            basePrice: item.product.basePrice,
+            quantity: item.quantity,
+            price: item.price,
+            inStock: item.product.inStock,
+          })),
+          totals: updatedCart.totals
+        };
+        saveToLocalStorage(formattedCart);
+        return formattedCart;
+      }
+      throw new Error('Failed to update quantity');
 
+    } catch (error: any) {
+      // Fallback to local storage
+      dispatch(updateQuantity({ productId, quantity: quantity!, variantId }));
       return rejectWithValue(
         error.response?.data?.message || 'Failed to update cart quantity'
       );
@@ -210,7 +304,7 @@ export const updateCartTotals = createAsyncThunk(
   'cart/updateTotals',
   async (_, { getState }) => {
     const { items, couponCode } = (getState() as { cart: CartState }).cart;
-
+    
     const totals = calculateTotals(items, couponCode);
     return { totals };
   }
@@ -244,6 +338,7 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
+
     // Local cart management reducers
     addToCartLocal: (
       state,
@@ -349,7 +444,7 @@ const cartSlice = createSlice({
 
     updateCartLocal: (
       state,
-      action: PayloadAction<Partial<CartState> | ApiCart>
+      action: PayloadAction<Partial<CartState>>
     ) => {
       const payload = action.payload;
 
@@ -399,40 +494,101 @@ const cartSlice = createSlice({
       applyCartCoupon
     ];
 
-    loadingHandlers.forEach(thunk => {
-      builder
-        .addCase(thunk.pending, (state) => {
-          state.isLoading = true;
-          state.error = null;
-        })
-        .addCase(thunk.rejected, (state, action) => {
-          state.isLoading = false;
-          state.error = action.payload as string;
-        });
-    });
 
-    // Successful cart operations
+    // loadingHandlers.forEach(thunk => {
+    //   builder
+    //     .addCase(thunk.pending, (state) => {
+    //       state.isLoading = true;
+    //       state.error = null;
+    //     })
+    //     .addCase(thunk.rejected, (state, action) => {
+    //       state.isLoading = false;
+    //       state.error = action.payload as string;
+    //     });
+    // });
+
     builder
+    // Fetch Cart
+    builder
+      .addCase(fetchCart.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.isLoading = false;
+        if (action.payload) {
+          const cartData = action.payload;
+          state.items = cartData.items;
+          state.totals = cartData.totals;
+        }
+      })
+      .addCase(fetchCart.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+        // Try to load from localStorage as fallback
+        const localCart = loadFromLocalStorage();
+        if (localCart) {
+          state.items = localCart.items;
+          state.totals = localCart.totals;
+        }
+      })
+      .addCase(addItemToCart.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(addItemToCart.fulfilled, (state, action) => {
         state.isLoading = false;
+        if (action.payload) {
+          state.items = action.payload.items;
+          state.totals = action.payload.totals;
+        }
+      })
+      .addCase(addItemToCart.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // Remove Item
+      .addCase(removeItemFromCart.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(removeItemFromCart.fulfilled, (state, action) => {
         state.isLoading = false;
+        if (action.payload) {
+          state.items = action.payload.items;
+          state.totals = action.payload.totals;
+        }
+      })
+      .addCase(removeItemFromCart.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // Update Quantity
+      .addCase(updateCartQuantity.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(updateCartQuantity.fulfilled, (state, action) => {
         state.isLoading = false;
+        if (action.payload) {
+          state.items = action.payload.items;
+          state.totals = action.payload.totals;
+        }
+      })
+      .addCase(updateCartQuantity.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       })
       .addCase(applyCartCoupon.fulfilled, (state, action) => {
         state.isLoading = false;
       })
-      .addCase(updateCartTotals.fulfilled, (state, action) => {
-        state.totals = action.payload.totals;
-      }
-      );
-  }
+    .addCase(updateCartTotals.fulfilled, (state, action) => {
+      state.totals = action.payload.totals;
+    }
+    );
+}
 });
 
 export const {

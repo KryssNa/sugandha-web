@@ -25,6 +25,7 @@ export const WishlistService = {
     const response = await api.post<Wishlist>('/wishlist/add', {
       productId
     });
+    
     return response.data;
   },
 

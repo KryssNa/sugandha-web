@@ -7,8 +7,6 @@ interface Params {
 export default async function Page({ params }: { params: Params }) {
   const { slug } = await params;
 
-  console.log("slug:", slug);
-
   return (
     <div>
       <ProductDetailsPage slug={slug} />{" "}
