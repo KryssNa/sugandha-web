@@ -38,6 +38,7 @@ import {
   addToWishlist,
   removeFromWishlist
 } from "@/store/slices/wishlistSlice";
+import { useRouter } from 'next/navigation';
 import ProductQuickView from '../../product/quickview/ProductQuickView';
 import EnhancedProductFilter from '../ProductFilter';
 
@@ -128,6 +129,20 @@ export const ProductView: React.FC = () => {
       quantity: 1
     }));
   };
+
+  const router = useRouter();
+
+  const handleBuyNow = async ({ product }: { product: Product }) => {
+    // redirect to checkout page with product details
+    await dispatch(addItemToCart({
+      product: product,
+      productId: product.id as string,
+      quantity: 1
+    }));
+    // Save cart state to local storage or backend here if needed
+    router.push('/checkout');
+  }
+
 
   const checkWishlist = (product: Product) => {
     return wishlistItems.some(item => item.id === product.id);
@@ -303,6 +318,7 @@ export const ProductView: React.FC = () => {
                       onAddToWishlist={() => handleToggleWishlist({ product })}
                       onQuickView={() => handleQuickView(product)}
                       onAddToCart={() => handleAddToCart({ product })}
+                      buyNow={() => handleBuyNow({ product })}
                       checkWishlist={checkWishlist(product)}
                     />
                   </motion.div>
