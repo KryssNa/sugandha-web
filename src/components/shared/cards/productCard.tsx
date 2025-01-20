@@ -22,7 +22,7 @@ export interface ProductCardProps {
   onQuickView?: () => void;
   onAddToCart?: () => void;
   checkWishlist?: (product: Product) => boolean;
-  buyNow?: () => void;
+  buyNow?: () => Promise<void>;
   viewMode?: 'grid' | 'list';
   className?: string;
 }
@@ -56,6 +56,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     { Icon: CartIcon, label: "Add to Cart", onClick: onAddToCart },
     // { Icon: Shuffle, label: "Compare", onClick: onCompare },
   ];
+  
 
 
   return (
