@@ -8,6 +8,7 @@ import { NavigationButton } from "../buttons/navigationButtons";
 import ProductCard from "../cards/productCard";
 import { showToast } from "../toast/showAlet";
 import { Product } from "../types/product.types";
+import { useRouter } from "next/navigation";
 
 interface ProductSliderProps {
   products: Product[];
@@ -51,6 +52,20 @@ export const ProductSlider: React.FC<ProductSliderProps> = ({
       quantity: 1
     }));
   };
+
+    const router = useRouter();
+  
+    const handleBuyNow = async ({ product }: { product: Product }) => {
+      // redirect to checkout page with product details
+      await dispatch(addItemToCart({
+        product: product,
+        productId: product.id as string,
+        quantity: 1
+      }));
+      // Save cart state to local storage or backend here if needed
+      router.push('/checkout');
+    }
+  
 
   const checkWishlist = (product: Product) => {
     return wishlistItems.some(item => item.id === product.id);
@@ -163,6 +178,7 @@ export const ProductSlider: React.FC<ProductSliderProps> = ({
                   endDate={product.discountEndDate}
                   onAddToWishlist={() => handleToggleWishlist({ product })}
                   onQuickView={() => handleQuickView(product)}
+                  buyNow={() => handleBuyNow({ product })}
                   onAddToCart={() => handleAddToCart({ product })}
                   checkWishlist={checkWishlist(product)}
                   className='w-[360px]'
