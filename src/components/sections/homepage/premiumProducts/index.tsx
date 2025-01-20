@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addItemToCart } from "@/store/slices/cartSlice";
 import { fetchProducts } from "@/store/slices/productSlice";
 import { addToWishlist, removeFromWishlist } from "@/store/slices/wishlistSlice";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import ProductQuickView from "../../product/quickview/ProductQuickView";
@@ -54,6 +55,20 @@ export const PremiumProducts: React.FC = () => {
   const checkWishlist = (product: Product) => {
     return wishlistItems.some(item => item.id === product.id);
   }
+
+  const router = useRouter();
+
+  const handleBuyNow = async ({ product }: { product: Product }) => {
+    // redirect to checkout page with product details
+    await dispatch(addItemToCart({
+      product: product,
+      productId: product.id as string,
+      quantity: 1
+    }));
+    // Save cart state to local storage or backend here if needed
+    router.push('/checkout');
+  }
+
 
   const handleToggleWishlist = ({ product }: { product: Product }) => {
     const isInWishlist = wishlistItems.some(item => item.id === product.id);
@@ -128,27 +143,28 @@ export const PremiumProducts: React.FC = () => {
             onAddToWishlist={() => handleToggleWishlist({ product })}
             onQuickView={() => handleQuickView(product)}
             onAddToCart={() => handleAddToCart({ product })}
+            buyNow={() => handleBuyNow({ product })}
             checkWishlist={checkWishlist(product)}
             className='w-[360px]'
           />
         ))}
         {selectedProduct && (
-        <ProductQuickView 
-          product={selectedProduct} 
-          isOpen={isQuickViewOpen} 
-          onClose={handleCloseQuickView}
-          onAddToCart={(product, quantity, size) => {
-            dispatch(addItemToCart({
-              product,
-              quantity,
-              
-            }));
-            handleCloseQuickView();
-          }}
-        />
-      )} 
+          <ProductQuickView
+            product={selectedProduct}
+            isOpen={isQuickViewOpen}
+            onClose={handleCloseQuickView}
+            onAddToCart={(product, quantity, size) => {
+              dispatch(addItemToCart({
+                product,
+                quantity,
+
+              }));
+              handleCloseQuickView();
+            }}
+          />
+        )}
       </div>
-      
+
 
     </div>
   );
