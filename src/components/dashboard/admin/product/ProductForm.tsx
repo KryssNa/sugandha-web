@@ -2,6 +2,7 @@ import { CustomButton } from '@/components/shared/buttons/customButtons';
 import ImageGallery from '@/components/shared/image/ImageGallery';
 import CustomInput from '@/components/shared/input/customInput';
 import { CustomSelect } from '@/components/shared/select/customSelect';
+import { showToast } from '@/components/shared/toast/showAlet';
 import { Category } from '@/components/shared/types/category.types';
 import { Product } from '@/components/shared/types/product.types';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -176,11 +177,51 @@ const INITIAL_FORM_DATA: ProductFormData = {
 };
 
 const CONCENTRATION_OPTIONS = [
-  { value: 'Parfum', label: 'Parfum' },
-  { value: 'EDP', label: 'Eau de Parfum' },
-  { value: 'EDT', label: 'Eau de Toilette' },
-  { value: 'EDC', label: 'Eau de Cologne' }
+  {
+    value: 'perfume',
+    label: 'Perfume Extract',
+  },
+  {
+    value: 'perfumeWater',
+    label: 'Perfume Water',
+  },
+  {
+    value: 'toiletWater',
+    label: 'Toilet Water',
+  },
+  {
+    value: 'cologneWater',
+    label: 'Cologne Water',
+  }
 ];
+// {
+// value: 'perfume',
+// label: 'Perfume Extract',
+//   concentration: '20-40%',
+//   longevity: '6-8 hours',
+//   description: 'Strongest and most concentrated form'
+// },
+// {
+// value: 'perfumeWater',
+// label: 'Perfume Water',
+//   concentration: '15-20%',
+//   longevity: '4-6 hours',
+//   description: 'Strong concentration for daily wear'
+// },
+// {
+// value: 'toiletWater',
+// label: 'Toilet Water',
+//   concentration: '5-15%',
+//   longevity: '2-4 hours',
+//   description: 'Light concentration for casual use'
+// },
+// {
+// value: 'cologneWater',
+// label: 'Cologne Water',
+//   concentration: '2-4%',
+//   longevity: '1-2 hours',
+//   description: 'Lightest concentration for frequent application'
+// }
 
 const GENDER_OPTIONS = [
   { value: 'male', label: 'Male' },
@@ -448,7 +489,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     if (errors.length > 0) {
       // Show errors in a nice format
       const errorMessage = errors.map(err => `• ${err}`).join('\n');
-      alert(errorMessage);
+      showToast("error", `Please fix the following errors:\n\n${errorMessage}`);
       return;
     }
 
@@ -460,7 +501,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         id: initialData?.id || '', // Ensure id is included
         description: formData.shortDescription, // Map shortDescription to description
         discount: formData.originalPrice - formData.basePrice, // Calculate discount
-        updateStock: () => {}, // Placeholder function for updateStock
+        updateStock: () => { }, // Placeholder function for updateStock
         discountEndDate: formData.discountEndDate ? new Date(formData.discountEndDate) : undefined
       };
 
@@ -570,7 +611,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               onChange={handleInputChange}
               required
               placeholder="Enter product SKU"
-              />
+            />
 
           </div>
 
@@ -641,8 +682,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               ...prev,
               images: newImages,
               // Automatically set thumbnail and cover image
-              thumbnail: newImages.find(img => img.isPrimary)?.url || '',
-              coverImage: newImages.find(img => img.isPrimary)?.url || '',
+              thumbnail: newImages.find(img => img.isPrimary)?.url || newImages[0]?.url || '',
+              coverImage: newImages[1]?.url || '',
             }));
           }}
           maxImages={8}
