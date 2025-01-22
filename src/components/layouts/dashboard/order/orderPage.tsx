@@ -1,4 +1,5 @@
 "use client"
+import { OrderService } from '@/services/order.service';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle,
@@ -14,7 +15,7 @@ import {
   Truck,
   X
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface OrderItem {
   id: string;
@@ -34,8 +35,8 @@ interface Order {
   id: string;
   orderNumber: string;
   date: string;
-  status: 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  total: number;
+  status: 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned';
+  totalAmount: number;
   items: OrderItem[];
   tracking?: {
     number: string;
@@ -51,50 +52,6 @@ interface Order {
     postalCode: string;
   };
 }
-
-// Sample data - this would normally come from an API
-const sampleOrders: Order[] = [
-  {
-    id: '1',
-    orderNumber: 'ORD-2024-001',
-    date: '2024-01-25',
-    status: 'shipped',
-    total: 299.99,
-    items: [
-      {
-        id: '1',
-        name: 'Premium Fragrance X',
-        quantity: 1,
-        price: 299.99,
-        image: '/api/placeholder/100/100'
-      }
-    ],
-    tracking: {
-      number: 'TRK123456789',
-      status: 'In Transit',
-      estimatedDelivery: '2024-01-28',
-      updates: [
-        {
-          status: 'Package in Transit',
-          location: 'Distribution Center',
-          timestamp: '2024-01-26T15:20:00'
-        },
-        {
-          status: 'Order Processed',
-          location: 'Warehouse',
-          timestamp: '2024-01-25T10:00:00'
-        }
-      ]
-    },
-    paymentMethod: 'Credit Card (**** 4242)',
-    shippingAddress: {
-      street: '123 Main St',
-      city: 'New York',
-      country: 'USA',
-      postalCode: '10001'
-    }
-  }
-];
 
 const OrderCard = ({ order, onClick }: { order: Order; onClick: () => void }) => {
   const getStatusDetails = (status: Order['status']) => {
@@ -127,7 +84,7 @@ const OrderCard = ({ order, onClick }: { order: Order; onClick: () => void }) =>
   };
 
   const statusDetails = getStatusDetails(order.status);
-  const StatusIcon = statusDetails.icon;
+  const StatusIcon = statusDetails?.icon;
 
   return (
     <motion.div
@@ -144,10 +101,10 @@ const OrderCard = ({ order, onClick }: { order: Order; onClick: () => void }) =>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-gray-900">#{order.orderNumber}</h3>
-              <div className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusDetails.color}`}>
+              <div className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusDetails?.color}`}>
                 <span className="flex items-center gap-1">
-                  <StatusIcon className="w-3 h-3" />
-                  {statusDetails.text}
+                  {StatusIcon && <StatusIcon className="w-3 h-3" />}
+                  {statusDetails?.text}
                 </span>
               </div>
             </div>
@@ -162,7 +119,7 @@ const OrderCard = ({ order, onClick }: { order: Order; onClick: () => void }) =>
 
         <div className="flex items-center gap-6">
           <div className="text-right">
-            <span className="block font-semibold text-gray-900">${order.total.toFixed(2)}</span>
+            <span className="block font-semibold text-gray-900">${order.totalAmount.toFixed(2)}</span>
             <span className="text-sm text-gray-500">{order.paymentMethod}</span>
           </div>
           <ChevronRight className="w-5 h-5 text-gray-400" />
@@ -196,8 +153,29 @@ const OrdersPage = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const filteredOrders = sampleOrders.filter(order => {
+  useEffect(() => {
+    const fetchOrders = async () => {
+      const response = await OrderService.getUserOrders();
+
+      if (response.success) {
+        setLoading(false);
+        setOrders(response.data.orders.orders);
+        setTotalOrders(response.data.orders.total);
+        setLoading(false);
+      };
+      setLoading(false);
+
+      console.log(response);
+    };
+    fetchOrders();
+  }, []);
+
+  const filteredOrders = orders.filter(order => {
     const matchesSearch = searchQuery ?
       order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.items.some(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -208,8 +186,12 @@ const OrdersPage = () => {
     return matchesSearch && matchesStatus;
   });
 
+  if (loading) return <p>Loading...</p>;
+
+  
+
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto ">
       {/* Filters Header */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -253,7 +235,31 @@ const OrdersPage = () => {
           </div>
         </div>
       </div>
-
+      {/* Empty State */ }
+  {
+    filteredOrders.length === 0 && (
+      <div className="p-8 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-sm mx-auto"
+        >
+          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex 
+                items-center justify-center">
+            <Search className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-1">
+            No orders found
+          </h3>
+          <p className="text-gray-500">
+            {searchQuery
+              ? `No orders match "${searchQuery}"`
+              : 'Try adjusting your search or filters'}
+          </p>
+        </motion.div>
+      </div>
+    )
+  }
       {/* Orders List */}
       <div className="space-y-4">
         {filteredOrders.map((order) => (
@@ -278,8 +284,8 @@ const OrdersPage = () => {
             />
             <motion.div
               layoutId={`order-${selectedOrder.id}`}
-              className="fixed top-1 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                w-full max-w-3xl bg-white rounded-xl shadow-xl z-50 overflow-y-auto max-h-[90vh]"
+              className="fixed inset-y-0 inset-x-0 m-auto h-fit
+  w-[95%] max-w-3xl bg-white rounded-xl shadow-xl z-50 overflow-y-auto max-h-[80vh] lg:max-h-[90vh] custom-scrollbar"
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -288,7 +294,7 @@ const OrdersPage = () => {
                       Order #{selectedOrder.orderNumber}
                     </h2>
                     <p className="text-sm text-gray-500 mt-1">
-                      Placed on {new Date(selectedOrder.date).toLocaleDateString()}
+                      Placed on {new Date(selectedOrder.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                   <button
@@ -309,7 +315,7 @@ const OrdersPage = () => {
                         {selectedOrder.tracking.updates.map((update, index) => (
                           <div key={index} className="flex gap-4">
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center 
-                              ${index === 0 ? 'bg-orange-500 text-white' : 'bg-gray-100'}`}>
+                      ${index === 0 ? 'bg-orange-500 text-white' : 'bg-gray-100'}`}>
                               {index === 0 ? <Truck className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
                             </div>
                             <div>
@@ -375,7 +381,7 @@ const OrdersPage = () => {
                 <div className="border-t border-gray-200 pt-4 space-y-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Subtotal</span>
-                    <span className="text-gray-900">${selectedOrder.total.toFixed(2)}</span>
+                    <span className="text-gray-900">${selectedOrder.totalAmount.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Shipping</span>
@@ -383,7 +389,7 @@ const OrdersPage = () => {
                   </div>
                   <div className="flex justify-between font-medium">
                     <span className="text-gray-900">Total</span>
-                    <span className="text-gray-900">${selectedOrder.total.toFixed(2)}</span>
+                    <span className="text-gray-900">${selectedOrder.totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -393,7 +399,7 @@ const OrdersPage = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="px-4 py-2 flex items-center gap-2 text-gray-700 border border-gray-200 
-                      rounded-lg hover:bg-gray-50 transition-colors"
+                  rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <FileText className="w-4 h-4" />
                     <span>Download Invoice</span>
@@ -402,7 +408,7 @@ const OrdersPage = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="px-4 py-2 flex items-center gap-2 bg-orange-500 text-white 
-                      rounded-lg hover:bg-orange-600 transition-colors"
+                  rounded-lg hover:bg-orange-600 transition-colors"
                   >
                     <Truck className="w-4 h-4" />
                     <span>Track Order</span>
