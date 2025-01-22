@@ -90,41 +90,43 @@ const ConfirmationPage: React.FC<{ orderId: string }> = ({ orderId }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { orderDetails, loading, error } = useOrderConfirmation(orderId);
+  console.log("orderDetails", orderDetails);
 
   // Determine order steps based on current status
   const orderSteps: OrderStep[] = useMemo(() => {
-    if (!orderDetails) return [];
+    if (!orderDetails?.order) return [];
 
     const statusMap: Record<string, OrderStep['status']> = {
       'pending': 'current',
       'processing': 'current',
       'shipped': 'upcoming',
-      'delivered': 'completed'
+      'delivered': 'completed',
+      'paid': 'completed'
     };
 
     return [
       {
         title: "Order Confirmed",
-        date: new Date(orderDetails.createdAt).toLocaleString(),
-        status: orderDetails.status === 'pending' ? 'completed' : 'completed'
+        date: new Date(orderDetails.order.createdAt).toLocaleString(),
+        status: orderDetails.order.status === 'pending' ? 'completed' : 'completed'
       },
       {
         title: "Processing Order",
         date: "Estimated: Today",
-        status: orderDetails.status === 'processing' ? 'current' :
-          orderDetails.status === 'pending' ? 'upcoming' : 'completed'
+        status: orderDetails.order.status === 'processing' ? 'current' :
+          orderDetails.order.status === 'pending' ? 'upcoming' : 'completed'
       },
       {
         title: "Shipping",
         date: "Estimated: Tomorrow",
-        status: orderDetails.status === 'shipped' ? 'current' :
-          ['processing', 'pending'].includes(orderDetails.status) ? 'upcoming' : 'completed'
+        status: orderDetails.order.status === 'shipped' ? 'current' :
+          ['processing', 'pending'].includes(orderDetails.order.status) ? 'upcoming' : 'completed'
       },
       {
         title: "Delivery",
-        date: orderDetails.estimatedDelivery,
-        status: orderDetails.status === 'delivered' ? 'completed' :
-          ['shipped', 'processing', 'pending'].includes(orderDetails.status) ? 'upcoming' : 'upcoming'
+        date: orderDetails.order.estimatedDelivery,
+        status: orderDetails.order.status === 'delivered' ? 'completed' :
+          ['shipped', 'processing', 'pending'].includes(orderDetails.order.status) ? 'upcoming' : 'upcoming'
       }
     ];
   }, [orderDetails]);
@@ -182,7 +184,7 @@ const ConfirmationPage: React.FC<{ orderId: string }> = ({ orderId }) => {
       label: "Email Order",
       onClick: () => {
         if (orderDetails) {
-          OrderService.emailOrderReceipt(orderDetails.id)
+          OrderService.emailOrderReceipt(orderDetails.order.id)
             .then(() => toast.success('Order receipt sent to email'))
             .catch(() => toast.error('Failed to send order receipt'));
         }
@@ -267,40 +269,38 @@ const ConfirmationPage: React.FC<{ orderId: string }> = ({ orderId }) => {
         {/* Order Information */}
         <OrderAndShippingDetails
           shippingAddress={{
-            firstName: orderDetails.shippingAddress.firstName,
-            lastName: orderDetails.shippingAddress.lastName,
-            email: orderDetails.shippingAddress.email,
-            phone: orderDetails.shippingAddress.phone,
-            address: orderDetails.shippingAddress.street,
-            city: orderDetails.shippingAddress.city,
-            state: orderDetails.shippingAddress.state,
-            country: orderDetails.shippingAddress.country,
-            postalCode: orderDetails.shippingAddress.postalCode
+            firstName: orderDetails.order.shippingAddress?.firstName,
+            lastName: orderDetails.order.shippingAddress?.lastName,
+            email: orderDetails.order.shippingAddress?.email,
+            phone: orderDetails.order.shippingAddress?.phone,
+            address: orderDetails.order.shippingAddress?.street,
+            city: orderDetails.order.shippingAddress?.city,
+            state: orderDetails.order.shippingAddress?.state,
+            country: orderDetails.order.shippingAddress?.country,
+            postalCode: orderDetails.order.shippingAddress?.postalCode
           }}
           paymentDetails={{
-            method: orderDetails.paymentMethod,
-            cardDetails: orderDetails.paymentMethod === 'credit-card'
+            method: orderDetails.order.paymentMethod,
+            cardDetails: orderDetails.order.paymentMethod === 'credit-card'
               ? {
                 lastFourDigits: orderDetails.cardDetails?.lastFourDigits
               }
               : undefined
           }}
-          orderNumber={orderDetails.orderNumber}
+          orderNumber={orderDetails.order.orderNumber}
           orderSummary={{
-            items: orderDetails.items.map(item => ({
+            items: orderDetails.order.items.map(item => ({
               name: item.name,
               quantity: item.quantity,
               price: item.price
             })),
-            total: orderDetails.totalAmount,
-            subtotal: orderDetails.subtotal,
-            shipping: orderDetails.shippingCost,
-            tax: orderDetails.tax
+            total: orderDetails.order.totalAmount,
+            subtotal: orderDetails.order.subtotal,
+            shipping: orderDetails.order.shippingCost,
+            tax: orderDetails.order.tax
           }}
           onEditAddress={() => {
-            // Optional: Implement address editing logic
-            // Could open a modal or navigate to an edit address page
-            router.push(`/orders/${orderId}/edit-address`);
+            router.push(`/orders/${orderDetails.order.id}/edit-address`);
           }}
         />
 
@@ -327,7 +327,7 @@ const ConfirmationPage: React.FC<{ orderId: string }> = ({ orderId }) => {
             {/* Order Items Section */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h3>
-              {orderDetails.items.map((item, index) => (
+              {orderDetails.order.items.map((item, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
@@ -429,7 +429,7 @@ const ConfirmationPage: React.FC<{ orderId: string }> = ({ orderId }) => {
           <motion.button
             whileHover={{ scale: 1.02, x: -5 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => router.push(`/track-order/${orderDetails.orderNumber}`)}
+            onClick={() => router.push(`/track-order/${orderDetails.order.orderNumber}`)}
             className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:text-orange-500 
       transition-colors duration-200 border border-orange-200 rounded-lg"
           >
