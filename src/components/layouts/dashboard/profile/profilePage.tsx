@@ -1,6 +1,8 @@
 'use client';
 
-import { useAuth } from '@/hooks/useAuth';
+import { showToast } from '@/components/shared/toast/showAlet';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { updateUserProfile } from '@/store/slices/authSlice';
 import { motion } from 'framer-motion';
 import {
     Camera,
@@ -14,17 +16,24 @@ import {
 import { useState } from 'react';
 
 const ProfilePage = () => {
-    const { user } = useAuth();
+
+    const dispatch = useAppDispatch();
+
+    const { user } = useAppSelector(state => state.auth);
+    console.log('user', user);
+
+    // const { user } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
         email: user?.email || '',
-        phone: '',
-        address: '',
-        city: '',
-        country: '',
-        postalCode: ''
+        contact: user?.contact || '',
+        street: user?.street || '',
+        city: user?.city || '',
+        country: user?.country || '',
+        state: user?.state || '',
+        postalCode: user?.postalCode || ''
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,8 +46,17 @@ const ProfilePage = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle profile update
-        setIsEditing(false);
+        try {
+            const response = await dispatch(updateUserProfile(formData)).unwrap();
+            console.log('response1', response);
+            // Handle success
+            showToast('success', 'Profile updated successfully');
+            setIsEditing(false);
+        } catch (error) {
+            showToast('error', 'Failed to update profile');
+            console.log('Failed to update profile:', error);
+            // Handle error
+        }
     };
 
     return (
@@ -126,8 +144,10 @@ const ProfilePage = () => {
                                     Contact Information
                                 </h3>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Email
+                                    <label className="flex text-sm font-medium text-gray-700 mb-1">
+                                        Email {" "}<p className="ps-1 text-sm text-gray-500">
+                                            (Email cannot be changed)
+                                        </p>
                                     </label>
                                     <input
                                         type="email"
@@ -137,18 +157,16 @@ const ProfilePage = () => {
                                         className="w-full px-4 py-2 rounded-lg border border-gray-200 bg-gray-50"
                                         title='Notifications'
                                     />
-                                    <p className="mt-1 text-sm text-gray-500">
-                                        Email cannot be changed
-                                    </p>
+
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Phone Number
+                                        Contact Number
                                     </label>
                                     <input
                                         type="tel"
-                                        name="phone"
-                                        value={formData.phone}
+                                        name="contact"
+                                        value={formData.contact}
                                         onChange={handleInputChange}
                                         disabled={!isEditing}
                                         className="w-full px-4 py-2 rounded-lg border border-gray-200 
@@ -165,21 +183,24 @@ const ProfilePage = () => {
                                     Address Information
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* Street Address - Full Width */}
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Street Address
                                         </label>
                                         <input
                                             type="text"
-                                            name="address"
-                                            value={formData.address}
+                                            name="street"
+                                            value={formData.street}
                                             onChange={handleInputChange}
                                             disabled={!isEditing}
                                             className="w-full px-4 py-2 rounded-lg border border-gray-200 
-                        focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:bg-gray-50"
+                    focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:bg-gray-50"
                                             title='address'
                                         />
                                     </div>
+
+                                    {/* City - Half Width */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             City
@@ -191,10 +212,29 @@ const ProfilePage = () => {
                                             onChange={handleInputChange}
                                             disabled={!isEditing}
                                             className="w-full px-4 py-2 rounded-lg border border-gray-200 
-                        focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:bg-gray-50"
+                    focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:bg-gray-50"
                                             title="Notifications"
                                         />
                                     </div>
+
+                                    {/* State - Half Width */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            State
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="state"
+                                            value={formData.state}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditing}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 
+                    focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:bg-gray-50"
+                                            title="Notifications"
+                                        />
+                                    </div>
+
+                                    {/* Country - Half Width */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Country
@@ -206,7 +246,24 @@ const ProfilePage = () => {
                                             onChange={handleInputChange}
                                             disabled={!isEditing}
                                             className="w-full px-4 py-2 rounded-lg border border-gray-200 
-                        focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:bg-gray-50"
+                    focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:bg-gray-50"
+                                            title='Notifications'
+                                        />
+                                    </div>
+
+                                    {/* Postal Code - Half Width */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Postal Code
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="postalCode"
+                                            value={formData.postalCode}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditing}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 
+                    focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:bg-gray-50"
                                             title='Notifications'
                                         />
                                     </div>
