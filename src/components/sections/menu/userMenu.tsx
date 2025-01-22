@@ -86,7 +86,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
                                     Dashboard
                                 </Link>
                                 <Link
-                                    href="/orders"
+                                    href="/dashboard/orders"
                                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 
                     hover:bg-gray-50 hover:text-primary transition-colors"
                                 >
@@ -102,7 +102,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
                                     Wishlist
                                 </Link>
                                 <Link
-                                    href="/settings"
+                                    href="/dashboard/settings"
                                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 
                     hover:bg-gray-50 hover:text-primary transition-colors"
                                 >
