@@ -155,6 +155,11 @@ interface AuthResponse {
   data?: any;
   message?: string;
 }
+interface UpdateProfileData {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
 
 export const authService = {
   async register(data: RegisterData): Promise<AuthResponse> {
@@ -244,6 +249,42 @@ export const authService = {
       return response.data.success;
     } catch (error) {
       return false;
+    }
+  },
+  async getProfile(): Promise<AuthResponse> {
+    try {
+      const response = await api.get('/users/profile');
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch profile'
+      };
+    }
+  },
+
+  async updateProfile(data: UpdateProfileData): Promise<AuthResponse> {
+    try {
+      const response = await api.patch('/users/profile', data);
+      
+      // If update is successful, update the stored user data
+      if (response.data.success) {
+        const updatedUser = response.data.data;
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update profile'
+      };
     }
   },
 
