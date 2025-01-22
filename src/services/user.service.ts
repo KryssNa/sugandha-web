@@ -20,6 +20,10 @@ export const userService = {
     return api.get(`/users/${id}`);
   },
 
+  async updateUser(id: string, data: Partial<{ firstName: string; lastName: string; email: string }>) {
+    return api.patch(`/users/${id}`, data);
+  },
+  
   async deleteUser(id: string) {
     return api.delete(`/users/${id}`);
   }

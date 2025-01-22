@@ -3,65 +3,155 @@ import { api } from '@/lib/axios';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
+// export interface OrderDetails {
+//     id: string;
+//     orderNumber: string;
+//     status: string;
+//     createdAt: string;
+//     estimatedDelivery: string;
+
+//     // Shipping Details
+//     shippingAddress: {
+//         firstName: string;
+//         lastName: string;
+//         email: string;
+//         phone: string;
+//         street: string;
+//         city: string;
+//         state: string;
+//         country: string;
+//         postalCode: string;
+//     };
+
+//     // Payment Details
+//     paymentMethod: 'credit-card' | 'khalti' | 'esewa' | 'cash-on-delivery';
+//     cardDetails?: {
+//         lastFourDigits?: string;
+//     };
+
+//     // Order Financials
+//     items: Array<{
+//         product: string;
+//         name: string;
+//         image: string;
+//         price: number;
+//         quantity: number;
+//     }>;
+//     subtotal: number;
+//     tax: number;
+//     shippingCost: number;
+//     totalAmount: number;
+// }
+
 export interface OrderDetails {
-    id: string;
-    orderNumber: string;
-    status: string;
-    createdAt: string;
-    estimatedDelivery: string;
-
-    // Shipping Details
-    shippingAddress: {
-        firstName: string;
-        lastName: string;
-        email: string;
-        phone: string;
-        street: string;
-        city: string;
-        state: string;
-        country: string;
-        postalCode: string;
+    order: {
+        id: string;
+        orderNumber: string;
+        status: string;
+        createdAt: string;
+        estimatedDelivery: string;
+        shippingAddress: {
+            firstName: string;
+            lastName: string;
+            email: string;
+            phone: string;
+            street: string;
+            city: string;
+            state: string;
+            country: string;
+            postalCode: string;
+        };
+        paymentMethod: 'credit-card' | 'khalti' | 'esewa' | 'cash-on-delivery';
+        items: Array<{
+            product: string;
+            name: string;
+            image: string;
+            price: number;
+            quantity: number;
+        }>;
+        subtotal: number;
+        tax: number;
+        shippingCost: number;
+        totalAmount: number;
+        _id: string;
+        __v: number;
+        updatedAt: string;
+        user: string;
+        payment: string;
+        isGuest: boolean;
     };
-
-    // Payment Details
-    paymentMethod: 'credit-card' | 'khalti' | 'esewa' | 'cash-on-delivery';
-    cardDetails?: {
+    cardDetails: {
         lastFourDigits?: string;
     };
-
-    // Order Financials
-    items: Array<{
-        product: string;
-        name: string;
-        image: string;
-        price: number;
-        quantity: number;
-    }>;
-    subtotal: number;
-    tax: number;
     shippingCost: number;
-    totalAmount: number;
+    tax: number;
 }
 export class OrderService {
     // Fetch order details by ID
     static async getOrderDetails(orderId: string): Promise<OrderDetails> {
         try {
-            const response = await api.get(`/checkout/orders/${orderId}`);
+            const response = await api.get(`/orders/${orderId}`);
             // Validate and transform the response if needed
             const orderDetails = response.data.data;
 
-            return {
-                ...orderDetails,
-                // Add any additional transformations or default values
-                cardDetails: orderDetails.cardDetails || {},
-                shippingCost: orderDetails.shippingCost || 0,
-                tax: orderDetails.tax || 0
-            };
+            return  orderDetails;
+            // {
+            //     ...orderDetails,
+            //     // Add any additional transformations or default values
+            //     cardDetails: orderDetails.cardDetails || {},
+            //     shippingCost: orderDetails.shippingCost || 0,
+            //     tax: orderDetails.tax || 0
+            // };
         } catch (error) {
             console.error('Failed to fetch order details', error);
             throw error;
         }
     }
+
+    static async getAllOrders(params?: {
+        page?: number;
+        limit?: number;
+        status?: string;
+        sortBy?: string;
+    }) {
+        try {
+            const response = await api.get('/orders/allOrders', { params });
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch orders:', error);
+            throw error;
+        }
+    }
+
+    static async updateOrderTracking(orderId: string, trackingData: {
+        carrier: string;
+        trackingNumber: string;
+    }): Promise<OrderDetails> {
+        try {
+            const response = await api.patch(`/orders/${orderId}/tracking`, trackingData);
+            return response.data;
+        } catch (error) {
+            console.error('Failed to update order tracking:', error);
+            throw error;
+        }
+    }
+
+    static async getUserOrders(params?: {
+        page?: number;
+        limit?: number;
+        status?: string;
+        sortBy?: string;
+    }) {
+        try {
+            const response = await api.get('/orders', { params });
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch user orders:', error);
+            throw error;
+        }
+    }
+
+    
 
     // Download order invoice
     // static async downloadInvoice(orderId: string): Promise<void> {
@@ -142,14 +232,14 @@ export class OrderService {
 
             if (navigator.share) {
                 await navigator.share({
-                    title: `Order #${orderDetails.orderNumber}`,
-                    text: `Check out my order details for Order #${orderDetails.orderNumber}`,
+                    title: `Order #${orderDetails.order.orderNumber}`,
+                    text: `Check out my order details for Order #${orderDetails.order.orderNumber}`,
                     url: `${window.location.origin}/orders/${orderId}`
                 });
             } else {
                 // Fallback for browsers not supporting Web Share API
                 await navigator.clipboard.writeText(
-                    `Order #${orderDetails.orderNumber} - Total: $${orderDetails.totalAmount.toFixed(2)}`
+                    `Order #${orderDetails.order.orderNumber} - Total: $${orderDetails.order.totalAmount.toFixed(2)}`
                 );
                 toast.success('Order details copied to clipboard');
             }

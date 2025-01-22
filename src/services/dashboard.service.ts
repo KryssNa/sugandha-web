@@ -19,9 +19,9 @@ export const dashboardService = {
     limit?: number;
     status?: string;
     sortBy?: string;
-  }): Promise<{ orders: Order[]; total: number }> {
+  }) {
     try {
-      const response = await api.get('/dashboard/orders', { params });
+      const response = await api.get('/orders/allOrders', { params });
       return response.data;
     } catch (error) {
       console.error('Failed to fetch orders:', error);
@@ -31,7 +31,7 @@ export const dashboardService = {
 
   async getOrderDetails(orderId: string): Promise<Order> {
     try {
-      const response = await api.get(`/dashboard/orders/${orderId}`);
+      const response = await api.get(`/orders/${orderId}`);
       return response.data;
     } catch (error) {
       console.error('Failed to fetch order details:', error);
@@ -58,7 +58,7 @@ export const dashboardService = {
     trackingNumber: string;
   }): Promise<Order> {
     try {
-      const response = await api.patch(`/dashboard/orders/${orderId}/tracking`, trackingData);
+      const response = await api.patch(`/orders/${orderId}/tracking`, trackingData);
       return response.data;
     } catch (error) {
       console.error('Failed to update order tracking:', error);
