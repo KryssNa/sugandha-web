@@ -187,7 +187,7 @@ export const ProductView: React.FC = () => {
         {/* Top Banner */}
         <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-lg mb-6">
           <p className="text-sm font-medium text-center">
-            Special Offer: Free shipping on orders over $150!
+            Special Offer: Free shipping on orders over Rs15000!
           </p>
         </div>
 
@@ -310,7 +310,7 @@ export const ProductView: React.FC = () => {
                       slug={product.slug}
                       title={product.title}
                       price={product.basePrice}
-                      discount={product.discount}
+                      discount={product.discountPercentage}
                       secondaryImage={product.coverImage}
                       rating={product.rating?.average ?? 0}
                       primaryImage={product.images.find(image => image.isPrimary)?.url || ''}
