@@ -347,6 +347,7 @@ const ConfirmationPage: React.FC<{ orderId: string }> = ({ orderId }) => {
                           src={item.image}
                           alt={item.name}
                           className="rounded-lg object-cover w-full h-full"
+                          crossOrigin="anonymous"
                         />
                         <motion.div
                           className="absolute -top-2 -right-2 h-6 px-2 min-w-[24px] bg-orange-500 
