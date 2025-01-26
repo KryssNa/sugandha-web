@@ -97,10 +97,17 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             group: 'Inventory'
         },
         {
+            name: 'Categories',
+            href: '/admin/categories',
+            icon: Package,
+            badge: 4,
+            group: 'Inventory'
+        },
+        {
             name: 'Orders',
             href: '/admin/orders',
             icon: ShoppingBag,
-            badge: 5,
+            badge: 8,
             group: 'Sales'
         },
         {
