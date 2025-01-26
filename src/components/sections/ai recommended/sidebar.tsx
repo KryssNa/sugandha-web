@@ -26,15 +26,15 @@ const DUMMY_RECOMMENDATIONS: RecommendedProduct[] = [
         name: "Baccarat Rouge 540",
         brand: "Maison Francis Kurkdjian",
         price: 325,
-        image: "/assets/images/products/creed.png",
+        image: "/assets/images/products/armani.png",
         rating: 4.9
     },
     {
         id: 3,
         name: "Aventus",
-        brand: "Creed",
+        brand: "Armani",
         price: 359,
-        image: "/assets/images/products/creed.png",
+        image: "/assets/images/products/image3.png",
         rating: 4.7
     }
 ];
@@ -140,6 +140,7 @@ const QuizSidebar: React.FC<{ isLoggedIn: boolean, user: any }> = ({ isLoggedIn,
                             src={product.image}
                             alt={product.name}
                             className="w-12 h-12 rounded-md object-cover"
+                            crossOrigin="anonymous"
                         />
                         <div>
                             <h4 className="text-sm font-medium text-gray-800">{product.name}</h4>
@@ -150,7 +151,7 @@ const QuizSidebar: React.FC<{ isLoggedIn: boolean, user: any }> = ({ isLoggedIn,
                                     <span className="text-xs text-gray-600">{product.rating}</span>
                                 </div>
                                 <span className="text-xs font-medium text-purple-600">
-                                    ${product.price}
+                                    Rs{product.price}
                                 </span>
                             </div>
                         </div>
