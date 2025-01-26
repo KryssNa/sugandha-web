@@ -54,11 +54,11 @@ export const AuthLayout: React.FC<{
 
         {/* Brand Section */}
         <div
-          className='hidden lg:flex flex-col items-center justify-center bg-primary/20 p-12 
+          className='hidden lg:flex flex-col items-center justify-center bg-orange-400/10 p-12 
           text-white relative overflow-hidden'
         >
           <motion.div
-            className='absolute inset-0 bg-gradient-to-br from-orange-400/20 to-orange-600/20'
+            className='absolute inset-0 bg-gradient-to-br from-orange-400/5 to-orange-600/5'
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
