@@ -190,6 +190,7 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                   src={image.url}
                   alt={image.alt}
                   className="w-full h-full object-cover"
+                  crossOrigin="anonymous"
                 />
 
                 {/* Overlay */}

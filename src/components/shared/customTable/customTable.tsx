@@ -134,6 +134,7 @@ const TableCell = <T extends {}>({
                     onError={(e) => {
                         e.currentTarget.src = '/api/placeholder/40/40'; // Fallback image
                     }}
+                    crossOrigin="anonymous"
                 />
             </div>
         );
