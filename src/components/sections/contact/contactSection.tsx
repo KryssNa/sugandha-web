@@ -221,8 +221,9 @@ const ContactSection = () => {
             setAttachments([]);
 
         } catch (error: any) {
-            toast("error", error.message || "Failed to send message. Please try again.",
-            );
+            error.response.data.errors.forEach((err: any) => {
+                toast("error", err.message);
+            });
         } finally {
             setIsSubmitting(false);
         }
