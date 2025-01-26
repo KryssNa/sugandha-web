@@ -117,7 +117,7 @@ const products = [
 ];
 
 const DealsSection: React.FC = () => {
-  const timeLeft = useCountdown("2025-01-01T00:00:00");
+  const timeLeft = useCountdown("2025-02-01T00:00:00");
   const [activeProduct, setActiveProduct] = useState<number | null>(null);
 
   return (
