@@ -203,7 +203,7 @@ export const LoginPage: React.FC = () => {
               <span className="ml-2 text-sm text-gray-600">Remember me</span>
             </label>
             <Link
-              href="/forgot-password"
+              href="/auth/forgot-password"
               className="text-sm text-orange-500 hover:text-orange-600 transition-colors"
             >
               Forgot password?
@@ -261,8 +261,9 @@ export const LoginPage: React.FC = () => {
               className="flex items-center justify-center px-4 py-3 border border-gray-200 
                 rounded-lg hover:bg-gray-50 transition-all duration-200"
             >
-              <Facebook className="w-5 h-5 mr-2" />
-              Continue with Facebook
+              {/* < className="w-5 h-5 mr-2" /> */}
+              <img src="/assets/icons/image.png" alt="" className="h-5 w-5 mr-2" />
+              Continue with Google
             </motion.button>
           </motion.div>
         </motion.form>
