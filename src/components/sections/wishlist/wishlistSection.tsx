@@ -109,7 +109,7 @@ const WishlistSection: React.FC = () => {
               {/* Price */}
               <div className="col-span-2 p-6 flex items-center justify-center">
                 <span className="text-lg font-semibold text-gray-900">
-                  ${item.basePrice.toFixed(2)}
+                  Rs{item.basePrice.toFixed(2)}
                 </span>
               </div>
 
