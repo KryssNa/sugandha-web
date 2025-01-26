@@ -39,7 +39,7 @@ export const NewArrivals: React.FC = () => {
           <OfferCard
             backgroundImage='/assets/images/products/image3.png'
             modelImage='/assets/images/bg/offerimage.svg'
-            discount='85%'
+            discount='25%'
             onShopNow={() => console.log("Shop Now clicked")}
           />
         </div>
@@ -57,7 +57,7 @@ export const NewArrivals: React.FC = () => {
           <OfferCard
             backgroundImage='/assets/images/products/image3.png'
             modelImage='/assets/images/bg/offerimage.svg'
-            discount='85%'
+            discount='25%'
             onShopNow={() => console.log("Shop Now clicked")}
           />
         </div>
