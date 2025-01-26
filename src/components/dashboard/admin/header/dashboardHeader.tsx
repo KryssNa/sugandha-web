@@ -135,6 +135,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                                     src={user.avatar}
                                     alt={user.name}
                                     className="w-8 h-8 rounded-full object-cover"
+                                    crossOrigin="anonymous"
                                 />
                             ) : (
                                 <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center 
