@@ -41,6 +41,7 @@ export // Recommendation Card Component
                         src={perfume.image}
                         alt={perfume.name}
                         className="w-24 h-24 rounded-lg object-cover"
+                        crossOrigin="anonymous"
                     />
                     <div>
                         <h3 className="font-bold text-gray-900">{perfume.name}</h3>
