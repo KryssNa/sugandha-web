@@ -9,7 +9,6 @@ import {
     setOrderSummary,
     setStep
 } from '@/store/slices/checkoutSlice';
-import { useRouter } from 'next/router';
 import { toast } from 'react-hot-toast'; // Assuming you're using react-hot-toast
 
 
@@ -62,7 +61,7 @@ interface CheckoutData {
 }
 
 export class CheckoutService {
-    
+
 
     // Create checkout from cart items
     static initializeCheckout(dispatch: AppDispatch, cartItems: any[], cartTotals: any) {
@@ -136,7 +135,9 @@ export class CheckoutService {
     // Create checkout
     static async createCheckout(formData: any, cartItems: Product[], cartTotals: any) {
         // const router = useRouter();
-        
+
+
+
         try {
             const checkoutData: CheckoutData = {
                 isGuest: formData.isGuest,
@@ -180,10 +181,47 @@ export class CheckoutService {
                 }
             };
 
-            console.log('Checkout Data:', checkoutData);
-
             const response = await api.post('/checkout', checkoutData);
-            return response.data;
+            console.log("response", response)
+
+            try {
+                const paymentResponse = await api.post('/payment/initiate', {
+                    amount: 100,
+                    // amount: cartTotals.total,
+                    paymentMethod: formData.paymentMethod,
+                    orderId: response?.data?.data?.orderId
+                });
+                console.log('checkout Response:', response.data);
+                console.log('Payment Response:', paymentResponse.data);
+                const { paymentUrl } = paymentResponse.data.data;
+
+                // Create a form and submit it programmatically
+                const form = document.createElement("form");
+                form.method = "POST";
+                form.action = paymentUrl;
+
+                const paymentFormData = {
+                    ...paymentResponse.data.data.formData,
+                    product_service_charge: 0 ,
+                    product_delivery_charge: 0,
+                    
+                };
+                for (const [key, value] of Object.entries(paymentFormData)) {
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+
+                    input.name = key;
+                    input.value = String(value);
+                    form.appendChild(input);
+                }
+
+                document.body.appendChild(form);
+                form.submit();
+            } catch (error) {
+                console.log('Payment initiation failed:', error);
+            }
+
+            // return response.data;
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'Failed to create checkout';
             toast.error(errorMessage);
