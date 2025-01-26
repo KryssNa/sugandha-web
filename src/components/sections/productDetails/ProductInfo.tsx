@@ -90,17 +90,17 @@ const ProductInfo = ({
             <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                     <span className="text-3xl font-bold text-gray-900">
-                        ${product.basePrice}
+                        Rs{product.basePrice}
                     </span>
                     {product.originalPrice > product.basePrice && (
                         <span className="text-lg text-gray-500 line-through">
-                            ${product.originalPrice}
+                            Rs{product.originalPrice}
                         </span>
                     )}
                 </div>
-                {(product.discount ?? 0) > 0 && (
+                {(product.discountPercentage ?? 0) > 0 && (
                     <span className="px-2.5 py-1 bg-red-100 text-red-600 rounded-full text-sm font-medium">
-                        {product.discount}% OFF
+                        {product.discountPercentage}% OFF
                     </span>
                 )}
             </div>
@@ -190,7 +190,7 @@ const ProductInfo = ({
                     <Truck className="w-5 h-5 text-orange-500" />
                     <div>
                         <p className="text-sm font-medium">Free Shipping</p>
-                        <p className="text-xs text-gray-500">Orders over $500</p>
+                        <p className="text-xs text-gray-500">Orders over Rs5000</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
