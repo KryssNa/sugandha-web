@@ -48,18 +48,19 @@ const OrdersManagement: React.FC<OrdersManagementProps> = ({
     onDeleteOrder,
     onUpdateStatus,
 }) => {
+    console.log("orders", orders);
     const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<Order['status'] | 'all'>('all');
 
     const filteredOrders = orders.filter(order => {
         const matchesSearch =
-            order.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            // order.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             order.id.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
         return matchesSearch && matchesStatus;
     });
-
+    console.log("filteredOrders", filteredOrders);
     const handleSelectAll = (checked: boolean) => {
         setSelectedOrders(checked ? orders.map(order => order.id) : []);
     };
@@ -141,7 +142,7 @@ const OrdersManagement: React.FC<OrdersManagementProps> = ({
                                 />
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                Order ID
+                                Order Number
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                 Customer
@@ -172,6 +173,39 @@ const OrdersManagement: React.FC<OrdersManagementProps> = ({
                                 exit={{ opacity: 0 }}
                                 layout
                             >
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedOrders.includes(order.id)}
+                                        onChange={(e) => handleSelectOrder(order.id, e.target.checked)}
+                                        className="rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+                                    />
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {order.orderNumber}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="text-sm text-gray-900">{`${order.user?.firstName ?? "Guest"} ${order.user?.lastName ?? ""}`}</div>
+                                    <div className="text-sm text-gray-500">{order.user?.email ?? order.shippingAddress?.email}</div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="text-sm text-gray-900">
+                                        {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    ${order.totalAmount.toFixed(2)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                                        {getStatusIcon(order.status)}
+                                        <span className="ml-1 capitalize">{order.status}</span>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {new Date(order.createdAt).toLocaleDateString()}
+                                </td>
+
                                 <td className="px-6 py-4 whitespace-nowrap text-right">
                                     <div className="relative inline-block text-left">
                                         <motion.button
