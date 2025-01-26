@@ -130,12 +130,12 @@ export const PremiumProducts: React.FC = () => {
           <ProductCard
             key={i}
             slug={product.slug}
-            primaryImage={product.coverImage}
-            secondaryImage={product.thumbnail}
+            primaryImage={product.thumbnail}
+            secondaryImage={product.coverImage}
             title={product.title}
             price={product.basePrice}
             originalPrice={product.originalPrice}
-            discount={product.discount}
+            discount={product.discountPercentage}
             rating={product.rating ? product.rating.average : 0}
             reviews={product.reviews?.length ?? 0}
             isHot={product.isHot}
