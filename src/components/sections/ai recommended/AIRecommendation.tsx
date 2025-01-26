@@ -409,7 +409,7 @@ const PerfumeQuiz: React.FC = () => {
                                                     <p className="text-lg text-purple-600">{state.recommendation.brand}</p>
                                                     <div className="mt-2">
                                                         <span className="text-xl font-semibold text-gray-900">
-                                                            ${state.recommendation.price}
+                                                            Rs{state.recommendation.price}
                                                         </span>
                                                         <span className="ml-2 text-sm text-gray-500">Premium Collection</span>
                                                     </div>
