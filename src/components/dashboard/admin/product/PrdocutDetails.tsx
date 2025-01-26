@@ -28,6 +28,7 @@ export const ProductDetailsContent: React.FC<{ product: Product }> = ({
                 src={image.url}
                 alt={`Product Image ${index + 1}`}
                 className="w-full h-48 object-cover"
+                crossOrigin="anonymous"
               />
             </div>
           ))}
