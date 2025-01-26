@@ -6,6 +6,8 @@ interface User {
   lastName: string;
   email: string;
   id: string;
+  role: string;
+  contact: string;
 }
 
 interface UserState {
@@ -180,8 +182,8 @@ const userSlice = createSlice({
       })
       .addCase(fetchAllUsers.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = action.payload.users;
-        state.totalUsers = action.payload.total;
+        state.users = action.payload.data;
+        state.totalUsers = action.payload.metadata.total;
       })
       .addCase(fetchAllUsers.rejected, (state, action) => {
         state.loading = false;
