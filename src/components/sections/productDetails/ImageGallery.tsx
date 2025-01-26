@@ -28,6 +28,8 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
             alt={images[selectedImage]?.alt || title}
             fill
             className="object-contain"
+            referrerPolicy='no-referrer'
+            crossOrigin='anonymous'
           />
         </motion.div>
 
