@@ -73,12 +73,12 @@ const PasswordStrengthIndicator: React.FC<{ password: string }> = ({
     }
 
     const colors: { [key: number]: string } = {
-      0: "bg-red-500",
-      1: "bg-red-400",
-      2: "bg-orange-400",
-      3: "bg-yellow-400",
-      4: "bg-green-400",
-      5: "bg-green-500",
+      0: "bg-[#FF0000]", // red
+      1: "bg-[#FF6347]", // red-400
+      2: "bg-[#FFA500]", // orange-400
+      3: "bg-[#FFD700]", // yellow-400
+      4: "bg-[#4CAF50]", // green-400
+      5: "bg-[#388E3C]", // green-500
     };
 
     setStrength({
@@ -327,7 +327,7 @@ export const RegisterPage: React.FC = () => {
                 onChange={handleChange}
                 onFocus={() => clearError("name")}
                 className={`w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 
-                  focus:ring-orange-500 transition-all ${errors.name ? "border-red-500" : "border-gray-200"
+                  focus:ring-orange-500 transition-all ${errors.name ? "border-red" : "border-gray-200"
                   }`}
                 placeholder='Enter your full name'
               />
@@ -339,7 +339,7 @@ export const RegisterPage: React.FC = () => {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className='text-sm text-red-500'
+                  className='text-sm text-red'
                 >
                   {errors.name}
                 </motion.span>
@@ -358,7 +358,7 @@ export const RegisterPage: React.FC = () => {
                 onChange={handleChange}
                 onFocus={() => clearError("email")}
                 className={`w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 
-                  focus:ring-orange-500 transition-all ${errors.email ? "border-red-500" : "border-gray-200"
+                  focus:ring-orange-500 transition-all ${errors.email ? "border-red" : "border-gray-200"
                   }`}
                 placeholder='Enter your email'
               />
@@ -370,7 +370,7 @@ export const RegisterPage: React.FC = () => {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className='text-sm text-red-500'
+                  className='text-sm text-red'
                 >
                   {errors.email}
                 </motion.span>
@@ -393,7 +393,7 @@ export const RegisterPage: React.FC = () => {
                   onChange={handleChange}
                   onFocus={() => clearError("password")}
                   className={`w-full px-4 py-3 pl-11 pr-11 border rounded-lg focus:ring-2 
-                    focus:ring-orange-500 transition-all ${errors.password ? "border-red-500" : "border-gray-200"
+                    focus:ring-orange-500 transition-all ${errors.password ? "border-red" : "border-gray-200"
                     }`}
                   placeholder='Create password'
                 />
@@ -420,7 +420,7 @@ export const RegisterPage: React.FC = () => {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className='text-sm text-red-500'
+                    className='text-sm text-red'
                   >
                     {errors.password}
                   </motion.span>
@@ -442,7 +442,7 @@ export const RegisterPage: React.FC = () => {
                   onFocus={() => clearError("confirmPassword")}
                   className={`w-full px-4 py-3 pl-11 pr-11 border rounded-lg focus:ring-2 
                     focus:ring-orange-500 transition-all ${errors.confirmPassword
-                      ? "border-red-500"
+                      ? "border-red"
                       : "border-gray-200"
                     }`}
                   placeholder='Confirm password'
@@ -454,7 +454,7 @@ export const RegisterPage: React.FC = () => {
                   <motion.span
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className='text-sm text-red-500'
+                    className='text-sm text-red'
                   >
                     {errors.confirmPassword}
                   </motion.span>
@@ -470,7 +470,7 @@ export const RegisterPage: React.FC = () => {
                 id='terms'
                 type='checkbox'
                 checked={acceptTerms}
-                onChange={(e) => setAcceptTerms(e.target.checked)}
+                onChange={handleTermsChange}
                 className='w-4 h-4 text-orange-500 border-gray-300 rounded 
                   focus:ring-orange-500'
               />
@@ -498,7 +498,7 @@ export const RegisterPage: React.FC = () => {
             <motion.span
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className='text-sm text-red-500'
+              className='text-sm text-red'
             >
               {errors.terms}
             </motion.span>
@@ -564,8 +564,8 @@ export const RegisterPage: React.FC = () => {
               className='flex items-center justify-center px-4 py-3 border border-gray-200 
                 rounded-lg hover:bg-gray-50 transition-all duration-200'
             >
-              <Facebook className='w-5 h-5 mr-2' />
-              Continue with Facebook
+              <img src="/assets/icons/image.png" alt="" className="h-5 w-5 mr-2" />
+              Continue with Google
             </motion.button>
           </motion.div>
         </motion.form>
