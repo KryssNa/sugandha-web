@@ -89,7 +89,7 @@ const CartItem: React.FC<CartItemProps> = ({
 
     {/* Price */}
     <div className="text-center">
-      ${(item.selectedVariant?.price || item.basePrice).toFixed(2)}
+      Rs{(item.selectedVariant?.price || item.basePrice).toFixed(2)}
     </div>
 
     {/* Quantity */}
@@ -117,7 +117,7 @@ const CartItem: React.FC<CartItemProps> = ({
 
     {/* Subtotal */}
     <div className="text-right font-medium">
-      ${((item.quantity) * (item.selectedVariant?.price || item.basePrice)).toFixed(2)}
+      Rs{((item.quantity) * (item.selectedVariant?.price || item.basePrice)).toFixed(2)}
     </div>
   </motion.div>
 );
@@ -152,14 +152,14 @@ const CartTotals: React.FC<CartTotalsProps> = ({
       <div className="flex justify-between py-3 bg-gray-50 px-4 rounded-lg">
         <span className="text-gray-600">Subtotal</span>
         <span className="font-medium">
-          ${totals.subtotal.toFixed(2)}
+          Rs{totals.subtotal.toFixed(2)}
         </span>
       </div>
       {totals.discount > 0 && (
         <div className="flex justify-between py-3 bg-green-50 px-4 rounded-lg">
           <span className="text-green-600">Discount</span>
           <span className="font-medium text-green-600">
-            -${totals.discount.toFixed(2)}
+            -Rs{totals.discount.toFixed(2)}
           </span>
         </div>
       )}
@@ -168,12 +168,12 @@ const CartTotals: React.FC<CartTotalsProps> = ({
         {totals.shipping === 0 ? (
           <span className="font-medium text-green-500">Free</span>
         ) : (
-          <span className="font-medium">${totals.shipping.toFixed(2)}</span>
+          <span className="font-medium">Rs{totals.shipping.toFixed(2)}</span>
         )}
       </div>
       <div className="flex justify-between py-3 bg-gray-50 px-4 rounded-lg">
         <span className="text-gray-600">Tax</span>
-        <span className="font-medium">${totals.tax.toFixed(2)}</span>
+        <span className="font-medium">Rs{totals.tax.toFixed(2)}</span>
       </div>
     </div>
 
@@ -181,7 +181,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({
     <div className="flex justify-between py-4 px-4 bg-gray-50 rounded-lg mb-6">
       <span className="text-lg font-semibold text-gray-900">Total</span>
       <span className="text-lg font-bold text-gray-900">
-        ${totals.total.toFixed(2)}
+        Rs{totals.total.toFixed(2)}
       </span>
     </div>
 
