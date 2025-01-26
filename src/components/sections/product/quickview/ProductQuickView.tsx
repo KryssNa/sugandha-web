@@ -120,7 +120,9 @@ const ProductQuickView: React.FC<ProductQuickViewProps> = ({
                                 transition={{ duration: 0.3 }}
                                 src={product.images[selectedImage].url}
                                 alt={product.title}
-                                className="w-full h-72 py-6 md:h-full object-cover rounded-l-xl"
+                                referrerPolicy='no-referrer'
+                                crossOrigin='anonymous'
+                                className=" h-48 py-6 md:h-full object-cover rounded-l-xl"
                             />
 
                             {/* Image Thumbnails */}
@@ -138,6 +140,8 @@ const ProductQuickView: React.FC<ProductQuickViewProps> = ({
                                             src={image.url}
                                             alt={`Thumbnail ${index + 1}`}
                                             className="w-full h-full object-cover"
+                                            crossOrigin="anonymous"
+
                                         />
                                     </button>
                                 ))}
