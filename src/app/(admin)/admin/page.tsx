@@ -7,7 +7,7 @@ export default function Page() {
   const dummyMetrics = {
     revenue: {
       title: 'Total Revenue',
-      value: '$45,890',
+      value: 'Rs45,890',
       trend: 12.3,
       icon: DollarSign,
       chartData: [
