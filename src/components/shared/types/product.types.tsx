@@ -55,7 +55,7 @@ export interface Review {
 
 // Product Interface
 export interface Product {
-  id?: string;
+  id: string;
   // Basic Information
   title: string;
   slug: string;
@@ -75,6 +75,7 @@ export interface Product {
   basePrice: number;
   originalPrice: number;
   discount?: number;
+  discountPercentage?: number;
   discountEndDate?: Date;
   quantity: number;
   inStock: boolean;
@@ -139,6 +140,7 @@ export interface Product {
   updatedAt?: Date;
 }
 export interface ProductFilters {
+  slug?: string;
   page?: number;
   limit?: number;
   search?: string;
