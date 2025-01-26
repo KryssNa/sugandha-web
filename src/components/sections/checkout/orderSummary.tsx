@@ -51,6 +51,7 @@ export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({
               src={item.thumbnail}
               alt={item.title}
               className="rounded-lg object-cover w-full h-full"
+              crossOrigin="anonymous"
             />
             <motion.div
               className="absolute -top-2 -right-2 h-6 px-2 min-w-[24px] bg-orange-500 
@@ -92,14 +93,14 @@ export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({
                 )}
               </div>
               <p className="font-bold text-gray-900">
-                ${(item.basePrice * item.quantity).toFixed(2)}
+                Rs{(item.basePrice * item.quantity).toFixed(2)}
               </p>
             </div>
 
             {/* Price Per Unit */}
             <div className="mt-1 flex items-center justify-between">
               <p className="text-sm text-gray-500">
-                ${item.basePrice.toFixed(2)} per unit
+                Rs{item.basePrice.toFixed(2)} per unit
               </p>
             </div>
 
@@ -182,7 +183,7 @@ export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-600">Subtotal ({item.quantity} items):</span>
               <span className="font-bold text-orange-500">
-                ${(item.basePrice * item.quantity).toFixed(2)}
+                Rs{(item.basePrice * item.quantity).toFixed(2)}
               </span>
             </div>
           </motion.div>
