@@ -35,6 +35,7 @@ interface Review {
 
 export interface ProductFormData {
   // Basic Info
+  id?: string;
   title: string;
   slug: string;
   sku: string;
@@ -283,9 +284,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
     // Additional Details Validation
     if (!formData.madeIn.trim()) errors.push("Country of origin is required");
-    if (!formData.discountEndDate) {
-      errors.push("Discount end date is required when discount is applied");
-    }
+    // if (!formData.discountEndDate) {
+    //   errors.push("Discount end date is required when discount is applied");
+    // }
 
     // SEO Validation
     if (!formData.metaTitle.trim()) errors.push("Meta title is required");
@@ -506,13 +507,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       };
 
       await onSubmit(submitData);
-      // await onSubmit({
-      //   ...submitData,
-      //   discountEndDate: formData.discountEndDate ? new Date(formData.discountEndDate) : undefined,
-      // });
 
-      // Show success message (you might want to use a toast here)
-      alert('Product saved successfully!');
     } catch (error) {
       console.error('Failed to save product:', error);
       alert('Failed to save product. Please try again.');
@@ -636,6 +631,23 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               required
             />
           </div>
+          <div className=" grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* discount end date */}
+            <div className="">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Discount End Date
+
+              </label>
+              <input
+                type="date"
+                name="discountEndDate"
+                value={formData.discountEndDate ? new Date(formData.discountEndDate).toISOString().split('T')[0] : ''}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none 
+                focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow duration-200"
+              />
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <CustomSelect
@@ -643,6 +655,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               value={formData.concentration}
               onChange={handleSelectChange('concentration')}
               options={CONCENTRATION_OPTIONS}
+              className='w-full'
             />
 
             <CustomSelect
@@ -651,6 +664,23 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               onChange={handleSelectChange('gender')}
               options={GENDER_OPTIONS}
               required
+              className='w-full'
+            />
+          </div>
+
+          {/* shot description  */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Short Description<span className="text-red"> *</span>
+            </label>
+            <textarea
+              name="shortDescription"
+              value={formData.shortDescription}
+              onChange={handleInputChange}
+              rows={4}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none 
+                focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow duration-200"
+              placeholder="Enter product description"
             />
           </div>
 
@@ -1158,6 +1188,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         <div className="space-y-6">
           {/* Product Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div className="">
+           <label htmlFor="">
+              Sillage
+            </label>
             <CustomSelect
               value={formData.sillage}
               onChange={handleSelectChange('sillage')}
@@ -1167,8 +1201,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 { value: 'Strong', label: 'Strong' },
                 { value: 'Enormous', label: 'Enormous' }
               ]}
+              className='w-full'
             />
+           </div>
 
+              <div className="">
+              <label htmlFor="">
+                Concentration
+              </label>
             <CustomSelect
               value={formData.longevity}
               onChange={handleSelectChange('longevity')}
@@ -1178,7 +1218,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 { value: 'Long Lasting', label: 'Long Lasting' },
                 { value: 'Very Long Lasting', label: 'Very Long Lasting' }
               ]}
+              className='w-full'
             />
+              </div>
 
             <CustomInput
               label="Made In"
