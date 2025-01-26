@@ -23,7 +23,7 @@ export const MobileBottomBar = ({
       <div>
         <div className="text-sm text-gray-500">Total Price</div>
         <div className="text-lg font-bold text-gray-900">
-          ${(price * quantity).toFixed(2)}
+          Rs{(price * quantity).toFixed(2)}
         </div>
       </div>
       <motion.button
