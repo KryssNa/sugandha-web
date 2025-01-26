@@ -45,12 +45,12 @@ const parsePerfumeRecommendation = (content: string) => {
         const notesSection = content?.split('📝 Key Notes:')[1].split('💫 Perfect For You Because:')[0].trim();
 
         // Get everything between Perfect For You Because: and NEXT_CHOICES:
-        const reasonSection = content?.split('💫 Perfect For You Because:')[1].split('NEXT_CHOICES:')[0].trim();
+        const reasonSection = content?.split('💫 Perfect For You Because:')[1]?.split('NEXT_CHOICES:')[0].trim();
 
         const choices = content
-            .split('NEXT_CHOICES:')[1]
-            .split('•')
-            .filter(Boolean)
+            ?.split('NEXT_CHOICES:')[1]
+            ?.split('•')
+            ?.filter(Boolean)
             .map(p => p.trim());
         const recommendations = [
             `${title}: Apka Perfect Soulmate`,
@@ -86,7 +86,7 @@ const parsePerfumeRecommendation = (content: string) => {
 
     // Process main content to handle numbered items and emojis
     const formattedContent = mainContent
-        .split('\n\n')  // Split by double newlines for major sections
+        ?.split('\n\n')  // Split by double newlines for major sections
         .map(section => section.trim())
         .filter(Boolean)  // Remove empty sections
         .join('\n\n');   // Rejoin with double newlines
@@ -94,7 +94,7 @@ const parsePerfumeRecommendation = (content: string) => {
     const options = choicesSection
         ? choicesSection
             .trim()
-            .split('•')
+            ?.split('•')
             .map(opt => opt.trim())
             .filter(Boolean)
             .map(text => ({
