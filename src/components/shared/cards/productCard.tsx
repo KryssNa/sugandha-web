@@ -82,7 +82,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               animate={{ opacity: isHovered && secondaryImage ? 0 : 1 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
               referrerPolicy="no-referrer"
-              
+              crossOrigin="anonymous"
             />
 
             {/* Secondary Image - Fades in on hover */}
@@ -95,6 +95,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 animate={{ opacity: isHovered ? 1 : 0 }}
                 transition={{ duration: 0.5, ease: "easeInOut" }}
                 referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
               />
             )}
           </div>
