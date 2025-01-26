@@ -80,15 +80,15 @@ const DashboardHome = () => {
         {
             title: 'Cart Items',
             value: '2',
-            change: 'Items worth $299',
+            change: 'Items worth 299$',
             trend: 'neutral',
             icon: ShoppingCart,
             color: 'bg-green-500'
         },
         {
             title: 'Total Spent',
-            value: '$1,299',
-            change: '+$299 this month',
+            value: 'Rs1,2299',
+            change: '+Rs2999 this month',
             trend: 'up',
             icon: TrendingUp,
             color: 'bg-purple-500'
@@ -169,7 +169,7 @@ const DashboardHome = () => {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <span className="font-medium text-gray-900">${order.amount}</span>
+                                        <span className="font-medium text-gray-900">Rs{order.amount}</span>
                                         <div className={`text-sm mt-1 ${order.status === 'delivered' ? 'text-green-600' :
                                                 order.status === 'processing' ? 'text-blue-600' :
                                                     'text-gray-600'
