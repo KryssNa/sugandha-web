@@ -119,7 +119,7 @@ const OrderCard = ({ order, onClick }: { order: Order; onClick: () => void }) =>
 
         <div className="flex items-center gap-6">
           <div className="text-right">
-            <span className="block font-semibold text-gray-900">${order.totalAmount.toFixed(2)}</span>
+            <span className="block font-semibold text-gray-900">Rs{order.totalAmount.toFixed(2)}</span>
             <span className="text-sm text-gray-500">{order.paymentMethod}</span>
           </div>
           <ChevronRight className="w-5 h-5 text-gray-400" />
@@ -134,6 +134,7 @@ const OrderCard = ({ order, onClick }: { order: Order; onClick: () => void }) =>
                 src={item.image}
                 alt={item.name}
                 className="w-16 h-16 rounded-lg object-cover"
+                crossOrigin="anonymous"
               />
               {item.quantity > 1 && (
                 <span className="absolute -top-2 -right-2 w-5 h-5 bg-orange-500 text-white 
@@ -360,16 +361,17 @@ const OrdersPage = () => {
                           src={item.image}
                           alt={item.name}
                           className="w-16 h-16 rounded-lg object-cover"
+                          crossOrigin="anonymous"
                         />
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-gray-900">{item.name}</h4>
                           <p className="text-sm text-gray-500 mt-1">
-                            Quantity: {item.quantity} × ${item.price.toFixed(2)}
+                            Quantity: {item.quantity} × Rs{item.price.toFixed(2)}
                           </p>
                         </div>
                         <div className="text-right">
                           <p className="font-semibold text-gray-900">
-                            ${(item.quantity * item.price).toFixed(2)}
+                            Rs{(item.quantity * item.price).toFixed(2)}
                           </p>
                         </div>
                       </div>
@@ -381,7 +383,7 @@ const OrdersPage = () => {
                 <div className="border-t border-gray-200 pt-4 space-y-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Subtotal</span>
-                    <span className="text-gray-900">${selectedOrder.totalAmount.toFixed(2)}</span>
+                    <span className="text-gray-900">Rs{selectedOrder.totalAmount.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Shipping</span>
@@ -389,7 +391,7 @@ const OrdersPage = () => {
                   </div>
                   <div className="flex justify-between font-medium">
                     <span className="text-gray-900">Total</span>
-                    <span className="text-gray-900">${selectedOrder.totalAmount.toFixed(2)}</span>
+                    <span className="text-gray-900">Rs{selectedOrder.totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
 
