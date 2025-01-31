@@ -192,7 +192,7 @@ export const authService = {
                 
         Cookies.remove('accessToken');
         Cookies.remove('refreshToken');
-        // Cookies.remove('csrfToken');
+        Cookies.remove('role');
         localStorage.clear();
         delete api.defaults.headers.common['Authorization'];
       }
