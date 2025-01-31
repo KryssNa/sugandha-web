@@ -15,8 +15,6 @@ export function middleware(request: NextRequest) {
   // Check if it's a protected path
   const isProtectedPath = PROTECTED_PATHS.some(path => pathname.startsWith(path));
 
-  
-
   // Get the token from the cookies
   const token = request.cookies.get('accessToken')?.value;
   const role = request.cookies.get('role')?.value;
