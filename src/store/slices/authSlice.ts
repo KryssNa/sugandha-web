@@ -225,13 +225,13 @@ const authSlice = createSlice({
   reducers: {
     logoutUser: (state) => {
       authService.logout();
-      localStorage.clear();
-      // Reset state
-      state.user = null;
-      state.accessToken = null;
-      state.refreshToken = null;
-      state.isAuthenticated = false;
-      state.registrationSuccess = false;
+      // localStorage.clear();
+      // // Reset state
+      // state.user = null;
+      // state.accessToken = null;
+      // state.refreshToken = null;
+      // state.isAuthenticated = false;
+      // state.registrationSuccess = false;
     },
     clearError: (state) => {
       state.error = null;
