@@ -122,10 +122,10 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             group: 'Users'
         },
         {
-            name: 'Reports',
-            href: '/admin/reports',
+            name: 'Activity Log',
+            href: '/admin/activity-logs',
             icon: FileText,
-            group: 'Analytics'
+            group: 'Activity'
         },
         {
             name: 'Settings',
@@ -213,7 +213,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             {/* Desktop Sidebar */}
             <div
                 className={`bg-white border-r border-gray-200 transition-all duration-300 
-                    hidden lg:block fixed left-0 top-0 bottom-0 z-40
+                    hidden md:block fixed left-0 top-0 bottom-0 z-40
                     ${isSidebarOpen ? 'w-64' : 'w-20'}`}
             >
                 {/* Sidebar Header */}
