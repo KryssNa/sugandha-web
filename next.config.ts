@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 const fs = require('fs');
 const path = require('path');
-
+const isLocal = process.env.NODE_ENV === 'development';
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -14,12 +14,14 @@ const nextConfig: NextConfig = {
     ],
     unoptimized: true, // Disable image optimization
   },
-  serverRuntimeConfig: {
-    httpsOptions: {
-      key: fs.readFileSync(path.join(process.cwd(), 'certificates/localhost-key.pem')),
-      cert: fs.readFileSync(path.join(process.cwd(), 'certificates/localhost.pem')),
+  ...(isLocal && {
+    serverRuntimeConfig: {
+      httpsOptions: {
+        key: fs.readFileSync(path.join(process.cwd(), 'certificates/localhost-key.pem')),
+        cert: fs.readFileSync(path.join(process.cwd(), 'certificates/localhost.pem')),
+      },
     },
-  },
+  }),
   reactStrictMode: true,
   webpack: (config, { dev }) => {
     if (dev) {
@@ -39,7 +41,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true, // Ignore TypeScript errors
   },
-  
+
 };
 
 export default nextConfig;
