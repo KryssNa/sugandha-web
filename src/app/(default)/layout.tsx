@@ -2,7 +2,7 @@
 import Footer from "@/components/layouts/footers";
 import Header from "@/components/layouts/headers";
 import AuthProvider from "@/providers/authProvider";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchCurrentUser } from "@/store/slices/authSlice";
 import { fetchCart } from "@/store/slices/cartSlice";
 import { fetchCSRFToken } from "@/utils/csrf/CSRFToken";
@@ -13,12 +13,15 @@ import { useEffect } from "react";
 export default function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(fetchCart());
-    dispatch(fetchCurrentUser());
-  }, [dispatch]);
+    if (isAuthenticated) {
+      dispatch(fetchCart());
+      dispatch(fetchCurrentUser());
+    }
+  }, [dispatch, isAuthenticated]);
   useEffect(() => {
     fetchCSRFToken();
   }, []);

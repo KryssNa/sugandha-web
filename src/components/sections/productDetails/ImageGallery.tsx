@@ -11,7 +11,6 @@ interface ImageGalleryProps {
 const ImageGallery = ({ images, title }: ImageGalleryProps) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
-  console.log("images", images);
 
 
   return (

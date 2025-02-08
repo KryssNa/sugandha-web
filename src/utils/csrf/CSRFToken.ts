@@ -3,7 +3,6 @@ import Cookies from "js-cookie";
 
 export const fetchCSRFToken = async () => {
     const response = await api.get('/auth/csrf-token');
-    console.log("csrf response", response.data);
     const { csrfToken } = response.data;
 
     Cookies.set('csrfToken', csrfToken, {

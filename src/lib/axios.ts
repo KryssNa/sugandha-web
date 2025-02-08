@@ -42,13 +42,11 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       const refreshToken = Cookies.get('refreshToken'); // Use refresh token from cookies
-      console.log('refreshToken', refreshToken);
       if (refreshToken) {
         try {
           const response = await api.post('/auth/refresh-token', {
             refreshToken,
           });
-          console.log('response', response);
           const { accessToken, csrfToken } = response.data;
 
           // Store the new access token and CSRF token

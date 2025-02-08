@@ -18,7 +18,6 @@ export function middleware(request: NextRequest) {
   // Get the token from the cookies
   const token = request.cookies.get('accessToken')?.value;
   const role = request.cookies.get('role')?.value;
-  console.log("role",role)
 
   // If trying to access public path while logged in
   if (isPublicPath && token) {

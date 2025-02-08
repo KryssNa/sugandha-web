@@ -3,7 +3,7 @@
 import Footer from '@/components/layouts/footers';
 import Header from '@/components/layouts/headers';
 import { useAuth } from '@/hooks/useAuth';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchCurrentUser } from '@/store/slices/authSlice';
 import { fetchCart } from '@/store/slices/cartSlice';
 import { fetchCSRFToken } from '@/utils/csrf/CSRFToken';
@@ -65,13 +65,17 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     ];
     const dispatch = useAppDispatch();
 
+    const { isAuthenticated } = useAppSelector((state) => state.auth);
+
     useEffect(() => {
-        dispatch(fetchCart());
-        dispatch(fetchCurrentUser());
-    }, [dispatch]);
+        if (isAuthenticated) {
+            dispatch(fetchCart());
+            dispatch(fetchCurrentUser());
+        }
+    }, [dispatch, isAuthenticated]);
     useEffect(() => {
         fetchCSRFToken();
-      }, []);
+    }, []);
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">

@@ -1,7 +1,8 @@
 "use client";
 import UserMenu from "@/components/sections/menu/userMenu";
 import { RootState } from "@/store";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { logoutUser } from "@/store/slices/authSlice";
 import { CartIcon, CloseIcon, SearchIcon } from "@/utils/helpers/svgicon";
 import { MenuIcon, Sparkles } from "lucide-react";
 import Link from "next/link";
@@ -24,6 +25,8 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>("USD");
   const [menuActive, setMenuActive] = useState<boolean>(false);
   const [cartQuantity, setCartQuantity] = useState<number>(0);
+
+  const dispatch = useAppDispatch();
 
   const handleScroll = useCallback(() => {
     const currentScrollY = window.pageYOffset;
@@ -80,11 +83,10 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
     <header className={` ${className}`}>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 
-          ${menuActive ? "opacity-100 visible" : "opacity-0 invisible"
-          } lg:hidden`}
+        className={`fixed inset-0 bg-black bg-opacity-40 transition-opacity duration-300 
+          ${menuActive ? "opacity-100 visible" : "opacity-0 invisible"} lg:hidden z-40`}
         onClick={() => setMenuActive(false)}
-      />
+      ></div>
 
       {/* Mobile Menu */}
       <div
@@ -93,6 +95,7 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
           }`}
       >
         <button
+          type='button'
           onClick={handleMenuToggle}
           className='absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full'
           aria-label='Close menu'
@@ -103,6 +106,62 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
           <Link href='/' className='block mb-8'>
             <img src='/assets/logo/logo.png' alt='Logo' className='h-8' />
           </Link>
+          {/* User Section in Mobile Menu */}
+          {isAuthenticated && user ? (
+            <div className="mb-6 pb-6 border-b border-gray-200">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center 
+              justify-center text-primary font-semibold">
+                  {`${user.firstName?.charAt(0)}${user.lastName?.charAt(0)}`.toUpperCase()}
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">
+                    {`${user.firstName} ${user.lastName}`}
+                  </p>
+                  <p className="text-sm text-gray-500">{user.email}</p>
+                </div>
+              </div>
+              <nav className="space-y-2">
+                <Link
+                  href="/dashboard"
+                  className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
+                hover:text-primary rounded-lg transition-colors"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/dashboard/orders"
+                  className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
+                hover:text-primary rounded-lg transition-colors"
+                >
+                  My Orders
+                </Link>
+                <Link
+                  href="/wishlist"
+                  className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
+                hover:text-primary rounded-lg transition-colors"
+                >
+                  Wishlist
+                </Link>
+                <Link
+                  href="/dashboard/settings"
+                  className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
+                hover:text-primary rounded-lg transition-colors"
+                >
+                  Settings
+                </Link>
+              </nav>
+            </div>
+          ) : (
+            <Link
+              href="/auth/login"
+              className="absolute bottom-4 w-[85%] text-center py-2 bg-primary text-white rounded-lg 
+            hover:bg-primary/90 transition-colors"
+            >
+              Get Started
+            </Link>
+          )}
+
           <nav className='space-y-4'>
             <Link
               href='/'
@@ -123,7 +182,22 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
               Contact Us
             </Link>
           </nav>
+
         </div>
+        {/* logout at the bottom */}
+        {isAuthenticated && user && (
+          <div className='absolute bottom-0 border w-full border-gray-200 '>
+            <button
+              onClick={() => {
+                dispatch(logoutUser());
+                // setMenuActive(false);
+              }}
+              className='w-full py-2 bg-red/70 text-red rounded-sm hover:bg-red hover:text-white transition-colors font-semibold'
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Top Header */}
@@ -208,11 +282,11 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
                       onClick={() => handleLanguageChange("English")}
                       className='w-full flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-100'
                     >
-                      <img
+                      {/* <img
                         src='assets/images/thumbs/flag1.png'
                         alt=''
                         className='w-4 h-3 mr-2'
-                      />
+                      /> */}
                       English
                     </button>
                   </li>
@@ -221,11 +295,11 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
                       onClick={() => handleLanguageChange("Japan")}
                       className='w-full flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-100'
                     >
-                      <img
+                      {/* <img
                         src='assets/images/thumbs/flag2.png'
                         alt=''
                         className='w-4 h-3 mr-2'
-                      />
+                      /> */}
                       Japan
                     </button>
                   </li>
@@ -247,11 +321,11 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
                       onClick={() => handleCurrencyChange("USD")}
                       className='w-full flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-100'
                     >
-                      <img
+                      {/* <img
                         src='assets/images/thumbs/flag1.png'
                         alt=''
                         className='w-4 h-3 mr-2'
-                      />
+                      /> */}
                       USD
                     </button>
                   </li>
@@ -380,87 +454,21 @@ const Header: React.FC<HeaderProps> = ({ className = "" }) => {
             </div>
 
             {/* Update the mobile menu to include user info */}
-            <div className={`fixed top-0 left-0 w-64 h-full bg-white transform transition-transform 
-    duration-300 ease-in-out z-50 lg:hidden overflow-y-auto 
+            <div className={`absolute top-15 right-10  bg-white transform transition-transform 
+    duration-300 ease-in-out z-50 lg:hidden
     ${menuActive ? "translate-x-0" : "-translate-x-full"}`}>
-              <button
-                onClick={handleMenuToggle}
-                className='absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full'
-                aria-label='Close menu'
-              >
-                <CloseIcon className='w-6 h-6' />
-              </button>
-              <div className='p-4'>
-                <Link href='/' className='block mb-8'>
-                  <img src='/assets/logo/logo.png' alt='Logo' className='h-8' />
-                </Link>
+              {
+                !menuActive && (
 
-                {/* User Section in Mobile Menu */}
-                {isAuthenticated && user ? (
-                  <div className="mb-6 pb-6 border-b border-gray-200">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center 
-              justify-center text-primary font-semibold">
-                        {`${user.firstName?.charAt(0)}${user.lastName?.charAt(0)}`.toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {`${user.firstName} ${user.lastName}`}
-                        </p>
-                        <p className="text-sm text-gray-500">{user.email}</p>
-                      </div>
-                    </div>
-                    <nav className="space-y-2">
-                      <Link
-                        href="/dashboard"
-                        className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
-                hover:text-primary rounded-lg transition-colors"
-                      >
-                        Dashboard
-                      </Link>
-                      <Link
-                        href="/dashboard/orders"
-                        className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
-                hover:text-primary rounded-lg transition-colors"
-                      >
-                        My Orders
-                      </Link>
-                      <Link
-                        href="/wishlist"
-                        className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
-                hover:text-primary rounded-lg transition-colors"
-                      >
-                        Wishlist
-                      </Link>
-                      <Link
-                        href="/dashboard/settings"
-                        className="block py-2 px-4 text-gray-700 hover:bg-gray-50 
-                hover:text-primary rounded-lg transition-colors"
-                      >
-                        Settings
-                      </Link>
-                    </nav>
-                  </div>
-                ) : (
-                  <Link
-                    href="/auth/login"
-                    className="block mb-6 text-center py-2 bg-primary text-white rounded-lg 
-            hover:bg-primary/90 transition-colors"
+                  <button
+                    type='button'
+                    className='block lg:hidden text-gray-700 hover:text-primary p-3 '
+                    onClick={handleMenuToggle}
+                    aria-label='Toggle menu'
                   >
-                    Get Started
-                  </Link>
-                )}
-
-                {/* Mobile Menu Button */}
-                <button
-                  className='lg:hidden text-gray-700 hover:text-primary p-2 -mr-2'
-                  onClick={handleMenuToggle}
-                  aria-label='Toggle menu'
-                >
-                  <MenuIcon className='w-6 h-6' />
-                </button>
-
-              </div>
+                    <MenuIcon className='w-7 h-7' />
+                  </button>)
+              }
             </div>
           </nav>
         </div>
